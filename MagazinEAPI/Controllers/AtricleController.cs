@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using MagazinE.Domain;
+using Microsoft.AspNetCore.Mvc;
 
 namespace MagazinEAPI.Controllers
 {
@@ -13,8 +14,32 @@ namespace MagazinEAPI.Controllers
         }
 
         [HttpPost(Name = "CreateArticle")]
-        public IActionResult Post()
+        public IActionResult Post(string Title, string authorEmail)
         {
+            if (Title == null || authorEmail == null)
+            {
+                return BadRequest("Title and author are required");
+            }
+
+            //  TODO: zdobycie id autora
+            int authorId = 1;
+
+            //  TODO: sprawdzanie czy autor istnieje
+            if (false)
+            {
+                return BadRequest("Author does not exist");
+            }
+
+            // TODO: sprawdzanie czy tytuł jest unikalny
+            if (false)
+            {
+                return BadRequest("Title must be unique");
+            }
+
+
+            Article article = new Article(Title, authorId);
+
+            // TODO: zapisanie artykułu w bazie danych
             return Ok("Article created successfully");
         }
     }

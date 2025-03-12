@@ -17,6 +17,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\MagazinE.Domain\MagazinE.Domain.csproj" />
+    <ProjectReference Include="..\MagazinEAPI\MagazinEAPI.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
   </ItemGroup>
 
