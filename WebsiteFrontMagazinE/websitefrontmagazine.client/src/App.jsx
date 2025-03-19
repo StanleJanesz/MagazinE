@@ -4,8 +4,8 @@ import NavigationBar from './Components/NavigationBar/NavigationBar.jsx'
 
 // Pages imports
 import MainPage from './Pages/HomePage.jsx';
-import LoginPage from './Pages/LoginPage.jsx';
-import RegisterPage from './Pages/RegisterPage.jsx';
+import LoginPage from './Pages/LoginPage/LoginPage.jsx';
+import RegisterPage from './Pages/RegisterPage/RegisterPage.jsx';
 import ArticlePage from './Pages/ArticlePage/ArticlePage.jsx';
 
 // Styles imports
