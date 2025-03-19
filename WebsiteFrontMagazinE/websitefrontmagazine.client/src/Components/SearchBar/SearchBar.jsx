@@ -1,8 +1,7 @@
 import { React, useState } from "react";
 import TextField from "@mui/material/TextField";
 import './SearchBar.css';
-import loupeIcon from '/loupe.png';
-
+import loupeIcon from '../../assets/loupe.png';
 function SearchBar() {
 
     return (
