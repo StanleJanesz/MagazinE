@@ -1,0 +1,6 @@
+@WebsiteFrontMagazinE.Server_HostAddress = http://localhost:5079
+
+GET {{WebsiteFrontMagazinE.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
