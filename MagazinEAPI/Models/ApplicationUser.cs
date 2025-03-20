@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
-
+using SharedLibrary.Base_Classes___Database;
 namespace MagazinEAPI.Models
 {
 	public class ApplicationUser : IdentityUser

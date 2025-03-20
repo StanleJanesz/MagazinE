@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Identity;
-namespace MagazinEAPI.Models
+﻿using SharedLibrary.Base_Classes___Database;
+namespace SharedLibrary.DTO_Classes
 {
 
-	public class PersonInfo
+	public class PersonInfoDTO
 	{
+		public string Id { get; set; }
 		public string FirstName { get; set; }
 		public string LastName { get; set; }
 		public string Email { get; set; }

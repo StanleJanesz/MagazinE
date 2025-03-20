@@ -1,17 +1,5 @@
 ﻿namespace MagazinEAPI.Models
 {
-
-	public class UserDTO : RoleDTO
-	{
-		public bool SubscriptionState { get; set; }
-		public List <int> FavouriteArticlesIds { get; set; }
-		public List<int> ArticlesToReadIds { get; set; }
-		public List<int> FavouriteTagsIds { get; set; }
-		public List<int> CommentsIds { get; set; }
-		public List<int> LikedCommentsIds { get; set; }
-		public List<int> UnlikedCommentsIds { get; set; }
-	}
-
 	public class User : Role
 	{
 		public List<Subscription> Subscriptions { get; set; } = []; //represents one-to-many User-Subscription
