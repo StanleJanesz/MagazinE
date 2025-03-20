@@ -1,12 +1,30 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication;
 
 namespace MagazinEAPI.Controllers
 {
-    public class LogoutController : Controller
+    [ApiController]
+    [Route("logout")]
+    public class LogoutController : ControllerBase
     {
-        public IActionResult Index()
+        [HttpPost(Name = "Logout user")]
+        [Authorize]
+        public async Task<IActionResult> LogoutUser()
         {
-            return View();
+            try
+            {
+                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+            HttpContext.Response.Redirect("/");
+            
+            return Ok("User logged out successfully");
         }
     }
 }

@@ -7,6 +7,7 @@ using MagazinEAPI.Contexts;
 
 using Microsoft.EntityFrameworkCore;
 using MagazinEAPI.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace MagazinEAPI.Controllers
 {
@@ -23,6 +24,11 @@ namespace MagazinEAPI.Controllers
             var properties = new AuthenticationProperties
             {
                 RedirectUri = "/",
+                Items = 
+                { 
+                    { "scheme", GoogleDefaults.AuthenticationScheme },
+                    { "login_hint", User.FindFirst(ClaimTypes.Email)?.Value } //nie wiem czy to zadziała, jak coś to jest tylko dodatkowy feature
+                }
             };
             await HttpContext.ChallengeAsync(GoogleDefaults.AuthenticationScheme, properties);
             var claims = User.Claims;
@@ -33,16 +39,16 @@ namespace MagazinEAPI.Controllers
            
             if (user == null) //pierwsze logowanie
             {
-                await _context.Users.AddAsync(new Models.ApplicationUser
+                user = new ApplicationUser
                 {
                     UserName = name,
                     Email = email,
-                });
-                 user = new ApplicationUser
-                {
-                    UserName = name,
-                    Email = email,
+                    State = UserState.Active,
+                    User = new User
                 };
+                await _context.Users.AddAsync(user
+                );
+                
             }
             return user;
         }
