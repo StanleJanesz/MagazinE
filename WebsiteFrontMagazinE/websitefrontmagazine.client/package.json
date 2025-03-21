@@ -16,6 +16,7 @@
     "react": "^19.0.0",
     "react-bootstrap": "^2.10.9",
     "react-dom": "^19.0.0",
+    "react-google-button": "^0.8.0",
     "react-router-dom": "^7.4.0"
   },
   "devDependencies": {
