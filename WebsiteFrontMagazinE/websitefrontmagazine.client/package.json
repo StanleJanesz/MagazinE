@@ -10,9 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ckeditor/ckeditor5-react": "^9.5.0",
     "@emotion/styled": "^11.14.0",
     "@mui/material": "^6.4.8",
     "bootstrap": "^5.3.3",
+    "ckeditor5": "^44.3.0",
+    "primereact": "^10.9.3",
+    "quill": "^2.0.3",
     "react": "^19.0.0",
     "react-bootstrap": "^2.10.9",
     "react-dom": "^19.0.0",

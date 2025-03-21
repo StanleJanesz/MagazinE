@@ -1,6 +1,6 @@
-import Article from '../Components/Article/Article';
+import Article from '../../Components/Article/Article';
 import { useState, useEffect } from 'react';
-import SearchBar from '../Components/SearchBar/SearchBar';
+import SearchBar from '../../Components/SearchBar/SearchBar';
 
 function HomePage() {
     const [content, setContent] = useState(null);
