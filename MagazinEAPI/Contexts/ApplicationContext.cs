@@ -7,6 +7,8 @@ using System.Reflection.Emit;
 using System.Reflection.Metadata;
 using System.Threading;
 
+using SharedLibrary.Base_Classes___Database;
+
 namespace MagazinEAPI.Contexts
 {
 	public class APIContext : IdentityDbContext<ApplicationUser>
@@ -28,6 +30,7 @@ namespace MagazinEAPI.Contexts
 		public DbSet<Journalist> Journalists { get; set; }
 		public DbSet<Like> Likes { get; set; }
 		public DbSet<Photo> Photos { get; set; }
+		public DbSet<Photo> PhotoArticles { get; set; }
 		public DbSet<PublishRequest> PublishRequests { get; set; }
 		public DbSet<RegisterRequest> RegisterRequests { get; set; }
 		public DbSet<Subscription> Subscriptions { get; set; }
@@ -82,12 +85,6 @@ namespace MagazinEAPI.Contexts
 			.HasForeignKey<Admin>(j => j.ApplicationUserId)
 			.IsRequired();
 
-			// One-to-Many: User → Ban
-			modelBuilder.Entity<Ban>()
-			.HasOne(b => b.User)
-			.WithMany(u => u.Bans)
-			.HasForeignKey(b => b.UserId)
-			.IsRequired(); // A Ban must always have a User
 
 			// One-to-Many: Admin → Ban
 			modelBuilder.Entity<Ban>()
@@ -133,13 +130,22 @@ namespace MagazinEAPI.Contexts
 				l => l.HasOne<Tag>(e => e.Tag).WithMany(e => e.TagArticles),
 				r => r.HasOne<Article>(e => e.Article).WithMany(e => e.TagArticles));
 
-
-			// One-to-Many: Photo → Article
+			//may-to-many Photo-Article with PhotoArticle join table
 			modelBuilder.Entity<Article>()
-			.HasMany(a => a.Photos)
-			.WithOne(b => b.Article)
-			.HasForeignKey(b => b.ArticleId)
-			.IsRequired(); // A Photo must always have an Article
+			.HasMany(e => e.Photos)
+			.WithMany(e => e.Articles)
+			.UsingEntity<PhotoArticle>(
+				l => l.HasOne<Photo>(e => e.Photo).WithMany(e => e.PhotoArticles),
+				r => r.HasOne<Article>(e => e.Article).WithMany(e => e.PhotoArticles));
+
+			/*
+						// One-to-Many: Photo → Article
+						modelBuilder.Entity<Article>()
+						.HasMany(a => a.Photos)
+						.WithOne(b => b.Article)
+						.HasForeignKey(b => b.ArticleId)
+						.IsRequired(); // A Photo must always have an Article
+			*/
 
 			// One-to-Many: PublishRequest → Article
 			modelBuilder.Entity<Article>()
@@ -170,6 +176,13 @@ namespace MagazinEAPI.Contexts
 			.UsingEntity<ToReadArticle>(
 				l => l.HasOne<User>(e => e.User).WithMany(e => e.ToReadArticles),
 				r => r.HasOne<Article>(e => e.Article).WithMany(e => e.ToReadArticles));
+
+			// One-to-Many: User → Ban
+			modelBuilder.Entity<Ban>()
+			.HasOne(b => b.User)
+			.WithMany(u => u.Bans)
+			.HasForeignKey(b => b.UserId)
+			.IsRequired(); // A Ban must always have a User
 
 			// One-to-Many: UnbanRequest → Ban
 			modelBuilder.Entity<Ban>()

@@ -1,12 +1,5 @@
 ﻿namespace MagazinEAPI.Models
 {
-
-	public class JournalistDTO : RoleDTO
-	{
-		public List<int> ArticlesIds { get; set; }
-		public List<int> PublishRequestsIds { get; set; }
-	}
-
 	public class Journalist : Role
 	{
 		public int HeadEditorId { get; set; } //has 1 HeadEditor
