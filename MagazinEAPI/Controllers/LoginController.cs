@@ -8,6 +8,7 @@ using MagazinEAPI.Contexts;
 using Microsoft.EntityFrameworkCore;
 using MagazinEAPI.Models;
 using Microsoft.AspNetCore.Identity;
+using SharedLibrary.Base_Classes___Database;
 
 namespace MagazinEAPI.Controllers
 {
@@ -19,7 +20,7 @@ namespace MagazinEAPI.Controllers
         private readonly APIContext _context;
 
         [HttpPost(Name = "Login User")]
-        public async Task<ActionResult<ApplicationUser>> Post()
+        public async Task<ActionResult<PersonInfo>> Post()
         {
             var properties = new AuthenticationProperties
             {
@@ -35,22 +36,34 @@ namespace MagazinEAPI.Controllers
             var email = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
             var name = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
 
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
-           
-            if (user == null) //pierwsze logowanie
+            var appUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            var id = Guid.NewGuid().ToString();
+            if (appUser == null) //pierwsze logowanie
             {
-                user = new ApplicationUser
+                appUser = new ApplicationUser
                 {
                     UserName = name,
                     Email = email,
                     State = UserState.Active,
-                    User = new User
+                    Id = id,
                 };
-                await _context.Users.AddAsync(user
+                await _context.Users.AddAsync(appUser
                 );
-                
             }
-            return user;
+            var user = new User
+            {
+                ApplicationUserId = appUser.Id,
+                ApplicationUser = appUser,
+            };
+            appUser.User = user;
+            await _context.SaveChangesAsync();
+            var DTO = new PersonInfo
+            {
+                FirstName = name,
+                Email = appUser.Email,
+                State = appUser.State,
+            };
+            return DTO;
         }
     }
 }
