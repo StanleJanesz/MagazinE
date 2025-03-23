@@ -1,0 +1,50 @@
+.container {
+    font-size: 20px;
+   
+}
+.titlePage {
+    top: 10%;
+}
+.inputElement {
+    position: inherit;
+    display: block;
+    width: 40rem;
+    height: 4rem;
+    padding: 5%;
+    box-sizing: border-box;
+    border-radius: 8px;
+    margin-top: 10%;
+}
+
+.button {
+    background-color: #939f5c !important;
+    border: 0px !important;
+    border-radius: 8px !important;
+    color: white !important;
+    border: none;
+    cursor: pointer;
+    margin-top: 10%;
+    width: 40%;
+    height: 50px;
+}
+
+.forgotButton {
+    background-color: #313715 !important;
+    border: 0px !important;
+    border-radius: 8px !important;
+    color: white !important;
+    border: none;
+    cursor: pointer;
+    margin-top: 10%;
+    width: 40%;
+    height: 50px;
+}
+.checkBox {
+    margin-left: 60%;
+    margin-top: 5%;
+}
+.buttonContainer {
+    display: flex;
+    flex-direction: row;
+    gap: 20%;
+}

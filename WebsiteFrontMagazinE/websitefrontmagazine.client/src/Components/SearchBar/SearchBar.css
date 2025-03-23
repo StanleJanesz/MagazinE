@@ -1,0 +1,24 @@
+.search {
+    margin-bottom: 5%;
+    margin-left: 2.5%;
+    margin-top: 0%;
+}
+.inputField {
+    width: 80%;
+    height: 10px;
+}
+
+.loupeIcon {
+    margin-left: 10px; 
+    cursor: pointer;
+    height: 3.5em;
+    border: 1px solid #ccc;
+    padding: 5px;
+    border-radius: 8px;   
+}
+
+@media (max-width: 1200px) {
+    .search {
+        margin-top: 8%;
+    }
+}

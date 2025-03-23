@@ -1,0 +1,119 @@
+/* General body styling */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #F5F5F5;
+    color: #2C2C2C;
+    line-height: 1.6;
+    margin: 0 0;
+
+}
+
+/* Main content wrapper */
+.contentWrapper {
+    max-width: 800px;
+    margin: 40px auto;
+    background: #FFF;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: justify;
+}
+
+/* Article Cover Image */
+.articleCover {
+    width: 100%;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 12px;
+    display: block;
+    margin: 0 auto 20px auto;
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Title Styling */
+h1 {
+    font-size: 24px;
+    color: #313715;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+h2 {
+    font-size: 18px;
+    color: #4A4A4A;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Paragraph Styling */
+p {
+    font-size: 16px;
+    color: #2C2C2C;
+    text-align: justify;
+    margin-bottom: 15px;
+}
+
+/* Gallery Button */
+.galleryButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: #939F5C !important;
+    color: #FFFFFF;
+    border: 2px solid #313715 !important;
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    width: 80%;
+    max-width: 200px;
+    margin: 20px auto;
+    display: flex;
+}
+
+    /* Hover & Focus Effects */
+    .galleryButton:hover {
+        background: #7F8D4E !important;
+        transform: scale(1.05);
+    }
+
+    .galleryButton:focus {
+        outline: none;
+        box-shadow: 0px 0px 5px rgba(49, 55, 21, 0.6);
+    }
+
+/* Icon Inside Button */
+.icon {
+    width: 24px;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+    .contentWrapper {
+        padding: 20px;
+    }
+
+    h1 {
+        font-size: 22px;
+    }
+
+    h2 {
+        font-size: 16px;
+    }
+
+    p {
+        font-size: 15px;
+    }
+
+    .galleryButton {
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+
+    .icon {
+        width: 20px;
+    }
+}
