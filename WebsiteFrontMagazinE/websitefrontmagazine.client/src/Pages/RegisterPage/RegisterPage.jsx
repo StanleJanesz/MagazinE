@@ -15,7 +15,7 @@ function RegisterPage() {
                 <Form.Check // prettier-ignore
                     type="switch"
                     id="custom-switch"
-                    label="I want to subsribe"
+                    label="I want to subscribe"
                     className="checkBox"
                 />
             </Form>
