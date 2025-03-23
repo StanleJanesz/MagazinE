@@ -9,6 +9,11 @@ using Microsoft.EntityFrameworkCore;
 using MagazinEAPI.Models;
 using Microsoft.AspNetCore.Identity;
 using SharedLibrary.Base_Classes___Database;
+using SharedLibrary.DTO_Classes;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 
 namespace MagazinEAPI.Controllers
 {
@@ -19,51 +24,94 @@ namespace MagazinEAPI.Controllers
     {
         private readonly APIContext _context;
 
-        [HttpPost(Name = "Login User")]
-        public async Task<ActionResult<PersonInfo>> Post()
+
+        [HttpPost]
+        [Route("google")]
+
+        public IActionResult LoginWithGoogle()
         {
             var properties = new AuthenticationProperties
             {
-                RedirectUri = "/",
-                Items = 
-                { 
-                    { "scheme", GoogleDefaults.AuthenticationScheme },
-                    { "login_hint", User.FindFirst(ClaimTypes.Email)?.Value } //nie wiem czy to zadziała, jak coś to jest tylko dodatkowy feature
-                }
+                RedirectUri = "google_response",
             };
-            await HttpContext.ChallengeAsync(GoogleDefaults.AuthenticationScheme, properties);
-            var claims = User.Claims;
+            return Challenge(properties, GoogleDefaults.AuthenticationScheme);
+        }
+        [HttpGet]
+        [Route("google_response")]
+
+        public async Task<ActionResult> GoogleResponse()
+        {
+            var authentificationResult = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
+
+            if (!authentificationResult.Succeeded)
+            {
+                return BadRequest("Błąd uwierzytelniania");
+            }
+
+            var claims = authentificationResult.Principal.Identities.FirstOrDefault().Claims;
+
             var email = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
             var name = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
 
             var appUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
-            var id = Guid.NewGuid().ToString();
-            if (appUser == null) //pierwsze logowanie
+            string role = "sample";
+            if (appUser == null)
             {
-                appUser = new ApplicationUser
-                {
-                    UserName = name,
-                    Email = email,
-                    State = UserState.Active,
-                    Id = id,
-                };
-                await _context.Users.AddAsync(appUser
-                );
+                appUser = await CreateUser(name, email);
+                role = "User";
             }
+
+            var DTO = new ApplicationUserDTO
+            {
+                FirstName = name,
+                Email = appUser.Email,
+                State = appUser.State,
+            };
+
+            CreateJWTToken(email,role);
+            return Ok(DTO);
+        }
+
+        private string CreateJWTToken(string email, string role)
+        {
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("super_secret_key")); // TODO: move to secrets and change to real one
+            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var claims = new List<Claim>
+        {
+            new Claim(JwtRegisteredClaimNames.Sub, email),
+            new Claim(ClaimTypes.Email, email),
+            new Claim(ClaimTypes.Role, role)
+        };
+
+            var token = new JwtSecurityToken(
+                issuer: "yourapp",
+                audience: "yourapp",
+                claims: claims,
+                expires: DateTime.UtcNow.AddHours(1),
+                signingCredentials: credentials
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        private async Task<ApplicationUser> CreateUser(string name, string email)
+        {
+            var appUser = new ApplicationUser
+            {
+                UserName = name,
+                Email = email,
+                State = UserState.Active,
+            };
             var user = new User
             {
                 ApplicationUserId = appUser.Id,
                 ApplicationUser = appUser,
             };
             appUser.User = user;
+            await _context.Users.AddAsync(appUser);
             await _context.SaveChangesAsync();
-            var DTO = new PersonInfo
-            {
-                FirstName = name,
-                Email = appUser.Email,
-                State = appUser.State,
-            };
-            return DTO;
+            return appUser;
         }
     }
 }
