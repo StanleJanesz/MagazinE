@@ -1,22 +1,6 @@
-﻿namespace MagazinEAPI.Models
+﻿using SharedLibrary.Base_Classes___Database;
+namespace MagazinEAPI.Models
 {
-
-	public abstract class CommentAbstract
-	{
-		public int Id { get; set; }
-		public int AuthorId { get; set; }
-		public string Content { get; set; }
-		public DateTime Date { get; set; }
-	}
-
-	public class CommentDTO : CommentAbstract
-	{
-		public int ParentId { get; set; }
-		public List<int> ChildrenIds { get; set; }
-
-		public int LikesCount { get; set; }
-		public int DislikesCount { get; set; }
-	}
 	public class Comment : CommentAbstract
 	{
 
@@ -27,7 +11,7 @@
 		public int ArticleId { get; set; }
 		public Article Article { get; set; } = null!; //has 1 article (1 to many)
 
-		public User Author { get; set; } = null!;//has 1 author (1 to many)
+		public User Author { get; set; } = null!;//has 1 author (1 to many) --> Id in abstract class
 
 		public List<User> LikeUsers { get; set; } = [];
 		public List<Like> Likes { get; set; } = []; //represents many-to-many User-Comment

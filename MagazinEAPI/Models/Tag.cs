@@ -1,15 +1,6 @@
-﻿namespace MagazinEAPI.Models
+﻿using SharedLibrary.Base_Classes___Database;
+namespace MagazinEAPI.Models
 {
-	public abstract class TagAbstract
-	{
-		public int Id { get; set; }
-		public string Name { get; set; }
-	}
-
-	public class TagDTO : TagAbstract
-	{
-	}
-
 	public class Tag : TagAbstract
 	{
 		public List<User> Users { get; set; } = [];

@@ -1,13 +1,5 @@
 ﻿namespace MagazinEAPI.Models
 {
-
-	public class AdminDTO : RoleDTO
-	{
-		public List<int> BannedUsersIds { get; set; }
-		public List<int> UnbanRequestsIds { get; set; }
-		public List<int> DeletedCommentsIds { get; set; }
-	}
-
 	public class Admin : Role
 	{
 		public List<Ban> Bans { get; set; } = []; //one-to-many 
