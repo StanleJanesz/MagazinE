@@ -22,6 +22,7 @@ namespace MagazinEAPI.Controllers
             {
                 return BadRequest(e.Message);
             }
+            Response.Cookies.Delete("JWT");
             HttpContext.Response.Redirect("/");
             
             return Ok("User logged out successfully");

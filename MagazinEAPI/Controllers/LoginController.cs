@@ -1,16 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using MagazinEAPI.Contexts;
-
 using Microsoft.EntityFrameworkCore;
 using MagazinEAPI.Models;
-using Microsoft.AspNetCore.Identity;
+using MagazinEAPI.utils;
 using SharedLibrary.Base_Classes___Database;
 using SharedLibrary.DTO_Classes;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
@@ -54,13 +51,16 @@ namespace MagazinEAPI.Controllers
             var name = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
 
             var appUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
-            string role = "sample";
+            string role;
             if (appUser == null)
             {
                 appUser = await CreateUser(name, email);
                 role = "User";
             }
-
+            else
+            {
+                role = new RoleFinder().FindRole(appUser);
+            }
             var DTO = new ApplicationUserDTO
             {
                 FirstName = name,
@@ -68,8 +68,16 @@ namespace MagazinEAPI.Controllers
                 State = appUser.State,
             };
 
-            CreateJWTToken(email,role);
-            return Ok(DTO);
+            var JWT = CreateJWTToken(email,role);
+
+            Response.Cookies.Append("JWT",JWT, new CookieOptions 
+            { 
+                HttpOnly = true,
+                Secure = true,
+                Expires = DateTime.UtcNow.AddHours(2),
+            });
+
+            return Ok("Zalogowano");
         }
 
         private string CreateJWTToken(string email, string role)
@@ -85,10 +93,10 @@ namespace MagazinEAPI.Controllers
         };
 
             var token = new JwtSecurityToken(
-                issuer: "yourapp",
-                audience: "yourapp",
+                issuer: "MagazinEServer",
+                audience: "MagazinEClient",
                 claims: claims,
-                expires: DateTime.UtcNow.AddHours(1),
+                expires: DateTime.UtcNow.AddHours(2),
                 signingCredentials: credentials
             );
 
