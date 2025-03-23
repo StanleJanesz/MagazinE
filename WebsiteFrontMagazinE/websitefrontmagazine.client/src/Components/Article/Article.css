@@ -1,0 +1,42 @@
+.articleContainer {
+    border: 1px solid #ccc;
+    margin: 1% 1%;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 250px;
+    height: auto;
+    display: inline-grid;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    text-align: justify;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+    gap: 10%;
+    padding-bottom: 1%;
+    cursor: pointer;
+}
+    .articleContainer:hover {
+        box-shadow: inset;
+        transform: scale(1.05); 
+        
+    }
+
+.articleTitle {
+    margin-top: 0.8em;
+    font-size: 1.0em;
+    color: #333;
+    width: 70%;
+    overflow-wrap: break-word;
+    white-space: normal;
+    padding-left: 5%;
+    text-align: justify;
+}
+
+.articleImage {
+    width: 250px;
+    border-radius: 8px;
+    border: 0px;
+    height: auto;
+    margin-block: 0%; 
+}

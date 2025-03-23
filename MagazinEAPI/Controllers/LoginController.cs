@@ -26,7 +26,6 @@ namespace MagazinEAPI.Controllers
             _context = context;
         }
 
-
         [HttpPost]
         [Route("google")]
 
