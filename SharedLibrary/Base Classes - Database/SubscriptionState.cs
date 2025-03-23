@@ -1,4 +1,4 @@
-﻿namespace MagazinEAPI.Models
+﻿namespace SharedLibrary.Base_Classes___Database
 {
 	public enum SubscriptionState
 	{

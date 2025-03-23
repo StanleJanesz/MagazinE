@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "WebsiteMagazinE": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:6723;http://localhost:6724"
+    }
+  }
+}
