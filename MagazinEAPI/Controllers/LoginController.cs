@@ -72,7 +72,8 @@ namespace MagazinEAPI.Controllers
                 State = appUser.State,
             };
 
-            var JWT = CreateJWTToken(email,role);
+            var JWTCreator = new JWTCreator();
+            var JWT = JWTCreator.CreateJWTToken(email, role);
 
             Response.Cookies.Append("JWT",JWT, new CookieOptions 
             { 
@@ -84,28 +85,7 @@ namespace MagazinEAPI.Controllers
             return Ok("Zalogowano");
         }
 
-        private string CreateJWTToken(string email, string role)
-        {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("super_secret_key")); // TODO: move to secrets and change to real one
-            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-            var claims = new List<Claim>
-        {
-            new Claim(JwtRegisteredClaimNames.Sub, email),
-            new Claim(ClaimTypes.Email, email),
-            new Claim(ClaimTypes.Role, role)
-        };
-
-            var token = new JwtSecurityToken(
-                issuer: "MagazinEServer",
-                audience: "MagazinEClient",
-                claims: claims,
-                expires: DateTime.UtcNow.AddHours(2),
-                signingCredentials: credentials
-            );
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
-        }
+        
 
         private async Task<ApplicationUser> CreateUser(string name, string email)
         {
