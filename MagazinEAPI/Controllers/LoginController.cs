@@ -21,6 +21,10 @@ namespace MagazinEAPI.Controllers
     {
         private readonly APIContext _context;
 
+        public LoginController(APIContext context)
+        {
+            _context = context;
+        }
 
         [HttpPost]
         [Route("google")]
