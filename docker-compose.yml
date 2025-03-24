@@ -4,7 +4,7 @@ services:
   frontend:
     build:
       context: .
-      dockerfile: ./WebsiteFrontMagazinE.Server/Dockerfile
+      dockerfile: ./WebsiteFrontMagazinE/WebsiteFrontMagazinE.Server/Dockerfile
     ports:
       - 8080:8080
       - 8081:8081
