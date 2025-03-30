@@ -22,7 +22,7 @@ function RegisterPage() {
             
             <div className="buttonContainer">
                 <Button className="forgotButton">Forgot my password</Button>
-                <Button className="button">Login</Button>
+                <Button className="button">Register</Button>
             </div>
         </div>
     );

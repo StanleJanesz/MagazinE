@@ -1,11 +1,15 @@
 import './Article.css';
 import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import CircularProgress from '@mui/material/CircularProgress';
 
-function Article(articleData) {
+
+function Article({ data }) {
+  
     const navigate = useNavigate();
-    
+
     return (
-        <div className="articleContainer" onClick={() => navigate(`/article`)}>
+        <div className = "articleContainer" onClick = { () => navigate(`/article?id=${data.id}`)}>
             <img
                 src={"src/assets/mini.jpg"}
                 alt={"TODO"}
@@ -15,10 +19,10 @@ function Article(articleData) {
                     e.target.src = "/vite.svg"; // TODO: change to some default
                 }}
             />
-            <h2 className="articleTitle">Analiza matematyczna 4 i Metody numeryczne 12 od nowego roku na MiNI</h2>
-            <p className="carDescription">
-            {/*    HERE WILL BE TAGS?*/}
-                </p>  
+            <h2 className="articleTitle">{data.title}</h2>
+            <h3 className="articleDescription"> 
+                {data.isPremium ? "Premium" : ''} {/* TODO: TAGS */}
+            </h3>  
         </div>
     );
 }
