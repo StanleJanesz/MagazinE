@@ -1,2 +1,91 @@
-body {
+input[type="text"] {
+    width: 100%;
+    max-width: 400px;
+    padding: 10px;
+    font-size: 16px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    background-color: white; 
+    color: black;
+}
+
+    input[type="text"]:focus {
+        border-color: #007bff;
+        outline: none;
+    }
+
+div h4 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: #333;
+    padding-top: 10px;
+}
+
+span {
+    padding: 8px 15px;
+    margin: 5px;
+    background-color: #FFD700; 
+    color: white; 
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+    span:hover {
+        background-color: #FFA500; /* Pomarañczowy odcieñ podczas najechania */
+        color: white;
+        transform: scale(1.1);
+    }
+
+div > div {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+    div > div > span {
+        background-color: #FFD700; 
+        color: white; 
+        margin: 5px;
+        padding: 8px 15px;
+        border-radius: 20px;
+        display: inline-flex;
+        align-items: center;
+    }
+
+        div > div > span button {
+            background-color: transparent;
+            border: none;
+            color: white;
+            margin-left: 5px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+            div > div > span button:hover {
+                color: #ff6347;
+            }
+
+.tag-list {
+    position: absolute;
+    top: 60px; 
+    width: 100%;
+    max-width: 400px;
+    background-color: white; 
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+}
+
+
+    .tag-list.hidden {
+        display: none;
+    }
+
+
+.selected-tags-title {
+    margin-top: 20px;
 }
