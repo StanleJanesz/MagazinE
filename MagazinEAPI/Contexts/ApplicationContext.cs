@@ -1,5 +1,4 @@
-﻿using MagazinEAPI.Models;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,6 +7,14 @@ using System.Reflection.Metadata;
 using System.Threading;
 
 using SharedLibrary.Base_Classes___Database;
+using MagazinEAPI.Models.Articles;
+using MagazinEAPI.Models.Users.Admins;
+using MagazinEAPI.Models.Users.Editors;
+using MagazinEAPI.Models.Users;
+using MagazinEAPI.Models.Articles.Comment;
+using MagazinEAPI.Models.Users.Journalists;
+using MagazinEAPI.Models.Users.Readers;
+using MagazinEAPI.Models.Requests;
 
 namespace MagazinEAPI.Contexts
 {

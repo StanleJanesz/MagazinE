@@ -2,6 +2,11 @@
 using SharedLibrary.Base_Classes___Database;
 using SharedLibrary.DTO_Classes;
 using MagazinEAPI.Models;
+using MagazinEAPI.Models.Users.Journalists;
+using MagazinEAPI.Models.Users.Admins;
+using MagazinEAPI.Models.Users.Editors;
+using MagazinEAPI.Models.Users.Readers;
+using MagazinEAPI.Models.Users;
 
 
 namespace xUnitTests

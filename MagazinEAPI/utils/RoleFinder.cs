@@ -1,4 +1,4 @@
-﻿using MagazinEAPI.Models;
+﻿using MagazinEAPI.Models.Users;
 
 namespace MagazinEAPI.utils
 {

@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-
-using MagazinEAPI.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -11,32 +9,41 @@ using SharedLibrary.DTO_Classes;
 using SharedLibrary.Base_Classes___Database;
 using MagazinEAPI.Contexts;
 using Microsoft.EntityFrameworkCore;
+using MagazinEAPI.Models.Users;
+using MagazinEAPI.Models.Users.Readers;
+using Azure.Core;
+using MagazinEAPI.Models.Requests;
 namespace MagazinEAPI.Controllers
 {
-	[ApiController]
+    [ApiController]
 	[Route("register")]
 	public class RegistrationController : ControllerBase
 	{
-		private readonly APIContext _APIContext;
+		private readonly RolesBasedContext _APIContext;
 		private readonly SignInManager<ApplicationUser> _signInManager;
 		private readonly UserManager<ApplicationUser> _userManager;
 		private readonly IUserStore<ApplicationUser> _userStore;
 		private readonly IUserEmailStore<ApplicationUser> _emailStore;
 		private readonly ILogger<RegistrationController> _logger;
+        private readonly RoleManager<ApplicationRole> _roleManager;
 
-		public RegistrationController(APIContext APIContext,
+        public RegistrationController(RolesBasedContext APIContext,
 			UserManager<ApplicationUser> userManager,
 			IUserStore<ApplicationUser> userStore,
+
 			SignInManager<ApplicationUser> signInManager,
-			ILogger<RegistrationController> logger)
+			ILogger<RegistrationController> logger,
+			RoleManager<ApplicationRole> roleManager)
 		{
-			_APIContext = APIContext;
+
+            _APIContext = APIContext;
 			_userManager = userManager;
 			_userStore = userStore;
 			_emailStore = GetEmailStore();
 			_signInManager = signInManager;
 			_logger = logger;
-		}
+            _roleManager = roleManager;
+        }
 
 
 		//public string ReturnUrl { get; set; }
@@ -154,12 +161,13 @@ namespace MagazinEAPI.Controllers
 				return false;
 
 			User user = new User();
-			user.ApplicationUserId = await _userManager.GetUserIdAsync(applicationUser);
-			user.ApplicationUser = applicationUser;
+			var appUserID = await _userManager.GetUserIdAsync(applicationUser);
+			//user.ApplicationUser = applicationUser;
 
-			applicationUser.User = user;
+			//applicationUser.User = user;
+            await _userManager.AddToRoleAsync(applicationUser, "Reader");
 
-			await _APIContext.AddAsync(user);
+            await _APIContext.AddAsync(new User { ApplicationUserId = appUserID});
 			await _APIContext.SaveChangesAsync();
 
 			return true;
