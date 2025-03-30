@@ -11,6 +11,10 @@ using SharedLibrary.DTO_Classes;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
+using MagazinEAPI.Models.Users;
+using MagazinEAPI.Models.Users.Readers;
+using Microsoft.AspNetCore.Identity.Data;
+using Microsoft.AspNetCore.Identity;
 
 namespace MagazinEAPI.Controllers
 {
@@ -19,13 +23,26 @@ namespace MagazinEAPI.Controllers
 
     public class LoginController : ControllerBase
     {
-        private readonly APIContext _context;
+        private readonly RolesBasedContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public LoginController(APIContext context)
+        public LoginController(RolesBasedContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginRequest request)
+        {
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user == null || !await _userManager.CheckPasswordAsync(user, request.Password))
+                return Unauthorized("Invalid email or password.");
 
+            var userRoles = await _userManager.GetRolesAsync(user);
+            var token = new JWTCreator().GenerateJwtToken(user, userRoles);
+
+            return Ok(new { token });
+        }
         [HttpPost]
         [Route("google")]
 
@@ -63,7 +80,7 @@ namespace MagazinEAPI.Controllers
             }
             else
             {
-                role = new RoleFinder().FindRole(appUser);
+                role = new RoleFinder().FindRole(appUser); // TODO: roles in ef
             }
             var DTO = new ApplicationUserDTO
             {
