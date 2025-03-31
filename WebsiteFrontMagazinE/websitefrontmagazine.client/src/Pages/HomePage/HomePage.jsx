@@ -134,44 +134,46 @@ function HomePage() {
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '40px' }}>
             <SearchBar handleSearchButtonClick={handleSearchButtonClick} />
 
-
-            <input
-                type="text"
-                placeholder="Wpisz tag..."
-                value={searchTag}
-                onChange={(e) => setSearchTag(e.target.value)}
-                className="tag-input" 
-            />
-
-
-            <div className={filteredTags.length > 0 && searchTag.length>0  ? 'tag-list' : 'tag-list hidden'}>
-                {filteredTags.map(tag => (
-                    <span key={tag.id} className="tag-item" onClick={() => addTagToSelected(tag)}>
-                        {tag.name}
-                    </span>
-                ))}
-            </div>
+            <div className="large-tag-container">
+                <input
+                    type="text"
+                    placeholder="Wpisz tag..."
+                    value={searchTag}
+                    onChange={(e) => setSearchTag(e.target.value)}
+                    className="tag-input" 
+                />
 
 
-            {selectedTags.length > 0 && (
-                <div className="tag-container">
-                    <h4 className="selected-tags-title">Wybrane tagi</h4>
-                    {selectedTags.map(tag => (
-                        <span key={tag.id} className="tag-badge">
+                <div className={filteredTags.length > 0 && searchTag.length>0  ? 'tag-list' : 'tag-list hidden'}>
+                    {filteredTags.map(tag => (
+                        <span key={tag.id} className="tag-item" onClick={() => addTagToSelected(tag)}>
                             {tag.name}
-                            <button
-                                onClick={() => removeTagFromSelected(tag)}
-                                className="tag-remove-button"
-                            >
-                                X
-                            </button>
                         </span>
                     ))}
                 </div>
-            )}
 
 
-            <div style={{ minHeight: '70vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                {selectedTags.length > 0 && (
+                    <div className="tag-container">
+                        <h4 className="selected-tags-title">Wybrane tagi</h4>
+                        {selectedTags.map(tag => (
+                            <span key={tag.id} className="tag-badge">
+                                {tag.name}
+                                <button
+                                    onClick={() => removeTagFromSelected(tag)}
+                                    className="tag-remove-button"
+                                >
+                                    X
+                                </button>
+                            </span>
+                        ))}
+                        </div>
+                
+                    )}
+            </div>
+
+
+            <div style={{ minHeight: '30vw', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                 {content}
             </div>
         </div>
