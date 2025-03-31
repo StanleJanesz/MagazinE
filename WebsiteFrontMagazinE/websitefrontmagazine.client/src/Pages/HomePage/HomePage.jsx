@@ -12,7 +12,7 @@ function HomePage() {
     const [searchTag, setSearchTag] = useState("");  
     const [filteredTags, setFilteredTags] = useState([]); 
     const [selectedTags, setSelectedTags] = useState([]); 
-    const [searchText, setSearchText] = useState(""); // Search term for article titles
+    const [searchText, setSearchText] = useState(""); 
     const [searchedArticles, setSearchedArticles] = useState([]); 
 
 
@@ -75,7 +75,7 @@ function HomePage() {
     };
 
     const handleSearchButtonClick = (searchTerm) => {
-        setSearchText(searchTerm);  // Update the search term
+        setSearchText(searchTerm); 
 
         if (!searchTerm) {
             setSearchedArticles(articles);
@@ -93,7 +93,7 @@ function HomePage() {
         ? searchedArticles.filter(article =>
             selectedTags.every(tag => article.tags.includes(tag.id))
         )
-        : searchedArticles; // Filter based on selected tags
+        : searchedArticles; 
 
 
 
