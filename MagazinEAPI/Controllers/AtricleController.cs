@@ -1,8 +1,11 @@
 ﻿using MagazinEAPI.Contexts;
 using MagazinEAPI.Models;
+using MagazinEAPI.Models.Articles;
 using MagazinEAPI.utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SharedLibrary.DTO_Classes;
 
 namespace MagazinEAPI.Controllers
 {
@@ -10,13 +13,30 @@ namespace MagazinEAPI.Controllers
     [Route("articles")]
     public class AtricleController : Controller
     {
-        private readonly APIContext _context;
-        [HttpGet(Name = "GetArticle")]
-        public IActionResult Get()
+        private readonly RolesBasedContext _context;
+
+        public AtricleController(RolesBasedContext context)
         {
-            return Ok("Article 1");
+            _context = context;
+        }
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [HttpGet(Name = "GetArticle")]
+        [Authorize]
+        public ActionResult<ArticleDTO> Get([FromQuery] int id)
+        {
+            var article = _context.Articles.FirstOrDefault(a => a.Id == id);
+            if (article == null)
+            {
+                return NotFound("Article not found");
+            }
+
+            var articleDTO = article.ToDTO();
+
+            return Ok(articleDTO);
         }
 
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [Authorize(Roles = "Journalist")]
         [HttpPost(Name = "CreateArticle")]
         public async Task<IActionResult> Post(string Title, string authorEmail)
         {
