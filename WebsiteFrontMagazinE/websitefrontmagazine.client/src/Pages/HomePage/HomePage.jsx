@@ -1,16 +1,20 @@
 import Article from '../../Components/Article/Article';
-import { useState, useEffect } from 'react';
+import { useState, useEffect} from 'react';
 import SearchBar from '../../Components/SearchBar/SearchBar';
 import CircularProgress from '@mui/material/CircularProgress';
 import './HomePage.css'; // Zaimportuj CSS
 
 function HomePage() {
+
     const [articles, setArticles] = useState([]); 
     const [tags, setTags] = useState([]); 
     const [isLoading, setIsLoading] = useState(true);
     const [searchTag, setSearchTag] = useState("");  
     const [filteredTags, setFilteredTags] = useState([]); 
     const [selectedTags, setSelectedTags] = useState([]); 
+    const [searchText, setSearchText] = useState(""); // Search term for article titles
+    const [searchedArticles, setSearchedArticles] = useState([]); 
+
 
     async function sleep(msec) {
         return new Promise(resolve => setTimeout(resolve, msec));
@@ -39,6 +43,7 @@ function HomePage() {
         const articlesList = data.map(article => ({ ...article }));
 
         setArticles(articlesList);
+        setSearchedArticles(articlesList);
         // console.log(articlesList);
         //setIsLoading(false); -> teraz w next funcji
     };
@@ -69,12 +74,26 @@ function HomePage() {
         setIsLoading(false);
     };
 
+    const handleSearchButtonClick = (searchTerm) => {
+        setSearchText(searchTerm);  // Update the search term
+
+        if (!searchTerm) {
+            setSearchedArticles(articles);
+        }
+
+        const filteredArticles = articles.filter(article =>
+            article.title.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+
+        setSearchedArticles(filteredArticles);
+    };
+
     
     const filteredArticles = selectedTags.length > 0
-        ? articles.filter(article =>
+        ? searchedArticles.filter(article =>
             selectedTags.every(tag => article.tags.includes(tag.id))
         )
-        : articles; 
+        : searchedArticles; // Filter based on selected tags
 
 
 
@@ -112,8 +131,8 @@ function HomePage() {
     );
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <SearchBar />
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '40px' }}>
+            <SearchBar handleSearchButtonClick={handleSearchButtonClick} />
 
 
             <input
@@ -121,13 +140,13 @@ function HomePage() {
                 placeholder="Wpisz tag..."
                 value={searchTag}
                 onChange={(e) => setSearchTag(e.target.value)}
-                style={{ margin: '10px', padding: '5px', width: '200px'}}
+                className="tag-input" 
             />
 
 
-            <div className={searchTag && filteredTags.length > 0 ? 'tag-list' : 'tag-list hidden'}>
+            <div className={filteredTags.length > 0 && searchTag.length>0  ? 'tag-list' : 'tag-list hidden'}>
                 {filteredTags.map(tag => (
-                    <span key={tag.id} onClick={() => addTagToSelected(tag)}>
+                    <span key={tag.id} className="tag-item" onClick={() => addTagToSelected(tag)}>
                         {tag.name}
                     </span>
                 ))}
@@ -135,14 +154,14 @@ function HomePage() {
 
 
             {selectedTags.length > 0 && (
-                <div style={{ marginBottom: '10px' }}>
+                <div className="tag-container">
                     <h4 className="selected-tags-title">Wybrane tagi</h4>
                     {selectedTags.map(tag => (
-                        <span key={tag.id} style={{ marginRight: '10px', display: 'inline-flex', alignItems: 'center' }}>
+                        <span key={tag.id} className="tag-badge">
                             {tag.name}
                             <button
                                 onClick={() => removeTagFromSelected(tag)}
-                                style={{ marginLeft: '5px', border: 'none', background: 'transparent', cursor: 'pointer' }}
+                                className="tag-remove-button"
                             >
                                 X
                             </button>

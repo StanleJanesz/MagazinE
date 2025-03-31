@@ -1,4 +1,4 @@
-input[type="text"] {
+.tag-input {
     width: 100%;
     max-width: 400px;
     padding: 10px;
@@ -7,85 +7,127 @@ input[type="text"] {
     border: 1px solid #ccc;
     border-radius: 5px;
     box-sizing: border-box;
-    background-color: white; 
+    background-color: white;
     color: black;
 }
 
-    input[type="text"]:focus {
+
+    .tag-input:focus {
         border-color: #007bff;
         outline: none;
     }
 
-div h4 {
+.tag-title {
     font-size: 18px;
     margin-bottom: 10px;
     color: #333;
     padding-top: 10px;
 }
 
-span {
+/*
+.tag-item {
     padding: 8px 15px;
     margin: 5px;
-    background-color: #FFD700; 
-    color: white; 
+    background-color: #FFD700;
+    color: white;
     border-radius: 20px;
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.2s ease;
 }
+*/
+.tag-item {
+    display: inline-flex; /* Aligns content properly */
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap; /* Prevents weird text breaks */
+    overflow: hidden; /* Hides extra text instead of breaking layout */
+    text-overflow: ellipsis; /* Adds "..." if text is too long */
+    max-width: 100%; /* Prevents tag from overflowing */
+    padding: 8px 12px; /* Ensures better spacing */
+    margin: 5px; /* Keeps spacing between tags */
+    border-radius: 15px; /* Keeps the rounded look */
+    text-align: center; /* Centers text inside */
+    background-color: #FFD700;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
 
-    span:hover {
-        background-color: #FFA500; /* Pomarañczowy odcieñ podczas najechania */
-        color: white;
+    .tag-item:hover {
+        background-color: #FFA500;
         transform: scale(1.1);
     }
 
-div > div {
+
+.tag-container {
     display: flex;
     flex-wrap: wrap;
     margin-top: 20px;
 }
 
-    div > div > span {
-        background-color: #FFD700; 
-        color: white; 
-        margin: 5px;
-        padding: 8px 15px;
-        border-radius: 20px;
-        display: inline-flex;
-        align-items: center;
+.tag-badge {
+    background-color: #FFD700;
+    color: white;
+    margin: 5px;
+    padding: 8px 15px;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+}
+
+    .tag-badge button {
+        background-color: transparent;
+        border: none;
+        color: white;
+        margin-left: 5px;
+        font-weight: bold;
+        cursor: pointer;
     }
 
-        div > div > span button {
-            background-color: transparent;
-            border: none;
-            color: white;
-            margin-left: 5px;
-            font-weight: bold;
-            cursor: pointer;
+        .tag-badge button:hover {
+            color: #ff6347;
         }
 
-            div > div > span button:hover {
-                color: #ff6347;
-            }
-
+        /*
 .tag-list {
     position: absolute;
-    top: 60px; 
+    top: 60px;
     width: 100%;
     max-width: 400px;
-    background-color: white; 
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+}
+*/
+.tag-list {
+    display: flex;
+    flex-direction: column; /* Makes tags stack properly */
+    align-items: start; /* Aligns tags to the left */
+    padding: 10px; /* Adds some spacing */
+    position: absolute;
+    top: 60px;
+    width: 100%;
+    max-width: 400px;
+    background-color: white;
     border: 1px solid #ccc;
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     z-index: 100;
 }
 
-
-    .tag-list.hidden {
-        display: none;
-    }
-
+.hidden {
+    display: none;
+}
 
 .selected-tags-title {
     margin-top: 20px;
+}
+
+.tag-remove-button {
+    margin: 5px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
 }
