@@ -1,0 +1,38 @@
+.at-container {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    margin-block: 30px;
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    height: 80px;
+    transition: background-color 0.4s ease;
+    justify-content: space-between;
+}
+.at-title {
+    font-size: 1em;
+}
+
+.at-photo {
+    height: 80%;
+    border-radius: 2px;
+}
+
+.at-container:hover {
+    background-color: #ccc;
+    cursor: pointer;
+}
+
+.at-buttonContainer {
+    margin-left: auto;
+    display: flex;
+    gap: 10px;
+}
+
+
+.actionButton:hover {
+    border-color: aliceblue;
+    background-color: azure;
+}

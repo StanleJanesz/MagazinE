@@ -11,6 +11,10 @@ using SharedLibrary.DTO_Classes;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
+using MagazinEAPI.Models.Users;
+using MagazinEAPI.Models.Users.Readers;
+using Microsoft.AspNetCore.Identity.Data;
+using Microsoft.AspNetCore.Identity;
 
 namespace MagazinEAPI.Controllers
 {
@@ -19,9 +23,26 @@ namespace MagazinEAPI.Controllers
 
     public class LoginController : ControllerBase
     {
-        private readonly APIContext _context;
+        private readonly RolesBasedContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
+        public LoginController(RolesBasedContext context, UserManager<ApplicationUser> userManager)
+        {
+            _context = context;
+            _userManager = userManager;
+        }
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginRequest request)
+        {
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user == null || !await _userManager.CheckPasswordAsync(user, request.Password))
+                return Unauthorized("Invalid email or password.");
 
+            var userRoles = await _userManager.GetRolesAsync(user);
+            var token = new JWTCreator().GenerateJwtToken(user, userRoles);
+
+            return Ok(new { token });
+        }
         [HttpPost]
         [Route("google")]
 
@@ -59,7 +80,7 @@ namespace MagazinEAPI.Controllers
             }
             else
             {
-                role = new RoleFinder().FindRole(appUser);
+                role = new RoleFinder().FindRole(appUser); // TODO: roles in ef
             }
             var DTO = new ApplicationUserDTO
             {
@@ -68,7 +89,8 @@ namespace MagazinEAPI.Controllers
                 State = appUser.State,
             };
 
-            var JWT = CreateJWTToken(email,role);
+            var JWTCreator = new JWTCreator();
+            var JWT = JWTCreator.CreateJWTToken(email, role);
 
             Response.Cookies.Append("JWT",JWT, new CookieOptions 
             { 
@@ -80,28 +102,7 @@ namespace MagazinEAPI.Controllers
             return Ok("Zalogowano");
         }
 
-        private string CreateJWTToken(string email, string role)
-        {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("super_secret_key")); // TODO: move to secrets and change to real one
-            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-            var claims = new List<Claim>
-        {
-            new Claim(JwtRegisteredClaimNames.Sub, email),
-            new Claim(ClaimTypes.Email, email),
-            new Claim(ClaimTypes.Role, role)
-        };
-
-            var token = new JwtSecurityToken(
-                issuer: "MagazinEServer",
-                audience: "MagazinEClient",
-                claims: claims,
-                expires: DateTime.UtcNow.AddHours(2),
-                signingCredentials: credentials
-            );
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
-        }
+        
 
         private async Task<ApplicationUser> CreateUser(string name, string email)
         {

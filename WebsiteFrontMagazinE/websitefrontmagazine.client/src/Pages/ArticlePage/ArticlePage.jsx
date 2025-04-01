@@ -94,7 +94,7 @@ function ArticlePage({ articleId }) {
                     ) : (
                         <div className="paywall">
                                 <p>This article is available for premium users only. Subscribe to unlock full access!</p>
-                                <div className="buttonContainer">
+                                <div className="ap-buttonContainer">
                                     <button className="subscribeButton" onClick={() => navigate('/subscribe')}>
                                         Subscribe Now
                                     </button>
