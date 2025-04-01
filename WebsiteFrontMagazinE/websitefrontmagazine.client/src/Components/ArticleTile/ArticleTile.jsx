@@ -1,12 +1,15 @@
 import { useState } from "react";
 import './ArticleTile.css';
 
-function ArticleTile({ title, photo, onClick, id, sendToReview, rejectArticle }) {
+function ArticleTile({ title, photo, onSelect, id, sendToReview, rejectArticle, isChosen }) {
     const [photoPath, setPhotoPath] = useState(photo || 'src/assets/mini.jpg');
 
-    
+    const handleTileClick = (id) => {
+        onSelect(id); 
+    };
+
     return (
-        <div className="at-container" onClick={() => onClick(id)}>
+        <div className={isChosen ? 'at-selected' : 'at-container'} onClick={() => handleTileClick(id)}>
             <img
                 src={photoPath}
                 alt={title}

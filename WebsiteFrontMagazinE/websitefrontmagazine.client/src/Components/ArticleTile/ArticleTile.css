@@ -1,4 +1,4 @@
-.at-container {
+.at-container, .at-selected {
     display: flex;
     flex-direction: row;
     gap: 10px;
@@ -10,9 +10,20 @@
     height: 80px;
     transition: background-color 0.4s ease;
     justify-content: space-between;
+    cursor: pointer;
+}
+
+.at-selected {  
+    background-color: #939F5C;
+    color: white;
+    transition: background-color 0.6s ease;
+
 }
 .at-title {
     font-size: 1em;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .at-photo {
