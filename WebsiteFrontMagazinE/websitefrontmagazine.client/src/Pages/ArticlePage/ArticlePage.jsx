@@ -93,6 +93,7 @@ function ArticlePage({ articleId }) {
                         <p>{data.content}</p>
                     ) : (
                         <div className="paywall">
+
                                 <p>This article is available for premium users only. Subscribe to unlock full access!</p>
                                 <div className="buttonContainer">
                                     <button className="subscribeButton" onClick={() => navigate('/subscribe')}>
