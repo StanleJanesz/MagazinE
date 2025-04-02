@@ -1,6 +1,7 @@
 ﻿using MagazinEAPI.Models.Users.Admins;
 using MagazinEAPI.Models.Users.Readers;
 using SharedLibrary.Base_Classes___Database;
+using SharedLibrary.DTO_Classes;
 namespace MagazinEAPI.Models.Articles.Comment
 {
     public class Comment : CommentAbstract
@@ -26,6 +27,33 @@ namespace MagazinEAPI.Models.Articles.Comment
         public List<Comment> Children { get; set; } = []; //has 0..n children 
 
         public List<CommentReport> Reports { get; set; } = []; //one to many
+
+        public CommentDTO ToDTO()
+        {
+            var commentDTO = new CommentDTO
+            {
+                Id = this.Id,
+                Content = this.Content,
+                AuthorId = this.AuthorId,
+                Date = this.Date,
+                ParentId = this.ParentId,
+                LikesCount = this.Likes.Count,
+                DislikesCount = this.Dislikes.Count,
+                ChildrenIds = this.Children.Select(c => c.Id).ToList(),
+                ArticleId = this.ArticleId
+
+            };
+            return commentDTO;
+        }
+
+        public void UpdateFromDTO(CommentDTO commentDTO)
+        {
+            this.Content = commentDTO.Content;
+            this.AuthorId = commentDTO.AuthorId;
+            this.Date = commentDTO.Date;
+            this.ParentId = commentDTO.ParentId;
+            this.ArticleId = commentDTO.ArticleId;
+        }
     }
 
 
