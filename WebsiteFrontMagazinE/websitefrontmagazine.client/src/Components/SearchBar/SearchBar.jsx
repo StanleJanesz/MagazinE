@@ -14,6 +14,12 @@ function SearchBar({ handleSearchButtonClick }) {
         handleSearchButtonClick(searchTerm);
     };
 
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            handleSearchButtonClick(searchTerm); // Trigger the search when Enter is pressed
+        }
+    };
+
     return (
         <div className="search">
             <TextField
@@ -23,6 +29,7 @@ function SearchBar({ handleSearchButtonClick }) {
                 className="inputField"
                 value={searchTerm}
                 onChange={handleInputChange}
+                onKeyPress={handleKeyDown}
             />
             <img
                 src={loupeIcon}
