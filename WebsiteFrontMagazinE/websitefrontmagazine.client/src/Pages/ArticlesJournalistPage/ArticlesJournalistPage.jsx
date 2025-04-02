@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from "motion/react";
-import ArticleTile from '../../Components/ArticleTile/ArticleTile';
+import ArticleTile from '../../Components/ListTile/ArticleTile/ArticleTile';
 import Button from "react-bootstrap/Button";
 import './ArticlesJournalistPage.css';
 
@@ -78,10 +78,9 @@ function ArticlesJournalistPage(journalistId) {
 
     const articlePreviewContent = chosenArticleId !== Number.MAX_SAFE_INTEGER ? (
         <>
-            <>
                 <h1>{chosenArticle.title}</h1>
                 <p>{articleContent}</p>
-            </>
+            
                 <Button
                     style={{
                         background: '#E2F9B8',
