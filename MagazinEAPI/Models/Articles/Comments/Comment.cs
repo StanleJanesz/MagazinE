@@ -6,7 +6,7 @@ namespace MagazinEAPI.Models.Articles.Comment
     public class Comment : CommentAbstract
     {
 
-        public bool IsDeleted { get; set; }
+        public bool IsDeleted { get; set; } // means is not visible to users
         public int? DeletedById { get; set; }
         public Admin? DeletedBy { get; set; } //has 0..1 deletedBy (Admin) (0..1 to 0...n)
 
