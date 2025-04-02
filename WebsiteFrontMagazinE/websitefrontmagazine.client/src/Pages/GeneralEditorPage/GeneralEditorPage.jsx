@@ -3,6 +3,8 @@ import MyDropdown from '../../Components/MyDropdown/MyDropdown.jsx';
 import SearchBar from '../../Components/SearchBar/SearchBar.jsx';
 import Table from 'react-bootstrap/Table';
 import './GeneralEditorPage.css';
+import { motion, AnimatePresence } from "motion/react";
+import Button from "react-bootstrap/Button";
 
 function GeneralEditorPage() {
     const [users, setUsers] = useState([]);
@@ -38,6 +40,12 @@ function GeneralEditorPage() {
         { label: 'Reader', onClick: () => console.log('Role changed to reader') }
     ];
 
+    const handleKeyDown = (e, searchTerm) => {
+        if (e.key === 'Enter') {
+            handleSearchButtonClick(searchTerm); // Trigger the search when Enter is pressed
+        }
+    };
+  
     const handleSearchButtonClick = (searchTerm) => {
         setSearchTerm(searchTerm);
         if (!searchTerm) {
@@ -61,34 +69,50 @@ function GeneralEditorPage() {
         }}>
             <SearchBar
                 handleSearchButtonClick={handleSearchButtonClick}
+                handleKeyDown={handleKeyDown}
             />
             <br />
             {loading ? (
                 <div>Loading users...</div>
-            ) : (
-                <Table striped bordered hover>
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filteredUsers.map(user => (
-                            <tr key={user.id}>
-                                <td>{user.name}</td>
-                                <td>{user.email}</td>
-                                <td>{user.role}</td>
-                                <td style={{ width: '120px' }}>
-                                    <MyDropdown actions={roles} title="Change Role" />
-                                </td>
+            ) : (filteredUsers.length === 0 ? (
+                    <div>No users to show </div>
+                ) : ( 
+                    <Table striped bordered hover>
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Roles</th>
+                                <th></th>
                             </tr>
-                        ))}
-                    </tbody>
-                </Table>
-            )}
+                        </thead>
+                        <tbody>
+                            <AnimatePresence>
+                            {filteredUsers.map(user => (
+                                <motion.tr key={user.id}
+                                    initial={{ opacity: 0, y: -20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: 20 }}
+                                    transition={{ duration: 0.3 }}
+                                >
+                                    <td>{user.id}</td>
+                                    <td>{user.name}</td>
+                                    <td>{user.email}</td>
+                                    <td style={{ width: '8em' }}>
+                                        <MyDropdown actions={roles} title="Change Role" />
+                                        
+                                    </td>
+                                    <td style={{ width: '8em' }}>
+                                        <Button>Delete user</Button>
+                                    </td>
+                                </motion.tr>
+                            ))}
+                            </AnimatePresence>
+                        </tbody>
+                        </Table>
+                    )
+                )}
         </div>
     );
 }

@@ -1,4 +1,4 @@
-pipeline {
+﻿pipeline {
     agent any
 
     environment {
@@ -14,7 +14,7 @@ pipeline {
 
         stage('Build Docker Images') {
             steps {
-                echo "building docker images..."                
+                echo "building docker images..."
                 powershell "docker-compose -f ${DOCKER_COMPOSE_FILE} build"
 
             }
@@ -23,15 +23,23 @@ pipeline {
         stage('Start Containers') {
             steps {
                 echo "starting containers..."
-                powershell "docker-compose -f ${DOCKER_COMPOSE_FILE} up -d"                
+                sh "docker-compose -f ${DOCKER_COMPOSE_FILE} up -d"
+                echo "⌛ Czekam na MSSQL (20s)..."
+                sh "sleep 20"
+            }
+        }
+
+        stage('Run Backend Tests') {
+            steps {
+                echo "running backend tests..."
+                sh "docker-compose exec -T magazineapi dotnet test --no-build --logger:trx"
             }
         }        
 
         stage('Teardown') {
             steps {
                 echo "Teardown..."
-
-                powershell "docker-compose -f ${DOCKER_COMPOSE_FILE} down -v"
+                sh "docker-compose -f ${DOCKER_COMPOSE_FILE} down -v"
             }
         }
     }
