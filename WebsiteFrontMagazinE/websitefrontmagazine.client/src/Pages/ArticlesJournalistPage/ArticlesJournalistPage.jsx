@@ -77,24 +77,26 @@ function ArticlesJournalistPage(journalistId) {
     );
 
     const articlePreviewContent = chosenArticleId !== Number.MAX_SAFE_INTEGER ? (
-        <div>
-            <div style={{ height: '82vh' } }>
+        <>
+            <>
                 <h1>{chosenArticle.title}</h1>
                 <p>{articleContent}</p>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'row-reverse' }}>
+            </>
                 <Button
                     style={{
                         background: '#E2F9B8',
                         color: '#313715',
                         border: '2px #313715 solid',
+                        position: 'absolute',
+                        bottom: '5%',
+                        right: '5%'
+                        
                     }}
                     onClick={() => navigate('/edit-article')}
                 >
                     Edit
                 </Button>
-            </div>
-        </div>
+        </>
     ) : <p>No article selected</p>;
     
     useEffect(() => {

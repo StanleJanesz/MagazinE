@@ -22,8 +22,9 @@
 .at-title {
     font-size: 1em;
     flex: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    overflow-y: auto;
+    overflow-x: hidden;
+    word-wrap: break-word;
 }
 
 .at-photo {
@@ -46,4 +47,19 @@
 .actionButton:hover {
     border-color: aliceblue;
     background-color: azure;
+}
+
+@media (max-width: 900px) {
+    .at-container, .at-selected {
+        height: 100px;
+    }
+    .at-photo {
+        height: 0px;
+    }
+    .at-buttonContainer {
+        width: 150px;
+        height: 50px;
+    }
+    
+
 }
