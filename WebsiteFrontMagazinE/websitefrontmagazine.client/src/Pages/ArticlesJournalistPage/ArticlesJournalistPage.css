@@ -2,10 +2,8 @@
     display: flex;
     position: relative;
     margin-top: 40px;
-    width: 1400px;
     gap: 10px;
     height: 100vh;
-    
 }
 
 
@@ -18,7 +16,6 @@
     overflow-y: scroll;
     overflow-x: hidden;
     height: 90vh;
-    
 }
 
 .ajp-articlePreview {
