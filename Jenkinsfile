@@ -36,8 +36,7 @@ pipeline {
 
     post {
         always {
-            echo "pipeline ended. Final cleaning..."
-            powershell "docker-compose down -v"
+            echo "pipeline ended."            
         }
     }
 }
