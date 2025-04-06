@@ -1,0 +1,12 @@
+body {
+}
+
+.titlePage {
+    margin-top: 2em;
+}
+
+@media screen and (max-width: 768px) {
+    .inputElement {
+        width: 25em;
+    }
+}
