@@ -6,8 +6,8 @@ services:
       context: .
       dockerfile: ./WebsiteFrontMagazinE/WebsiteFrontMagazinE.Server/Dockerfile
     ports:
-      - 8080:8080
-      - 8081:8081
+      - 8078:8078
+      - 8079:8079
     depends_on:
       - magazineapi
     networks:
