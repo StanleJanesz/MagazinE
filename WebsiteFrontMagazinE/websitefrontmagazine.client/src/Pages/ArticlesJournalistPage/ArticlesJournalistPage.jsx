@@ -50,15 +50,16 @@ function ArticlesJournalistPage(journalistId) {
     const content = isLoading ? (
         <h1>Loading</h1>
     ) : (   
-            <AnimatePresence mode="popLayout">
+            <AnimatePresence>
                 {articles.map(article => (
                     <motion.div
                         key={article.id}
                         layout
-                        layoutTransition={{type: "spring", stiffness: 900, damping: 40} }
-                        initial={{ opacity: 0, x: -50 }}
+                        layoutTransition={{ type: "spring", stiffness: 900, damping: 40 }}
+                        initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, scale: 0 }}
+                        transition={{duration: 0.3} }
                     >
                         <ArticleTile
                             id={article.id}
