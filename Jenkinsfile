@@ -14,9 +14,7 @@ pipeline {
 
         stage('Build Docker Images') {
             steps {
-                echo "building docker images..."
-                pwd
-                ls 
+                echo "building docker images..."                
                 powershell "docker-compose -f ${DOCKER_COMPOSE_FILE} build"
             }
         }
