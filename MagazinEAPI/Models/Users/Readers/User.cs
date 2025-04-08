@@ -39,5 +39,6 @@ namespace MagazinEAPI.Models.Users.Readers
 
             };
         }
+
     }
 }
