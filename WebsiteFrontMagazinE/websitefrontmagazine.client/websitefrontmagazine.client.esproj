@@ -11,5 +11,6 @@
   <ItemGroup>
     <Folder Include="src\Components\Comment\" />
     <Folder Include="src\Pages\EditArticlePage\" />
+    <Folder Include="src\Pages\ArticlesJournalistPage\" />
   </ItemGroup>
 </Project>
