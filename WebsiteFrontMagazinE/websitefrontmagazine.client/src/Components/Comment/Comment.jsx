@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
 import './Comment.css';
+import like from "/src/assets/like.webp";
+import dislike from "/src/assets/dislike.png";
+import answer from "/src/assets/answer.png";
+import report from "/src/assets/report.png";
+
 
 function Comment({ author, date, content }) {
     // TODO:
@@ -29,16 +34,16 @@ function Comment({ author, date, content }) {
 
             <div className="commentActions">
                 <button className="actionButton" onClick={handleLike}>
-                    <img src="src/assets/like.webp" className="actionImage"/> {likes}
+                    <img src={like} className="actionImage"/> {likes}
                 </button>
                 <button className="actionButton" onClick={handleDislike}>
-                    <img src="src/assets/dislike.png" className="actionImage" /> {dislikes}
+                    <img src={dislike} className="actionImage" /> {dislikes}
                 </button>
                 <button className="actionButton" onClick={handleAnswer} disabled={isAnswered}>
-                    <img src="src/assets/answer.png" className="actionImage" />{isAnswered ? 'Answered' : 'Answer'}
+                    <img src={answer} className="actionImage" />{isAnswered ? 'Answered' : 'Answer'}
                 </button>
                 <button className="actionButton" onClick={handleReport} disabled={isReported}>
-                    <img src="src/assets/report.png" className="actionImage" />{isReported ? 'Reported' : 'Report'}
+                    <img src={report} className="actionImage" />{isReported ? 'Reported' : 'Report'}
                 </button>
             </div>
         </div>
