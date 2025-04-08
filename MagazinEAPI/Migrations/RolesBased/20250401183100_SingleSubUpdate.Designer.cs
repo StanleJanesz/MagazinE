@@ -4,6 +4,7 @@ using MagazinEAPI.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MagazinEAPI.Migrations.RolesBased
 {
     [DbContext(typeof(RolesBasedContext))]
-    partial class RolesBasedContextModelSnapshot : ModelSnapshot
+    [Migration("20250401183100_SingleSubUpdate")]
+    partial class SingleSubUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -44,7 +47,7 @@ namespace MagazinEAPI.Migrations.RolesBased
                     b.Property<int?>("ReviewerId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("TimeOfPublication")
+                    b.Property<DateTime>("TimeOfPublication")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Title")
