@@ -42,7 +42,22 @@ namespace MagazinEAPI.Contexts.Configurations.UserConfigurations
                     j.HasKey(tu => new { tu.TagId, tu.UserId });
                 }
                 ); // A Reader can have 1...n Tags
-               
+            builder.HasMany(r => r.OwnedArticles)
+                 .WithMany(a => a.UserOwnedArticles)
+                 .UsingEntity<OwnedArticles>(
+                j => j.HasOne(oa => oa.Article)
+                      .WithMany(a => a.OwnedToArticles)
+                      .HasForeignKey(oa => oa.ArticleId),
+                j => j.HasOne(oa => oa.User)
+                .WithMany(u => u.OwnedToArticles)
+                        .HasForeignKey(oa => oa.UserId),
+                j => j.HasKey(oa => new { oa.ArticleId, oa.UserId })
+                ); 
+
+
+
+
+
         }
     }
 }
