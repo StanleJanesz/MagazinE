@@ -1,4 +1,4 @@
-.at-container, .at-selected {
+.at-container {
     display: flex;
     flex-direction: row;
     gap: 10px;
@@ -11,12 +11,15 @@
     transition: background-color 0.4s ease;
     justify-content: space-between;
     cursor: pointer;
+    color: initial;
+    background-color: white;
 }
 
-.at-selected {  
+.at-container.selected {  
     background-color: #939F5C;
     color: white;
     transition: background-color 0.6s ease;
+    width: 430px;
 
 }
 .at-title {
@@ -37,6 +40,11 @@
     cursor: pointer;
 }
 
+.at-container.selected:hover {
+    background-color: #7a854b; 
+}
+
+
 .at-buttonContainer {
     margin-left: auto;
     display: flex;
@@ -50,7 +58,7 @@
 }
 
 @media (max-width: 900px) {
-    .at-container, .at-selected {
+    .at-container {
         height: 100px;
     }
     .at-photo {

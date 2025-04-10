@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from "motion/react";
-import ArticleTile from '../../Components/ArticleTile/ArticleTile';
+import ArticleTile from '../../Components/ListTile/ArticleTile/ArticleTile';
 import Button from "react-bootstrap/Button";
 import './ArticlesJournalistPage.css';
 
@@ -50,15 +50,16 @@ function ArticlesJournalistPage(journalistId) {
     const content = isLoading ? (
         <h1>Loading</h1>
     ) : (   
-            <AnimatePresence mode="popLayout">
+            <AnimatePresence>
                 {articles.map(article => (
                     <motion.div
                         key={article.id}
                         layout
-                        layoutTransition={{type: "spring", stiffness: 900, damping: 40} }
-                        initial={{ opacity: 0, x: -50 }}
+                        layoutTransition={{ type: "spring", stiffness: 900, damping: 40 }}
+                        initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, scale: 0 }}
+                        transition={{duration: 0.3} }
                     >
                         <ArticleTile
                             id={article.id}
@@ -78,10 +79,9 @@ function ArticlesJournalistPage(journalistId) {
 
     const articlePreviewContent = chosenArticleId !== Number.MAX_SAFE_INTEGER ? (
         <>
-            <>
                 <h1>{chosenArticle.title}</h1>
                 <p>{articleContent}</p>
-            </>
+            
                 <Button
                     style={{
                         background: '#E2F9B8',
