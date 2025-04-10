@@ -8,6 +8,7 @@ namespace MagazinEAPI.Models.Users.Readers
         public List<Subscription> Subscriptions { get; set; } = []; //represents one-to-many User-Subscription
         public List<Ban> Bans { get; set; } = []; //represents one-to-many User-Ban
         public List<Article> ArticleFavoriteArticles { get; set; } = [];
+        public ICollection<Article> OwnedArticles { get; set; } = []; //represents many-to-many User-Article
         public List<FavoriteArticle> FavoriteArticles { get; set; } = []; //represents many-to-many User-Article
         public List<Article> ArticleToReadArticles { get; set; } = [];
         public List<ToReadArticle> ToReadArticles { get; set; } = [];//represents many-to-many User-Article
@@ -19,5 +20,6 @@ namespace MagazinEAPI.Models.Users.Readers
         public List<Like> Likes { get; set; } = []; //represents many-to-many User-Comment
         public List<Comment> DislikeComments { get; set; } = [];
         public List<Dislike> Dislikes { get; set; } = []; //represents many-to-many User-Comment
+        public ICollection<OwnedArticles> OwnedToArticles { get; set; } = []; //represents many-to-many User-Article
     }
 }
