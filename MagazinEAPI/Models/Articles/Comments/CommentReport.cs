@@ -30,5 +30,4 @@
         /// </summary>
         public Admin? ManagedBy { get; set; }
     }
-
 }

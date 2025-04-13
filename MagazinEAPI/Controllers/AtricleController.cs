@@ -12,7 +12,7 @@
     using SharedLibrary.DTO_Classes;
 
     /// <summary>
-    /// Controller for managing articles. 
+    /// Controller for managing articles.
     /// </summary>
     [ApiController]
     [Route("articles")]
@@ -141,7 +141,7 @@
         /// Deletes the article.
         /// Available for Journalist, Editor and HeadEditor roles.
         /// </summary>
-        /// <param name="id">Id of delated article</param>
+        /// <param name="id">Id of delated article.</param>
         /// <returns>Context based response.</returns>
         [HttpDelete("{id}")]
         [Authorize(Roles = "Journalist, Editor, HeadEditor")]
@@ -241,6 +241,7 @@
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<IActionResult> Post([FromQuery]ArticleDTO articleDTO)
+
         // content can be empty will be added later,Title is oblligatory,  email of author is taken from token
         // also could consider adding from only string title as other can be included later using put
         // i would also consider making content and introduction optional

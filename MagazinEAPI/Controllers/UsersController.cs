@@ -1,28 +1,33 @@
-﻿using MagazinEAPI.Contexts;
-using MagazinEAPI.Models.Users;
-using MagazinEAPI.Models.Users.Readers;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using SharedLibrary.DTO_Classes;
-using System.Security.Claims;
-
-
-namespace MagazinEAPI.Controllers
+﻿namespace MagazinEAPI.Controllers
 {
+    using MagazinEAPI.Contexts;
+    using MagazinEAPI.Models.Users;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Identity;
+    using Microsoft.AspNetCore.Mvc;
+    using SharedLibrary.DTO_Classes;
+    using System.Security.Claims;
+
+    /// <summary>
+    /// Controller for managing user-related operations.
+    /// </summary>
     [ApiController]
     [Route("users")]
     public class UsersController : ControllerBase
     {
-
-        private readonly RolesBasedContext _context;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RolesBasedContext context;
+        private readonly UserManager<ApplicationUser> userManager;
 
         public UsersController(RolesBasedContext context, UserManager<ApplicationUser> userManager)
         {
-            _context = context;
-            _userManager = userManager;
+            this.context = context;
+            this.userManager = userManager;
         }
+
+        /// <summary>
+        /// Gets the current user's information.
+        /// </summary>
+        /// <returns>Logged in user's info</returns>
         [HttpGet]
         [Authorize(Roles = "Reader")]
         [Authorize(AuthenticationSchemes = "Bearer")]
@@ -31,26 +36,31 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType<UserDTO>(StatusCodes.Status200OK)]
         public IActionResult Get()
         {
-            var Email = User.FindFirst(ClaimTypes.Email);
-            if (Email == null)
+            var email = this.User.FindFirst(ClaimTypes.Email);
+            if (email == null)
             {
-                return BadRequest("Email not found");
+                return this.BadRequest("Email not found");
             }
 
-            var ApplicationUser = _userManager.Users.FirstOrDefault(u => u.Email == Email.Value);
-            if (ApplicationUser == null)
+            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            if (applicationUser == null)
             {
-                return NotFound("User not found");
+                return this.NotFound("User not found");
             }
 
-            if (ApplicationUser.User == null)
+            if (applicationUser.User == null)
             {
-                return NotFound("User not found");
+                return this.NotFound("User not found");
             }
 
-            return Ok(ApplicationUser.User.ToDTO());
+            return this.Ok(applicationUser.User.ToDTO());
         }
 
+        /// <summary>
+        /// Adds an article to the user's "to read" list.
+        /// </summary>
+        /// <param name="id">Id of the article</param>
+        /// <returns>dto object with user info and updated list.</returns>
         [HttpPost("/ToRead/{id}")]
         [Authorize(Roles = "Reader")]
         [Authorize(AuthenticationSchemes = "Bearer")]
@@ -59,48 +69,51 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType<UserDTO>(StatusCodes.Status200OK)]
         public IActionResult Put([FromRoute] int id)
         {
-            var Email = User.FindFirst(ClaimTypes.Email);
-            if (Email == null)
+            var email = this.User.FindFirst(ClaimTypes.Email);
+            if (email == null)
             {
-                return BadRequest("Email not found");
+                return this.BadRequest("Email not found");
             }
 
-            var ApplicationUser = _userManager.Users.FirstOrDefault(u => u.Email == Email.Value);
-            if (ApplicationUser == null)
+            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            if (applicationUser == null)
             {
-                return NotFound("User not found");
+                return this.NotFound("User not found");
             }
 
-            if (ApplicationUser.User == null)
+            if (applicationUser.User == null)
             {
-                return NotFound("User not found");
+                return this.NotFound("User not found");
             }
 
-            var article = _context.Articles.FirstOrDefault(u => u.Id == id);
+            var article = this.context.Articles.FirstOrDefault(u => u.Id == id);
 
             if (article == null)
             {
-                return NotFound("Article not found");
+                return this.NotFound("Article not found");
             }
 
             try
             {
+                applicationUser.User.ArticleToReadArticles.Add(article);
 
-
-                ApplicationUser.User.ArticleToReadArticles.Add(article);
-
-                _context.SaveChanges();
-
+                this.context.SaveChanges();
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return this.BadRequest(ex.Message);
             }
 
-            var userDTO = ApplicationUser.User.ToDTO();
+            var userDTO = applicationUser.User.ToDTO();
 
-            return Ok(userDTO);
+            return this.Ok(userDTO);
         }
+
+        /// <summary>
+        /// Deletes an article from the user's "to read" list.
+        /// </summary>
+        /// <param name="id">id of article.</param>
+        /// <returns>dto object with user info and updated list.</returns>
         [HttpDelete("/ToRead/{id}")]
         [Authorize(Roles = "Reader")]
         [Authorize(AuthenticationSchemes = "Bearer")]
@@ -109,51 +122,55 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType<UserDTO>(StatusCodes.Status200OK)]
         public IActionResult DeleteToRead([FromRoute] int id)
         {
-            var Email = User.FindFirst(ClaimTypes.Email);
-            if (Email == null)
+            var email = this.User.FindFirst(ClaimTypes.Email);
+            if (email == null)
             {
-                return BadRequest("Email not found");
+                return this.BadRequest("Email not found");
             }
 
-            var ApplicationUser = _userManager.Users.FirstOrDefault(u => u.Email == Email.Value);
-            if (ApplicationUser == null)
+            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            if (applicationUser == null)
             {
-                return NotFound("User not found");
+                return this.NotFound("User not found");
             }
 
-            if (ApplicationUser.User == null)
+            if (applicationUser.User == null)
             {
-                return NotFound("User not found");
+                return this.NotFound("User not found");
             }
 
-            var article = _context.Articles.FirstOrDefault(u => u.Id == id);
+            var article = this.context.Articles.FirstOrDefault(u => u.Id == id);
 
             if (article == null)
             {
-                return NotFound("Article not found");
+                return this.NotFound("Article not found");
             }
 
             try
             {
-                if (!ApplicationUser.User.ArticleToReadArticles.Remove(article))
+                if (!applicationUser.User.ArticleToReadArticles.Remove(article))
                 {
-                    return BadRequest("Article is not in the to read list");
+                    return this.BadRequest("Article is not in the to read list");
                 }
 
-                _context.SaveChanges();
+                this.context.SaveChanges();
 
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return this.BadRequest(ex.Message);
             }
 
-            var userDTO = ApplicationUser.User.ToDTO();
+            var userDTO = applicationUser.User.ToDTO();
 
-
-            return Ok(userDTO);
+            return this.Ok(userDTO);
         }
 
+        /// <summary>
+        /// Deletes an article from the user's favorite list.
+        /// </summary>
+        /// <param name="id">Id of the article.</param>
+        /// <returns>dto object with user info and updated list.</returns>
         [HttpDelete("/Favorite/Articles/{id}")]
         [Authorize(Roles = "Reader")]
         [Authorize(AuthenticationSchemes = "Bearer")]
@@ -162,51 +179,55 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType<UserDTO>(StatusCodes.Status200OK)]
         public IActionResult DeleteFavorite([FromRoute] int id)
         {
-            var Email = User.FindFirst(ClaimTypes.Email);
-            if (Email == null)
+            var email = this.User.FindFirst(ClaimTypes.Email);
+            if (email == null)
             {
-                return BadRequest("Email not found");
+                return this.BadRequest("Email not found");
             }
 
-            var ApplicationUser = _userManager.Users.FirstOrDefault(u => u.Email == Email.Value);
-            if (ApplicationUser == null)
+            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            if (applicationUser == null)
             {
-                return NotFound("User not found");
+                return this.NotFound("User not found");
             }
 
-            if (ApplicationUser.User == null)
+            if (applicationUser.User == null)
             {
-                return NotFound("User not found");
+                return this.NotFound("User not found");
             }
 
-            var article = _context.Articles.FirstOrDefault(u => u.Id == id);
+            var article = this.context.Articles.FirstOrDefault(u => u.Id == id);
 
             if (article == null)
             {
-                return NotFound("Article not found");
+                return this.NotFound("Article not found");
             }
 
             try
             {
-                if (!ApplicationUser.User.ArticleFavoriteArticles.Remove(article))
+                if (!applicationUser.User.ArticleFavoriteArticles.Remove(article))
                 {
-                    return BadRequest("Article is not in the to favorite list");
+                    return this.BadRequest("Article is not in the to favorite list");
                 }
 
-                _context.SaveChanges();
+                this.context.SaveChanges();
 
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return this.BadRequest(ex.Message);
             }
 
-            var userDTO = ApplicationUser.User.ToDTO();
+            var userDTO = applicationUser.User.ToDTO();
 
-
-            return Ok(userDTO);
+            return this.Ok(userDTO);
         }
-        
+
+        /// <summary>
+        /// Adds an article to the user's favorite list.
+        /// </summary>
+        /// <param name="id">Id of the article.</param>
+        /// <returns>dto object with user info and updated list.</returns>
         [HttpPut("/Favorite/Articles/{id}")]
         [Authorize(Roles = "Reader")]
         [Authorize(AuthenticationSchemes = "Bearer")]
@@ -215,48 +236,52 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType<UserDTO>(StatusCodes.Status200OK)]
         public IActionResult PutFavoriteArticle([FromRoute] int id)
         {
-            var Email = User.FindFirst(ClaimTypes.Email);
-            if (Email == null)
+            var email = this.User.FindFirst(ClaimTypes.Email);
+            if (email == null)
             {
-                return BadRequest("Email not found");
+                return this.BadRequest("Email not found");
             }
 
-            var ApplicationUser = _userManager.Users.FirstOrDefault(u => u.Email == Email.Value);
-            if (ApplicationUser == null)
+            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            if (applicationUser == null)
             {
-                return NotFound("User not found");
+                return this.NotFound("User not found");
             }
 
-            if (ApplicationUser.User == null)
+            if (applicationUser.User == null)
             {
-                return NotFound("User not found");
+                return this.NotFound("User not found");
             }
 
-            var article = _context.Articles.FirstOrDefault(u => u.Id == id);
+            var article = this.context.Articles.FirstOrDefault(u => u.Id == id);
 
             if (article == null)
             {
-                return NotFound("Article not found");
+                return this.NotFound("Article not found");
             }
 
             try
             {
-                ApplicationUser.User.ArticleFavoriteArticles.Add(article);
+                applicationUser.User.ArticleFavoriteArticles.Add(article);
 
-                _context.SaveChanges();
+                this.context.SaveChanges();
 
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return this.BadRequest(ex.Message);
             }
 
-            var userDTO = ApplicationUser.User.ToDTO();
+            var userDTO = applicationUser.User.ToDTO();
 
-
-            return Ok(userDTO);
+            return this.Ok(userDTO);
         }
 
+        /// <summary>
+        /// Adds a tag to the user's favorite list.
+        /// </summary>
+        /// <param name="id">Tag id.</param>
+        /// <returns>dto object with user info and updated list.</returns>
         [HttpPut("/Favorite/Tags/{id}")]
         [Authorize(Roles = "Reader")]
         [Authorize(AuthenticationSchemes = "Bearer")]
@@ -265,48 +290,52 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType<UserDTO>(StatusCodes.Status200OK)]
         public IActionResult PutFavoriteTag([FromRoute] int id)
         {
-            var Email = User.FindFirst(ClaimTypes.Email);
-            if (Email == null)
+            var email = this.User.FindFirst(ClaimTypes.Email);
+            if (email == null)
             {
-                return BadRequest("Email not found");
+                return this.BadRequest("Email not found");
             }
 
-            var ApplicationUser = _userManager.Users.FirstOrDefault(u => u.Email == Email.Value);
-            if (ApplicationUser == null)
+            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            if (applicationUser == null)
             {
-                return NotFound("User not found");
+                return this.NotFound("User not found");
             }
 
-            if (ApplicationUser.User == null)
+            if (applicationUser.User == null)
             {
-                return NotFound("User not found");
+                return this.NotFound("User not found");
             }
 
-            var tag = _context.Tags.FirstOrDefault(u => u.Id == id);
+            var tag = this.context.Tags.FirstOrDefault(u => u.Id == id);
 
             if (tag == null)
             {
-                return NotFound("Tag not found");
+                return this.NotFound("Tag not found");
             }
 
             try
             {
-                ApplicationUser.User.FavouriteTags.Add(tag);
+                applicationUser.User.FavouriteTags.Add(tag);
 
-                _context.SaveChanges();
+                this.context.SaveChanges();
 
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return this.BadRequest(ex.Message);
             }
 
-            var userDTO = ApplicationUser.User.ToDTO();
+            var userDTO = applicationUser.User.ToDTO();
 
-
-            return Ok(userDTO);
+            return this.Ok(userDTO);
         }
 
+        /// <summary>
+        /// Deletes a tag from the user's favorite list.
+        /// </summary>
+        /// <param name="id">Id of the tag.</param>
+        /// <returns>dto object with user info and updated list.</returns>
         [HttpDelete("/Favorite/Tags/{id}")]
         [Authorize(Roles = "Reader")]
         [Authorize(AuthenticationSchemes = "Bearer")]
@@ -315,50 +344,54 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType<UserDTO>(StatusCodes.Status200OK)]
         public IActionResult DeleteFavoriteTag([FromRoute] int id)
         {
-            var Email = User.FindFirst(ClaimTypes.Email);
-            if (Email == null)
+            var email = this.User.FindFirst(ClaimTypes.Email);
+            if (email == null)
             {
-                return BadRequest("Email not found");
+                return this.BadRequest("Email not found");
             }
 
-            var ApplicationUser = _userManager.Users.FirstOrDefault(u => u.Email == Email.Value);
-            if (ApplicationUser == null)
+            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            if (applicationUser == null)
             {
-                return NotFound("User not found");
+                return this.NotFound("User not found");
             }
 
-            if (ApplicationUser.User == null)
+            if (applicationUser.User == null)
             {
-                return NotFound("User not found");
+                return this.NotFound("User not found");
             }
 
-            var tag = _context.Tags.FirstOrDefault(u => u.Id == id);
+            var tag = this.context.Tags.FirstOrDefault(u => u.Id == id);
 
             if (tag == null)
             {
-                return NotFound("Tag not found");
+                return this.NotFound("Tag not found");
             }
 
             try
             {
-                if (ApplicationUser.User.FavouriteTags.Remove(tag))
+                if (applicationUser.User.FavouriteTags.Remove(tag))
                 {
-                    return BadRequest("Tag is not in the favorite tags list");
+                    return this.BadRequest("Tag is not in the favorite tags list");
                 }
 
-                _context.SaveChanges();
+                this.context.SaveChanges();
 
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return this.BadRequest(ex.Message);
             }
 
-            var userDTO = ApplicationUser.User.ToDTO();
+            var userDTO = applicationUser.User.ToDTO();
 
-
-            return Ok(userDTO);
+            return this.Ok(userDTO);
         }
+
+        /// <summary>
+        /// Gets the list of articles owned by the user.
+        /// </summary>
+        /// <returns>Collection of id's of owned articles.</returns>
         [HttpGet("/OwnedArticles")]
         [Authorize(Roles = "Reader")]
         [Authorize(AuthenticationSchemes = "Bearer")]
@@ -367,29 +400,32 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType<ICollection<int>>(StatusCodes.Status200OK)]
         public IActionResult GetOwnedArticles()
         {
-            var Email = User.FindFirst(ClaimTypes.Email);
-            if (Email == null)
+            var email = this.User.FindFirst(ClaimTypes.Email);
+            if (email == null)
             {
-                return BadRequest("Email not found");
+                return this.BadRequest("Email not found");
             }
 
-            var ApplicationUser = _userManager.Users.FirstOrDefault(u => u.Email == Email.Value);
-            if (ApplicationUser == null)
+            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            if (applicationUser == null)
             {
-                return NotFound("User not found");
+                return this.NotFound("User not found");
             }
 
-            if (ApplicationUser.User == null)
+            if (applicationUser.User == null)
             {
-                return NotFound("User not found");
+                return this.NotFound("User not found");
             }
 
-            var ownedArticles = ApplicationUser.User.OwnedArticles.Select( a => a.Id);
+            var ownedArticles = applicationUser.User.OwnedArticles.Select( a => a.Id);
 
-
-            return Ok(ownedArticles);
+            return this.Ok(ownedArticles);
         }
 
+        /// <summary>
+        /// Gets the personal information of the user.
+        /// </summary>
+        /// <returns>dto with user informations.</returns>
         [HttpGet("/PersonalInfo")]
         [Authorize(Roles = "Reader")]
         [Authorize(AuthenticationSchemes = "Bearer")]
@@ -398,22 +434,26 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType<ApplicationUserDTO>(StatusCodes.Status200OK)]
         public IActionResult GetPersonalInfo()
         {
-            var Email = User.FindFirst(ClaimTypes.Email);
-            if (Email == null)
+            var email = this.User.FindFirst(ClaimTypes.Email);
+            if (email == null)
             {
-                return BadRequest("Email not found");
+                return this.BadRequest("Email not found");
             }
 
-            var ApplicationUser = _userManager.Users.FirstOrDefault(u => u.Email == Email.Value);
-            if (ApplicationUser == null)
+            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            if (applicationUser == null)
             {
-                return NotFound("User not found");
+                return this.NotFound("User not found");
             }
 
-
-            return Ok(ApplicationUser.ToDTO());
+            return this.Ok(applicationUser.ToDTO());
         }
 
+        /// <summary>
+        /// Updates the personal information of the user.
+        /// </summary>
+        /// <param name="appUserDTO">dto wih user info to be updated.</param>
+        /// <returns>dto object with updated user info.</returns>
         [HttpPut("/PersonalInfo")]
         [Authorize(Roles = "Reader")]
         [Authorize(AuthenticationSchemes = "Bearer")]
@@ -422,26 +462,25 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType<ApplicationUserDTO>(StatusCodes.Status200OK)]
         public IActionResult PutPersonalInfo([FromBody] ApplicationUserDTO appUserDTO)
         {
-            var Email = User.FindFirst(ClaimTypes.Email);
-            if (Email == null)
+            var email = this.User.FindFirst(ClaimTypes.Email);
+            if (email == null)
             {
-                return BadRequest("Email not found");
+                return this.BadRequest("Email not found");
             }
 
-            var ApplicationUser = _userManager.Users.FirstOrDefault(u => u.Email == Email.Value);
-            if (ApplicationUser == null)
+            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            if (applicationUser == null)
             {
-                return NotFound("User not found");
+                return this.NotFound("User not found");
             }
 
-            ApplicationUser.FirstName = appUserDTO.FirstName;
-            ApplicationUser.LastName = appUserDTO.LastName;
-            ApplicationUser.UserName = appUserDTO.Login;
+            applicationUser.FirstName = appUserDTO.FirstName;
+            applicationUser.LastName = appUserDTO.LastName;
+            applicationUser.UserName = appUserDTO.Login;
 
-            _context.SaveChanges();
+            this.context.SaveChanges();
 
-
-            return Ok(ApplicationUser.ToDTO());
+            return this.Ok(applicationUser.ToDTO());
         }
 
     }
