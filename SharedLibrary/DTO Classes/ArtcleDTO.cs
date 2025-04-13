@@ -9,9 +9,9 @@ namespace SharedLibrary.DTO_Classes
 {
 	public class ArticleDTO : ArticleAbstract
 	{
-		public List<int> CommentsIds { get; set; }
-		public List<string> Photos { get; set; }
-		public List<int> TagsIds { get; set; }
+		public List<int>? CommentsIds { get; set; }
+		public List<string>? Photos { get; set; }
+		public List<int>? TagsIds { get; set; }
 
 	}
 }

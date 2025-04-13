@@ -16,6 +16,7 @@ pipeline {
             steps {
                 echo "building docker images..."                
                 powershell "docker-compose -f ${DOCKER_COMPOSE_FILE} build"
+
             }
         }
 
@@ -29,6 +30,7 @@ pipeline {
         stage('Teardown') {
             steps {
                 echo "Teardown..."
+
                 powershell "docker-compose -f ${DOCKER_COMPOSE_FILE} down -v"
             }
         }
@@ -37,6 +39,7 @@ pipeline {
     post {
         always {
             echo "pipeline ended."            
+
         }
     }
 }
