@@ -1,5 +1,56 @@
+.article-list-wrapper {
+    min-height: 30vw;
+    width: 100%;
+    position: relative;
+}
+
+.tag-search-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    margin-inline: auto;
+}
+
+
+.tag-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    padding: 10px;
+    display: flex;
+    flex-wrap: wrap; 
+    gap: 10px; 
+    justify-content: flex-start; 
+}
+
+.tag-container-full {
+    width: 100%;
+    padding: 0 20px;
+    box-sizing: border-box;
+    margin-top: 10px;
+    max-height: fit-content;
+}
+
+.tag-container-inner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+
+
+
 .large-tag-container {
-    height: 20vh;
+    min-height: 20vh;
+    height: auto;
+    margin-bottom: 20px;
     z-index: 1000;
 }
 .tag-input {
@@ -32,29 +83,19 @@
     padding-top: 10px;
 }
 
-/*
+
 .tag-item {
-    padding: 8px 15px;
-    margin: 5px;
-    background-color: #FFD700;
-    color: white;
-    border-radius: 20px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-}
-*/
-.tag-item {
-    display: inline-flex; /* Aligns content properly */
+    display: inline-flex; 
     align-items: center;
     justify-content: center;
-    white-space: nowrap; /* Prevents weird text breaks */
-    overflow: hidden; /* Hides extra text instead of breaking layout */
-    text-overflow: ellipsis; /* Adds "..." if text is too long */
-    max-width: 100%; /* Prevents tag from overflowing */
-    padding: 8px 12px; /* Ensures better spacing */
-    margin: 5px; /* Keeps spacing between tags */
-    border-radius: 15px; /* Keeps the rounded look */
-    text-align: center; /* Centers text inside */
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis;
+    max-width: 100%; 
+    padding: 8px 12px; 
+    margin: 5px; 
+    border-radius: 15px; 
+    text-align: center; 
     background-color: #FFD700;
     color: white;
     transition: background-color 0.3s ease, transform 0.2s ease;
@@ -66,12 +107,6 @@
     }
 
 
-.tag-container {
-    display: flex;
-    flex-wrap: wrap;
-    margin-top: 20px;
-    margin-bottom: 20px;
-}
 
 .tag-badge {
     background-color: #FFD700;
@@ -96,34 +131,7 @@
             color: #ff6347;
         }
 
-        /*
-.tag-list {
-    position: absolute;
-    top: 60px;
-    width: 100%;
-    max-width: 400px;
-    background-color: white;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    z-index: 100;
-}
-*/
-.tag-list {
-    display: flex;
-    flex-direction: column; /* Makes tags stack properly */
-    align-items: start; /* Aligns tags to the left */
-    padding: 10px; /* Adds some spacing */
-    width: 100%;
-    max-width: 400px;
-    background-color: white;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    z-index: 100;
-    margin-top: 0;
-    margin-inline: auto;
-}
+
 
 .hidden {
     display: none;
@@ -145,6 +153,7 @@
 
 @media (max-width: 1800px) {
     .large-tag-container {
-        height: 30vh;
+        min-height: 30vh;
+        height: auto;
     }
 }

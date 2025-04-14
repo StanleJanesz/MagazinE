@@ -10,7 +10,6 @@ function HomePage() {
     const [tags, setTags] = useState([]); 
     const [isLoading, setIsLoading] = useState(true);
     const [searchTag, setSearchTag] = useState("");  
-    const [filteredTags, setFilteredTags] = useState([]); 
     const [selectedTags, setSelectedTags] = useState([]); 
     const [searchText, setSearchText] = useState(""); 
     const [searchedArticles, setSearchedArticles] = useState([]); 
@@ -37,7 +36,8 @@ function HomePage() {
             { id: 4, title: "Another interesting topic4", tags: [6, 14], isPremium: false },
             { id: 5, title: "Another interesting topic5", tags: [8, 9], isPremium: false },
             { id: 6, title: "Another interesting topic6", tags: [10, 12], isPremium: false },
-            { id: 7, title: "Another interesting topic7", tags: [5, 6, 7], isPremium: true }
+            { id: 7, title: "Another interesting topic7", tags: [5, 6, 7], isPremium: true },
+            { id: 8, title: "Another interesting topic8", tags: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25], isPremium: true }
         ];
 
         const articlesList = data.map(article => ({ ...article }));
@@ -65,7 +65,18 @@ function HomePage() {
             { id: 11, name: "Historia" },
             { id: 12, name: "Moda" },
             { id: 13, name: "Kosmos" },
-            { id: 14, name: "Sport" }
+            { id: 14, name: "Sport" },
+            { id: 15, name: "Cyrk" },
+            { id: 16, name: "Debata" },
+            { id: 17, name: "Piwnica" },
+            { id: 18, name: "Felieton" },
+            { id: 19, name: "Fizyka" },
+            { id: 20, name: "Nowinki" },
+            { id: 21, name: "IT" },
+            { id: 22, name: "Technologia" },
+            { id: 23, name: "USA" },
+            { id: 24, name: "Maisto" },
+            { id: 25, name: "Jedzenie" }
         ];
 
         const tagsList = data.map(tag => ({ ...tag}));
@@ -97,12 +108,10 @@ function HomePage() {
 
 
 
-    useEffect(() => {
-        const results = tags.filter(tag =>
-            tag.name.toLowerCase().includes(searchTag.toLowerCase())
-        );
-        setFilteredTags(results);
-    }, [searchTag, tags]);
+    const filteredTags = tags.filter(tag =>
+        tag.name.toLowerCase().includes(searchTag.toLowerCase())
+    );
+
 
 
     const addTagToSelected = (tag) => {
@@ -135,45 +144,46 @@ function HomePage() {
             <SearchBar handleSearchButtonClick={handleSearchButtonClick} />
 
             <div className="large-tag-container">
-                <input
-                    type="text"
-                    placeholder="Wpisz tag..."
-                    value={searchTag}
-                    onChange={(e) => setSearchTag(e.target.value)}
-                    className="tag-input" 
-                />
+                <div className="tag-search-wrapper">
+                    <input
+                        type="text"
+                        placeholder="Wpisz tag..."
+                        value={searchTag}
+                        onChange={(e) => setSearchTag(e.target.value)}
+                        className="tag-input"
+                    />
 
-
-                <div className={filteredTags.length > 0 && searchTag.length>0  ? 'tag-list' : 'tag-list hidden'}>
-                    {filteredTags.map(tag => (
-                        <span key={tag.id} className="tag-item" onClick={() => addTagToSelected(tag)}>
-                            {tag.name}
-                        </span>
-                    ))}
-                </div>
-
-
-                {selectedTags.length > 0 && (
-                    <div className="tag-container">
-                        <h4 className="selected-tags-title">Wybrane tagi</h4>
-                        {selectedTags.map(tag => (
-                            <span key={tag.id} className="tag-badge">
+                    <div className={filteredTags.length > 0 && searchTag.length > 0 ? 'tag-list' : 'tag-list hidden'}>
+                        {filteredTags.map(tag => (
+                            <span key={tag.id} className="tag-item" onClick={() => addTagToSelected(tag)}>
                                 {tag.name}
-                                <button
-                                    onClick={() => removeTagFromSelected(tag)}
-                                    className="tag-remove-button"
-                                >
-                                    X
-                                </button>
                             </span>
                         ))}
+                    </div>
+                </div>
+
+                {selectedTags.length > 0 && (
+                    <div className="tag-container-full">
+                        <h4 className="selected-tags-title">Wybrane tagi</h4>
+                        <div className="tag-container-inner">
+                            {selectedTags.map(tag => (
+                                <span key={tag.id} className="tag-badge">
+                                    {tag.name}
+                                    <button
+                                        onClick={() => removeTagFromSelected(tag)}
+                                        className="tag-remove-button"
+                                    >
+                                        X
+                                    </button>
+                                </span>
+                            ))}
                         </div>
-                
-                    )}
+                    </div>
+                )}
             </div>
 
 
-            <div style={{ minHeight: '30vw', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <div className="article-list-wrapper">
                 {content}
             </div>
         </div>
