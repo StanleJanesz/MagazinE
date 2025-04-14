@@ -94,10 +94,11 @@ p {
     border: 1px solid #ddd;
     padding: 20px;
     margin-top: 50px;
+    align-content: center;
     border-radius: 10px;
     background-color: #f9f9f9;
     text-align: center;
-    margin-bottom: 60px;    
+    margin-bottom: 30px;    
 }
 
 .subscribeButton {
@@ -108,11 +109,19 @@ p {
     border-radius: 5px;
     cursor: pointer;
     margin-top: 10px;
+    margin-bottom: 0px;
 }
 
     .subscribeButton:hover {
         background-color: #0056b3;
     }
+
+.ap-buttonContainer {
+    display: flex; 
+    flex-direction: row;
+    margin: auto;
+    gap: 10vw;
+}
 
 /* Responsive Design */
 @media screen and (max-width: 768px) {

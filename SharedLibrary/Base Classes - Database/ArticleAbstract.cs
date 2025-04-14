@@ -15,6 +15,6 @@ namespace SharedLibrary.Base_Classes___Database
 		public int AuthorId { get; set; }
 		public string Introduction { get; set; }
 		public string Content { get; set; }
-		public DateTime TimeOfPublication { get; set; }
+		public DateTime? TimeOfPublication { get; set; }
 	}
 }

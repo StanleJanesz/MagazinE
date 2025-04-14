@@ -32,6 +32,7 @@ namespace MagazinEAPI.Controllers
             _userManager = userManager;
         }
         [HttpPost("login")]
+        [ProducesResponseType(401)]  // Unauthorized (HTTP 401)
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
             var user = await _userManager.FindByEmailAsync(request.Email);

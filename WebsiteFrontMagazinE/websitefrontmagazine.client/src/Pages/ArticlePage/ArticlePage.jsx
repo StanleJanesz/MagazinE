@@ -97,10 +97,16 @@ function ArticlePage({ articleId }) {
                         <p>{data.content}</p>
                     ) : (
                         <div className="paywall">
-                            <p>This article is available for premium users only. Subscribe to unlock full access!</p>
-                            <button className="subscribeButton" onClick={() => navigate('/subscribe')}>
-                                Subscribe Now
-                            </button>
+                              <p>This article is available for premium users only. Subscribe to unlock full access!</p>
+                              <div className="ap-buttonContainer">
+
+                                  <button className="subscribeButton" onClick={() => navigate('/subscribe')}>
+                                      Subscribe Now
+                                  </button>
+                                  <button className="subscribeButton" onClick={() => navigate(`/purchase?id=${articleId}`)}>
+                                      Purchase only this article
+                                  </button>
+                              </div>
                         </div>
                     )}
                     <div className="commentsSection">
