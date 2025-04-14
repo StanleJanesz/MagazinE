@@ -5,6 +5,10 @@ import './ArticlePage.css';
 import { useNavigate } from 'react-router-dom';
 import Comment from '../../Components/Comment/Comment.jsx';
 import { Button } from "bootstrap";
+import mini from "/src/assets/mini.jpg";
+import gallery from "/src/assets/gallery.png";
+
+
 function ArticlePage({ articleId }) {
     // TODO: PARSER BALD AND ITALICS
     const [data, setData] = useState(null);
@@ -83,9 +87,9 @@ function ArticlePage({ articleId }) {
                 </Box >
             ) :
                 <div className="contentWrapper">
-                    <img src="src/assets/mini.jpg" className="articleCover" alt="Article cover" />
+                    <img src={mini} className="articleCover" alt="Article cover" />
                     <button className="galleryButton" onClick={() => navigate('/photos?articleId=')}>
-                        <img src="src/assets/gallery.png" alt="Gallery Icon" className="icon" /> Show gallery
+                        <img src={gallery} alt="Gallery Icon" className="icon" /> Show gallery
                     </button>
                     <h1>{data.title}</h1>
                     <h2>Author: {data.author}</h2>

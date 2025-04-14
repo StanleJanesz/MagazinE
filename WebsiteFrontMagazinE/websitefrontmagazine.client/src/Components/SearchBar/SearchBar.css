@@ -3,9 +3,10 @@
     flex-direction: row;
     align-items: flex-start;
     margin: auto;
+
 }
 .inputField {
-    width: 1000px;
+    width: 850px;
     height: 10px;
 }
 
@@ -23,6 +24,6 @@
         margin-top: 8%;
     }
     .inputField {
-        width: 80%;
+        width: 70vw;
     }
 }
