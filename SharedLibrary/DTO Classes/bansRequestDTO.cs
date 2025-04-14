@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using SharedLibrary.Base_Classes___Database;
 
 namespace SharedLibrary.DTO_Classes
 {
-	public class BanDTO : BanAbstract
+	public class BansRequestDTO
 	{
-		public List <int> ? UnbanRequestIds { get; set; }
+		public List<int> BanIds { get; set; } = [];
 	}
 }
