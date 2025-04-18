@@ -101,9 +101,9 @@ namespace MagazinEAPI.Controllers
                 await _APIContext.SaveChangesAsync();
                 return Ok(subscription.ToDTO());
             }
-            catch 
+            catch (Exception ex) 
             {
-                return BadRequest("Editing failed");
+                return BadRequest($"Editing failed {ex.Message}");
             }
         }
 
@@ -168,9 +168,9 @@ namespace MagazinEAPI.Controllers
                 await _APIContext.SaveChangesAsync();
                 return Ok(subscription.ToDTO());
             }
-            catch
+            catch (Exception ex)
             {
-                return BadRequest("Updating info failed");
+                return BadRequest($"Updating info failed {ex.Message}");
             }
         }
 
