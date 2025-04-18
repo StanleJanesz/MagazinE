@@ -4,6 +4,7 @@ using MagazinEAPI.Models.Users.Readers;
 using MagazinEAPI.Models.Users.Journalists;
 using Microsoft.AspNetCore.Identity;
 using SharedLibrary.Base_Classes___Database;
+using SharedLibrary.DTO_Classes;
 namespace MagazinEAPI.Models.Users
 {
     public class ApplicationUser : IdentityUser
@@ -17,6 +18,20 @@ namespace MagazinEAPI.Models.Users
         public HeadEditor? HeadEditor { get; set; }
         public Admin? Admin { get; set; }
 
+        public ApplicationUserDTO ToDTO()
+        {
+            
+            var appUser = new ApplicationUserDTO
+            {
+                Id = Id,
+                FirstName = FirstName,
+                LastName = LastName,
+                State = State,
+                Login = UserName,
+                Email = Email,
+            };
+            return appUser;
+        }
 
     }
 }
