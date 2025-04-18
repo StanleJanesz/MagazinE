@@ -2,28 +2,29 @@
     margin-left: 2.5%;
     flex-direction: row;
     align-items: flex-start;
-    margin: auto;
-
+    margin: 10vh auto 1vh auto;
 }
+
 .inputField {
     width: 850px;
     height: 10px;
 }
 
 .loupeIcon {
-    margin-left: 10px; 
+    margin-left: 10px;
     cursor: pointer;
     height: 3.5em;
     border: 1px solid #ccc;
     padding: 5px;
-    border-radius: 8px;   
+    border-radius: 8px;
 }
 
 @media (max-width: 1000px) {
     .search {
         margin-top: 8%;
     }
+
     .inputField {
-        width: 70vw;
+        width: 50vw;
     }
 }
