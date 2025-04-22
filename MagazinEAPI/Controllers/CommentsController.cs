@@ -1,32 +1,41 @@
-﻿using MagazinEAPI.Contexts;
-using MagazinEAPI.Models.Users;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using MagazinEAPI.Models.Articles;
-using MagazinEAPI.utils;
-using Microsoft.EntityFrameworkCore;
-using SharedLibrary.DTO_Classes;
-using System.Security.Claims;
-using MagazinEAPI.Models.Articles.Comment;
-
 namespace MagazinEAPI.Controllers
 {
+    using System.Security.Claims;
+    using MagazinEAPI.Contexts;
+    using MagazinEAPI.Models.Articles.Comment;
+    using MagazinEAPI.Models.Users;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Identity;
+    using Microsoft.AspNetCore.Mvc;
+    using SharedLibrary.DTO_Classes;
+
+    /// <summary>
+    /// Controller for managing comments.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class CommentsController : Controller
     {
+        private readonly RolesBasedContext context;
+        private readonly UserManager<ApplicationUser> userManager;
 
-        private readonly RolesBasedContext _context;
-        private readonly UserManager<ApplicationUser> _userManager;
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CommentsController"/> class.
+        /// </summary>
+        /// <param name="context">Database context.</param>
+        /// <param name="userManager">Provides API for managing user in presistence store.</param>
         public CommentsController(RolesBasedContext context, UserManager<ApplicationUser> userManager)
         {
-            _context = context;
-            _userManager = userManager;
+            this.context = context;
+            this.userManager = userManager;
         }
 
+        /// <summary>
+        /// Gets a comment by its ID.
+        /// </summary>
+        /// <param name="id">Id of requested comment.</param>
+        /// <returns>In case of success returns dto of comment object.</returns>
         [HttpGet("{id}")]
         [Authorize]
         [Authorize(AuthenticationSchemes = "Bearer")]
@@ -34,44 +43,49 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType<CommentDTO>(StatusCodes.Status200OK)]
-        public IActionResult Get(int id)
+        public IActionResult Get([FromRoute] int id)
         {
-            var comment = _context.Comments.FirstOrDefault(c => c.Id == id);
+            var comment = this.context.Comments.FirstOrDefault(c => c.Id == id);
             if (comment == null)
             {
-                return NotFound("Comment not found");
+                return this.NotFound("Comment not found");
             }
 
             if (!comment.Article.isPublished)
             {
-                return Unauthorized("Comment cannot be viewed because article is not published");
+                return this.Unauthorized("Comment cannot be viewed because article is not published");
             }
 
-            if (comment.IsDeleted && !User.IsInRole("Admin"))
+            if (comment.IsDeleted && !this.User.IsInRole("Admin"))
             {
-                return Unauthorized("Comment cannot be viewed because it is deleted");
+                return this.Unauthorized("Comment cannot be viewed because it is deleted");
             }
 
-            var Email = User.FindFirst(ClaimTypes.Email);
-            if (Email == null)
+            var email = this.User.FindFirst(ClaimTypes.Email);
+            if (email == null)
             {
-                return BadRequest("Email not found");
+                return this.BadRequest("Email not found");
             }
 
-            var ApplicationUser = _userManager.Users.FirstOrDefault(u => u.Email == Email.Value);
-            if (ApplicationUser == null)
+            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            if (applicationUser == null)
             {
-                return BadRequest("User not found");
+                return this.BadRequest("User not found");
             }
 
-            if (!comment.Article.CanBeViewedBy(ApplicationUser, _context, _userManager))
+            if (!comment.Article.CanBeViewedBy(applicationUser, this.context, this.userManager))
             {
-                return Unauthorized("User cannot view this comment");
+                return this.Unauthorized("User cannot view this comment");
             }
 
-            return Ok(comment.ToDTO());
+            return this.Ok(comment.ToDTO());
         }
 
+        /// <summary>
+        /// Adds a new comment to the article.
+        /// </summary>
+        /// <param name="commentDTO">dto object with comment info.</param>
+        /// <returns>In case of success returns dto of added comment.</returns>
         [HttpPost]
         [Authorize(Roles = "User")]
         [Authorize(AuthenticationSchemes = "Bearer")]
@@ -80,27 +94,27 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult Post([FromBody] CommentDTO commentDTO)
         {
-            var Email = User.FindFirst(ClaimTypes.Email);
-            if (Email == null)
+            var email = this.User.FindFirst(ClaimTypes.Email);
+            if (email == null)
             {
-                return BadRequest("Email not found");
+                return this.BadRequest("Email not found");
             }
 
-            var ApplicationUser = _userManager.Users.FirstOrDefault(u => u.Email == Email.Value);
-            if (ApplicationUser == null)
+            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            if (applicationUser == null || applicationUser.User == null)
             {
-                return BadRequest("User not found");
+                return this.BadRequest("User not found");
             }
 
-            var article = _context.Articles.FirstOrDefault(a => a.Id == commentDTO.ArticleId);
+            var article = this.context.Articles.FirstOrDefault(a => a.Id == commentDTO.ArticleId);
             if (article == null)
             {
-                return NotFound("Article not found");
+                return this.NotFound("Article not found");
             }
 
-            if (!article.CanBeViewedBy(ApplicationUser, _context, _userManager))
+            if (!article.CanBeViewedBy(applicationUser, this.context, this.userManager))
             {
-                return Unauthorized("User cannot view this article");
+                return this.Unauthorized("User cannot view this article");
             }
 
             var comment = new Comment();
@@ -108,26 +122,32 @@ namespace MagazinEAPI.Controllers
 
             if (commentDTO.ParentId != null)
             {
-                var parent = _context.Comments.FirstOrDefault(c => c.Id == commentDTO.ParentId);
+                var parent = this.context.Comments.FirstOrDefault(c => c.Id == commentDTO.ParentId);
                 if (parent == null)
                 {
-                    return NotFound("Parent comment not found");
+                    return this.NotFound("Parent comment not found");
                 }
+
                 comment.Parent = parent;
             }
-            comment.Author = ApplicationUser.User;
+
+            comment.Author = applicationUser.User;
             comment.Article = article;
-            comment.AuthorId = ApplicationUser.User.Id;
-            _context.Add(comment);
-            _context.SaveChanges();
+            comment.AuthorId = applicationUser.User.Id;
 
+            this.context.Add(comment);
+            this.context.SaveChanges();
+            this.context.Comments.Add(comment);
+            this.context.SaveChanges();
 
-            _context.Comments.Add(comment);
-            _context.SaveChanges();
-
-            return Ok(comment.ToDTO());
+            return this.Ok(comment.ToDTO());
         }
 
+        /// <summary>
+        /// Deletes a comment by its ID.
+        /// </summary>
+        /// <param name="id">Id of comment to be delated.</param>
+        /// <returns>response with info about success.</returns>
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
         [Authorize(AuthenticationSchemes = "Bearer")]
@@ -136,32 +156,36 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public IActionResult Delete(int id)
         {
-            var comment = _context.Comments.FirstOrDefault(c => c.Id == id);
+            var comment = this.context.Comments.FirstOrDefault(c => c.Id == id);
             if (comment == null)
             {
-                return NotFound("Comment not found");
+                return this.NotFound("Comment not found");
             }
 
-            var Email = User.FindFirst(ClaimTypes.Email);
-            if (Email == null)
+            var email = this.User.FindFirst(ClaimTypes.Email);
+            if (email == null)
             {
-                return BadRequest("Email not found");
+                return this.BadRequest("Email not found");
             }
 
-            var ApplicationUser = _userManager.Users.FirstOrDefault(u => u.Email == Email.Value);
-            if (ApplicationUser == null)
+            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            if (applicationUser == null)
             {
-                return BadRequest("User not found");
+                return this.BadRequest("User not found");
             }
-
 
             comment.IsDeleted = true;
-            comment.DeletedBy = ApplicationUser.Admin;
-            _context.SaveChanges();
+            comment.DeletedBy = applicationUser.Admin;
+            this.context.SaveChanges();
 
-            return Ok();
+            return this.Ok();
         }
 
+        /// <summary>
+        /// Restores a deleted comment by its ID.
+        /// </summary>
+        /// <param name="id">Id of comment to be restored.</param>
+        /// <returns>response with info about success.</returns>
         [HttpPut("{id}/restore")]
         [Authorize(Roles = "Admin")]
         [Authorize(AuthenticationSchemes = "Bearer")]
@@ -170,59 +194,69 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public IActionResult Restore(int id)
         {
-            var comment = _context.Comments.FirstOrDefault(c => c.Id == id);
+            var comment = this.context.Comments.FirstOrDefault(c => c.Id == id);
             if (comment == null)
             {
-                return NotFound("Comment not found");
+                return this.NotFound("Comment not found");
             }
 
             comment.IsDeleted = false;
             comment.DeletedBy = null;
-            _context.SaveChanges();
+            this.context.SaveChanges();
 
-            return Ok();
+            return this.Ok();
         }
 
-
+        /// <summary>
+        /// Changes content of comment.
+        /// </summary>
+        /// <param name="id">Id of changed comment.</param>
+        /// <param name="commentDTO">Dto containing comment changes.</param>
+        /// <returns>In case of succes dto of changed comment.</returns>
         [HttpPut("{id}")]
         [Authorize(Roles = "User")]
         [Authorize(AuthenticationSchemes = "Bearer")]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType<CommentDTO>(StatusCodes.Status200OK)]
         public IActionResult Put(int id, [FromBody] CommentDTO commentDTO)
         {
-            var comment = _context.Comments.FirstOrDefault(c => c.Id == id);
+            var comment = this.context.Comments.FirstOrDefault(c => c.Id == id);
             if (comment == null)
             {
-                return NotFound("Comment not found");
+                return this.NotFound("Comment not found");
             }
 
-            var Email = User.FindFirst(ClaimTypes.Email);
-            if (Email == null)
+            var email = this.User.FindFirst(ClaimTypes.Email);
+            if (email == null)
             {
-                return BadRequest("Email not found");
+                return this.BadRequest("Email not found");
             }
 
-            var ApplicationUser = _userManager.Users.FirstOrDefault(u => u.Email == Email.Value);
-            if (ApplicationUser == null)
+            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            if (applicationUser == null || applicationUser.User == null)
             {
-                return BadRequest("User not found");
+                return this.BadRequest("User not found");
             }
 
-            if (comment.AuthorId != ApplicationUser.User.Id)
+            if (comment.AuthorId != applicationUser.User.Id)
             {
-                return Unauthorized("User can only edit his comments");
+                return this.Unauthorized("User can only edit his comments");
             }
 
             comment.Content = commentDTO.Content;
 
-            _context.SaveChanges();
+            this.context.SaveChanges();
 
-            return Ok(comment.ToDTO());
+            return this.Ok(comment.ToDTO());
         }
 
+        /// <summary>
+        /// Adds a like to the comment.
+        /// </summary>
+        /// <param name="id">Id of liked comment.</param>
+        /// <returns>count of likes in comment.</returns>
         [Authorize(Roles = "User")]
         [Authorize(AuthenticationSchemes = "Bearer")]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -232,35 +266,40 @@ namespace MagazinEAPI.Controllers
         [HttpPost("{id}/likes")]
         public IActionResult Like([FromRoute] int id)
         {
-            var comment = _context.Comments.FirstOrDefault(c => c.Id == id);
+            var comment = this.context.Comments.FirstOrDefault(c => c.Id == id);
             if (comment == null)
             {
-                return NotFound("Comment not found");
+                return this.NotFound("Comment not found");
             }
 
-            var Email = User.FindFirst(ClaimTypes.Email);
-            if (Email == null)
+            var email = this.User.FindFirst(ClaimTypes.Email);
+            if (email == null)
             {
-                return BadRequest("Email not found");
+                return this.BadRequest("Email not found");
             }
 
-            var ApplicationUser = _userManager.Users.FirstOrDefault(u => u.Email == Email.Value);
-            if (ApplicationUser == null)
+            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            if (applicationUser == null || applicationUser.User == null)
             {
-                return BadRequest("User not found");
+                return this.BadRequest("User not found");
             }
 
-            if (comment.LikeUsers.Contains(ApplicationUser.User))
+            if (comment.LikeUsers.Contains(applicationUser.User))
             {
-                return BadRequest("User already liked this comment");
+                return this.BadRequest("User already liked this comment");
             }
 
-            comment.LikeUsers.Add(ApplicationUser.User);
-            _context.SaveChanges();
+            comment.LikeUsers.Add(applicationUser.User);
+            this.context.SaveChanges();
 
-            return Ok(comment.LikeUsers.Count);
+            return this.Ok(comment.LikeUsers.Count);
         }
 
+        /// <summary>
+        /// Removes a like from the comment.
+        /// </summary>
+        /// <param name="id">Id of comment.</param>
+        /// <returns>Count od likes in comment.</returns>
         [HttpDelete("{id}/likes")]
         [Authorize(Roles = "User")]
         [Authorize(AuthenticationSchemes = "Bearer")]
@@ -270,34 +309,40 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType<int>(StatusCodes.Status200OK)]
         public IActionResult DelateLike([FromRoute] int id)
         {
-            var comment = _context.Comments.FirstOrDefault(c => c.Id == id);
+            var comment = this.context.Comments.FirstOrDefault(c => c.Id == id);
             if (comment == null)
             {
-                return NotFound("Comment not found");
+                return this.NotFound("Comment not found");
             }
 
-            var Email = User.FindFirst(ClaimTypes.Email);
-            if (Email == null)
+            var email = this.User.FindFirst(ClaimTypes.Email);
+            if (email == null)
             {
-                return BadRequest("Email not found");
+                return this.BadRequest("Email not found");
             }
 
-            var ApplicationUser = _userManager.Users.FirstOrDefault(u => u.Email == Email.Value);
-            if (ApplicationUser == null)
+            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            if (applicationUser == null || applicationUser.User == null)
             {
-                return BadRequest("User not found");
+                return this.BadRequest("User not found");
             }
 
-            if (!comment.LikeUsers.Contains(ApplicationUser.User))
+            if (!comment.LikeUsers.Contains(applicationUser.User))
             {
-                return BadRequest("User did not like this comment");
+                return this.BadRequest("User did not like this comment");
             }
 
-            comment.LikeUsers.Remove(ApplicationUser.User);
-            _context.SaveChanges();
+            comment.LikeUsers.Remove(applicationUser.User);
+            this.context.SaveChanges();
 
-            return Ok(comment.LikeUsers.Count);
+            return this.Ok(comment.LikeUsers.Count);
         }
+
+        /// <summary>
+        /// Adds a dislike to the comment.
+        /// </summary>
+        /// <param name="id">Id of the comment.</param>
+        /// <returns>Count of dislikes for comment.</returns>
         [Authorize(Roles = "User")]
         [Authorize(AuthenticationSchemes = "Bearer")]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -307,35 +352,40 @@ namespace MagazinEAPI.Controllers
         [HttpPost("{id}/dislikes")]
         public IActionResult Disike([FromRoute] int id)
         {
-            var comment = _context.Comments.FirstOrDefault(c => c.Id == id);
+            var comment = this.context.Comments.FirstOrDefault(c => c.Id == id);
             if (comment == null)
             {
-                return NotFound("Comment not found");
+                return this.NotFound("Comment not found");
             }
 
-            var Email = User.FindFirst(ClaimTypes.Email);
-            if (Email == null)
+            var email = this.User.FindFirst(ClaimTypes.Email);
+            if (email == null)
             {
-                return BadRequest("Email not found");
+                return this.BadRequest("Email not found");
             }
 
-            var ApplicationUser = _userManager.Users.FirstOrDefault(u => u.Email == Email.Value);
-            if (ApplicationUser == null)
+            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            if (applicationUser == null || applicationUser.User == null)
             {
-                return BadRequest("User not found");
+                return this.BadRequest("User not found");
             }
 
-            if (comment.LikeUsers.Contains(ApplicationUser.User))
+            if (comment.LikeUsers.Contains(applicationUser.User))
             {
-                return BadRequest("User already disliked this comment");
+                return this.BadRequest("User already disliked this comment");
             }
 
-            comment.DislikeUsers.Add(ApplicationUser.User);
-            _context.SaveChanges();
+            comment.DislikeUsers.Add(applicationUser.User);
+            this.context.SaveChanges();
 
-            return Ok(comment.DislikeUsers.Count);
+            return this.Ok(comment.DislikeUsers.Count);
         }
 
+        /// <summary>
+        /// Removes a dislike from the comment.
+        /// </summary>
+        /// <param name="id">Id of the comment.</param>
+        /// <returns>Count of dislikes for this comment.</returns>
         [HttpDelete("{id}/dislikes")]
         [Authorize(Roles = "User")]
         [Authorize(AuthenticationSchemes = "Bearer")]
@@ -345,38 +395,33 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType<int>(StatusCodes.Status200OK)]
         public IActionResult DelateDisike([FromRoute] int id)
         {
-            var comment = _context.Comments.FirstOrDefault(c => c.Id == id);
+            var comment = this.context.Comments.FirstOrDefault(c => c.Id == id);
             if (comment == null)
             {
-                return NotFound("Comment not found");
+                return this.NotFound("Comment not found");
             }
 
-            var Email = User.FindFirst(ClaimTypes.Email);
-            if (Email == null)
+            var email = this.User.FindFirst(ClaimTypes.Email);
+            if (email == null)
             {
-                return BadRequest("Email not found");
+                return this.BadRequest("Email not found");
             }
 
-            var ApplicationUser = _userManager.Users.FirstOrDefault(u => u.Email == Email.Value);
-            if (ApplicationUser == null)
+            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            if (applicationUser == null || applicationUser.User == null)
             {
-                return BadRequest("User not found");
+                return this.BadRequest("User not found");
             }
 
-            if (!comment.LikeUsers.Contains(ApplicationUser.User))
+            if (!comment.LikeUsers.Contains(applicationUser.User))
             {
-                return BadRequest("User did not dislike this comment");
+                return this.BadRequest("User did not dislike this comment");
             }
 
-            comment.LikeUsers.Remove(ApplicationUser.User);
-            _context.SaveChanges();
+            comment.LikeUsers.Remove(applicationUser.User);
+            this.context.SaveChanges();
 
-            return Ok(comment.LikeUsers.Count);
+            return this.Ok(comment.LikeUsers.Count);
         }
-
-
-
     }
-
-
 }
