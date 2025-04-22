@@ -8,6 +8,7 @@ import LoginPage from './Pages/LoginPage/LoginPage.jsx';
 import RegisterPage from './Pages/RegisterPage/RegisterPage.jsx';
 import ArticlePage from './Pages/ArticlePage/ArticlePage.jsx';
 import EditArticlePage from './Pages/EditArticlePage/EditArticlePage.jsx';
+import ArticlesJournalistPage from './Pages/ArticlesJournalistPage/ArticlesJournalistPage.jsx';
 
 // Styles imports
 import './App.css';
@@ -26,6 +27,7 @@ function App() {
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/article" element={<ArticlePage />} />
                 <Route path="/edit-article" element={<EditArticlePage />} />
+                <Route path="/articles-view" element={<ArticlesJournalistPage /> } />
             </Routes>
         </Router>
     );

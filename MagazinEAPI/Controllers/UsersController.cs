@@ -1,4 +1,4 @@
-﻿namespace MagazinEAPI.Controllers
+namespace MagazinEAPI.Controllers
 {
     using MagazinEAPI.Contexts;
     using MagazinEAPI.Models.Users;
@@ -43,6 +43,34 @@
             }
 
             var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            if (applicationUser == null)
+            {
+                return this.NotFound("User not found");
+            }
+
+            if (applicationUser.User == null)
+            {
+                return this.NotFound("User not found");
+            }
+
+            return this.Ok(applicationUser.User.ToDTO());
+        }
+
+        /// <summary>
+        /// Gets the user's information.
+        /// Used by admin.
+        /// </summary>
+        /// <param name="id">Id of the user.</param>
+        /// <returns>Logged in user's info.</returns>
+        [HttpGet("/{id}")]
+        [Authorize(Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType<UserDTO>(StatusCodes.Status200OK)]
+        public IActionResult Get([FromRoute] string id)
+        {
+            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Id == id);
             if (applicationUser == null)
             {
                 return this.NotFound("User not found");
@@ -319,7 +347,6 @@
                 applicationUser.User.FavouriteTags.Add(tag);
 
                 this.context.SaveChanges();
-
             }
             catch (Exception ex)
             {
@@ -441,6 +468,28 @@
             }
 
             var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            if (applicationUser == null)
+            {
+                return this.NotFound("User not found");
+            }
+
+            return this.Ok(applicationUser.ToDTO());
+        }
+
+        /// <summary>
+        /// Gets the personal information of the user.
+        /// used by admin.
+        /// </summary>
+        /// <returns>dto with user informations.</returns>
+        [HttpGet("/PersonalInfo/{id}")]
+        [Authorize(Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType<ApplicationUserDTO>(StatusCodes.Status200OK)]
+        public IActionResult GetPersonalInfo([FromRoute] int id)
+        {
+            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.User.Id == id );
             if (applicationUser == null)
             {
                 return this.NotFound("User not found");

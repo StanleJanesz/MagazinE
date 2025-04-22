@@ -1,4 +1,4 @@
-﻿namespace MagazinEAPI.Controllers
+namespace MagazinEAPI.Controllers
 {
     using System.Security.Claims;
     using MagazinEAPI.Contexts;

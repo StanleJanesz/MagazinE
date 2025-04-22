@@ -116,10 +116,11 @@ p {
         background-color: #0056b3;
     }
 
-.buttonContainer {
+.ap-buttonContainer {
     display: flex; 
     flex-direction: row;
-    margin: 0;
+    margin: auto;
+    gap: 10vw;
 }
 
 /* Responsive Design */
