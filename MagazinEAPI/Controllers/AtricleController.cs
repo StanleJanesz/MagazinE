@@ -108,9 +108,7 @@
                 return this.BadRequest("User not found");
             }
 
-
             if (!article.CanBeEditedBy(applicationUser, this.context, this.userManager))
-
             {
                 return this.Unauthorized("User cannot edit this article");
             }

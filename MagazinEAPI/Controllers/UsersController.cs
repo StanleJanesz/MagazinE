@@ -27,7 +27,7 @@ namespace MagazinEAPI.Controllers
         /// <summary>
         /// Gets the current user's information.
         /// </summary>
-        /// <returns>Logged in user's info.</returns>
+        /// <returns>Logged in user's info</returns>
         [HttpGet]
         [Authorize(Roles = "Reader")]
         [Authorize(AuthenticationSchemes = "Bearer")]
