@@ -44,6 +44,7 @@
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+
         [ProducesResponseType<ArticleDTO>(StatusCodes.Status200OK)]
         public IActionResult Get([FromRoute] int id)
         {
@@ -107,7 +108,9 @@
                 return this.BadRequest("User not found");
             }
 
+
             if (!article.CanBeEditedBy(applicationUser, this.context, this.userManager))
+
             {
                 return this.Unauthorized("User cannot edit this article");
             }

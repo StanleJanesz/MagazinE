@@ -1,4 +1,4 @@
-﻿namespace MagazinEAPI.Controllers
+namespace MagazinEAPI.Controllers
 {
     using MagazinEAPI.Contexts;
     using MagazinEAPI.Models.Users;
@@ -347,7 +347,6 @@
                 applicationUser.User.FavouriteTags.Add(tag);
 
                 this.context.SaveChanges();
-
             }
             catch (Exception ex)
             {
