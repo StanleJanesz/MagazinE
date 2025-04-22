@@ -32,6 +32,7 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+
         [ProducesResponseType<ArticleDTO>(StatusCodes.Status200OK)]
         public IActionResult Get([FromRoute] int id)
         {
@@ -62,7 +63,7 @@ namespace MagazinEAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize]
+        [Authorize(Roles = "Journalist, Editor")]
         [Authorize(AuthenticationSchemes = "Bearer")]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -88,7 +89,7 @@ namespace MagazinEAPI.Controllers
                 return BadRequest("User not found");
             }
 
-            if (!article.CanBeDelatedBy(ApplicationUser, _context, _userManager))
+            if (!article.CanBeEdited(ApplicationUser, _context, _userManager))
             {
                 return Unauthorized("User cannot edit this article");
             }
@@ -118,7 +119,8 @@ namespace MagazinEAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize]
+        [Authorize(Roles = "Journalist, Editor, HeadEditor")]
+
         [Authorize(AuthenticationSchemes = "Bearer")]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
