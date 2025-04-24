@@ -9,12 +9,15 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SharedLibrary.Base_Classes___Database;
 using SharedLibrary.DTO_Classes;
+using System.Data;
+using System.Reflection.PortableExecutable;
 using System.Security.Claims;
-
+using System.Web;
 
 namespace MagazinEAPI.Controllers
 {
     [Authorize]
+    [Authorize(AuthenticationSchemes = "Bearer")]
     [ApiController]
     [Route("subscriptions")]
     public class SubscriptionsController : Controller
@@ -31,141 +34,132 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType<SubscriptionDTO>(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<SubscriptionDTO>> GetSubscription([FromRoute] int userID)
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<IActionResult> GetSubscriptions([FromRoute] string userID)
         {
             // User can get info about only their own subscription, unless they are admin
-
-            if(!int.TryParse(_userManager.GetUserId(User), out int userId))
-            {
-                return BadRequest("User not found");
-            }
-
-            var isAdmin = User.IsInRole("Admin");
-            var isReader = User.IsInRole("Reader");
-          
-            if (userId != userID && !isAdmin) 
-            {
-                return Unauthorized("This action is admin only!");
-            }
-
-            var subInfo = await _APIContext.Subscriptions.FirstOrDefaultAsync(sub => sub.UserId == userID);
+            var (canAccess, targetUser, failure) = await ValidateUserAsync(userID);
             
-            if (subInfo == null) 
+            if (!canAccess)
             {
-                return BadRequest("Subscription not found");
+                return failure!;
             }
 
-            return Ok(subInfo.ToDTO());
-        }
-
-        [HttpPut("{userID}")]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> PutSubscription([FromRoute] int userID, [FromBody] SubscriptionDTO subscriptionDTO)
-        {
-            if (!int.TryParse(_userManager.GetUserId(User), out int userId))
-            {
-                return BadRequest("Invalid user");
-            }
-        
-            var isAdmin = User.IsInRole("Admin");
-            var isReader = User.IsInRole("Reader");
-
-            if (userId != userID && !isAdmin)
-            {
-                return Unauthorized("You cannot modify another user's subscription.");
-            }
+            var isReader = await _userManager.IsInRoleAsync(targetUser!, "Reader");
             
             if (!isReader)
             {
-                return BadRequest("Non-reader cannot subscribe!");
-            }
-
-            if (await _APIContext.Subscriptions.AnyAsync(s => s.UserId == userId))
-            {
-                return BadRequest("Subscription already exists. Use UpdateSubscription to update.");
+                return BadRequest("User is not a reader. Modify role first");
             }
 
             try
-            {   
+            {
+                var subInfo = await _APIContext.Subscriptions
+                    .Where(sub => sub.User.ApplicationUserId == userID)
+                    .Select(sub => sub.ToDTO())
+                    .ToListAsync();
+                
+                return Ok(subInfo);
+            }
+            catch (Exception ex) 
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpPost("{userID}")]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<IActionResult> PostSubscription([FromRoute] string userID, [FromBody] SubscriptionDTO subscriptionDTO)
+        {
+            var (canAccess, targetUser, failure) = await ValidateUserAsync(userID);
+            
+            if (!canAccess)
+            {
+                return failure!;
+            }
+
+            var isReader = await _userManager.IsInRoleAsync(targetUser!, "Reader");
+            
+            if (!isReader)
+            {
+                return BadRequest("User is not a reader. Modify role first.");
+            }
+
+            try
+            {
+                var reader = _APIContext.Readers
+                    .Where(r => r.ApplicationUserId == userID)
+                    .First();
+                
+                if (reader == null)
+                {
+                    return StatusCode(500, "Could not find the reader");
+                }
+
                 var subscription = new Subscription
                 {
-                    UserId = userID,
+                    UserId = reader.Id,
                     StartDate = subscriptionDTO.StartDate,
                     EndDate = subscriptionDTO.EndDate,
-                    State = subscriptionDTO.State
+                    State = subscriptionDTO.State,
+                    User = reader
                 };
                 
                 await _APIContext.Subscriptions.AddAsync(subscription);
                 await _APIContext.SaveChangesAsync();
+                
                 return Ok(subscription.ToDTO());
             }
             catch (Exception ex) 
             {
-                return BadRequest($"Editing failed {ex.Message}");
+                return BadRequest($"Editing subscription failed {ex.Message}");
             }
         }
-
-        [HttpDelete("{userID}")]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> DeleteSubscription([FromRoute] int userID)
-        {
-            if (!int.TryParse(_userManager.GetUserId(User), out int userId))
-            {
-                return BadRequest("Invalid user");
-            }
-
-            var isAdmin = User.IsInRole("Admin");
-
-            if (userId != userID && !isAdmin)
-            {
-                return Unauthorized("You cannot delete another user's subscription.");
-            }
-
-            var subscription = await _APIContext.Subscriptions.FirstOrDefaultAsync(s => s.UserId == userID);
-
-            if (subscription == null)
-            {
-                return NotFound("Subscription not found");
-            }
-
-            try
-            {
-                _APIContext.Subscriptions.Remove(subscription);
-                await _APIContext.SaveChangesAsync();
-
-                return Ok("Subscription successfully deleted");
-            }
-            catch (Exception ex) 
-            { 
-                return BadRequest($"Deleting subscription failed: {ex.Message}"); 
-            }
-        }
-
 
         [HttpPatch("{userID}")]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> UpdateSubscription([FromRoute] int userID, [FromBody] SubscriptionDTO subscriptionDTO)
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<IActionResult> UpdateSubscription([FromRoute] string userID, [FromBody] SubscriptionDTO subscriptionDTO)
         {
-            var subscription = await _APIContext.Subscriptions.FirstOrDefaultAsync(sub => sub.UserId == userID);
-            if (subscription == null)
+            var (canAccess, targetUser, failure) = await ValidateUserAsync(userID);
+            if (!canAccess)
             {
-                return NotFound("No subscription exists");
+                return failure!;
             }
 
-            subscription.StartDate = subscriptionDTO.StartDate;
-            subscription.EndDate = subscriptionDTO.EndDate;
-            subscription.State = subscriptionDTO.State;
+            var isReader = await _userManager.IsInRoleAsync(targetUser!, "Reader");
+            
+            if (!isReader)
+            {
+                return BadRequest("User is not a reader. Modify role first.");
+            }
 
             try
             {
+                var subscriptions = _APIContext.Subscriptions
+                    .Where(sub => sub.User.ApplicationUserId == userID);
+
+                var subscription = subscriptions.First(sub => sub.Id == subscriptionDTO.Id);
+
+                if (subscription == null)
+                {
+                    return NotFound("No subscription exists");
+                }
+
+                subscription.StartDate = subscriptionDTO.StartDate;
+                subscription.EndDate = subscriptionDTO.EndDate;
+                subscription.State = subscriptionDTO.State;
+
                 _APIContext.Subscriptions.Update(subscription);
                 await _APIContext.SaveChangesAsync();
+                
                 return Ok(subscription.ToDTO());
             }
             catch (Exception ex)
@@ -174,14 +168,30 @@ namespace MagazinEAPI.Controllers
             }
         }
 
-        private bool UserCanAccess(int targetUserId, out IActionResult? failureResult)
+        private async Task<(bool CanAccess, ApplicationUser? TargetUser, IActionResult? FailureResult)> ValidateUserAsync(string userId)
         {
-            failureResult = null;
-            if (!int.TryParse(_userManager.GetUserId(User), out var currentUserId))
-                failureResult = BadRequest("Invalid user");
-            else if (currentUserId != targetUserId && !User.IsInRole("Admin"))
-                failureResult = Forbid();
-            return failureResult == null;
+            var currentUserId = _userManager.GetUserId(User);
+            
+            if (currentUserId == null)
+            {
+                return (false, null, StatusCode(500, "Authenticated user not found."));
+            }
+
+            var targetUser = await _userManager.FindByIdAsync(userId);
+            
+            if (targetUser == null)
+            {
+                return (false, null, BadRequest("User does not exist."));
+            }
+
+            var isAdmin = User.IsInRole("Admin");
+            
+            if (currentUserId != userId && !isAdmin)
+            {
+                return (false, targetUser, Forbid());
+            }
+
+            return (true, targetUser, null);
         }
 
     }
