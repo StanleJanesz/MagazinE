@@ -61,15 +61,29 @@ namespace MagazinEAPI.Controllers
 				return Unauthorized("App User not found");
 			}
 
-			//dowolny admin i ten uzytkownik ktory to zglosił i wlasiciiel zgloszonego komentarza
-			if (!_context.Admins.Any(a => a.ApplicationUserId == applicationUser.Id) &&
-			   !_context.Readers.Any(r => r.ApplicationUserId == applicationUser.Id && (r.Id == report.ReportAuthorId || r.Id == comment.AuthorId)))
+			//jestesmy adminem
+			if(_context.Admins.Any(a => a.ApplicationUserId == applicationUser.Id))
+			{
+				return Ok(report.ToDTO());
+			}
+
+			//jestesmy autorem zgloszenia
+			else if(_context.Readers.Any(r => r.ApplicationUserId == applicationUser.Id && (r.Id == report.ReportAuthorId)))
+			{
+				return Ok(report.ToDTO());
+			}
+
+			//jestemy autorem zgloszonego kometarza
+			else if(_context.Readers.Any(r => r.ApplicationUserId == applicationUser.Id && (r.Id == comment.AuthorId)))
+			{
+				return Ok(report.RestrictedToDTO());
+			}
+
+			else 
 			{
 				return Unauthorized("You are not authorised");
 			}
 
-
-			return Ok(report.ToDTO());
 
 		}
 
@@ -182,7 +196,7 @@ namespace MagazinEAPI.Controllers
 
 			if (commentReportDTO.State == CommentReportState.Pending)
 			{
-				return BadRequest("Incorrectly resolving report");
+				return BadRequest("You are incorrectly resolving report");
 			}
 
 			
@@ -213,6 +227,171 @@ namespace MagazinEAPI.Controllers
 		}
 
 
-		
+		[HttpGet("{id}")]
+		[Authorize(AuthenticationSchemes = "Bearer")]
+		[Authorize(Roles = "Reader, Admin")]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType<List<int>>(StatusCodes.Status200OK)]
+		public IActionResult GetCommentReports([FromRoute] int id) //comment id
+																   //uzytkownik pobiera id zgloszen swojego komentarza
+																   //admin pobiera id zloszen dowolnego kometarza
+		{
+			var Email = User.FindFirst(ClaimTypes.Email);
+			if (Email == null)
+			{
+				return BadRequest("Email not found");
+			}
+
+			var applicationUser = _userManager.Users.FirstOrDefault(u => u.Email == Email.Value);
+			if (applicationUser == null)
+			{
+				return Unauthorized("App User not found");
+			}
+
+			var comment = _context.Comments.Include(c => c.Reports).FirstOrDefault(c => c.Id == id);
+			if (comment == null)
+			{
+				return NotFound("Comment not found");
+			}
+			if (comment.Reports == null)
+			{
+				return NotFound("Reports not found");
+			}
+
+
+			//dowolny admin i wlasiciiel komentarza
+			if (!_context.Admins.Any(a => a.ApplicationUserId == applicationUser.Id) &&
+			   !_context.Readers.Any(r => r.ApplicationUserId == applicationUser.Id && (r.Id == comment.AuthorId)))
+			{
+				return Unauthorized("You are not authorised");
+			}
+
+			return Ok(comment.Reports.Select(r=> r.Id));
+
+		}
+
+
+		[HttpGet("{id}")]
+		[Authorize(AuthenticationSchemes = "Bearer")]
+		[Authorize(Roles = "Reader, Admin")]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType<List<int>>(StatusCodes.Status200OK)]
+		public IActionResult GetUserReports([FromRoute] int id) //czytelnik pobiera zgłoszenia swojego autorstwa (lub admin po id readera)
+		{
+			var Email = User.FindFirst(ClaimTypes.Email);
+			if (Email == null)
+			{
+				return BadRequest("Email not found");
+			}
+
+			var applicationUser = _userManager.Users.FirstOrDefault(u => u.Email == Email.Value);
+			if (applicationUser == null)
+			{
+				return Unauthorized("App User not found");
+			}
+
+			var reader = _context.Readers.Include(r=> r.ReportedComments).FirstOrDefault(r => r.Id == id);
+			if (reader == null)
+			{
+				return NotFound("Reader not found");
+			}
+			if (reader.ReportedComments == null)
+			{
+				return NotFound("Reader Reports not found");
+			}
+
+
+			//dowolny admin i ten uzytkownik
+			if (!_context.Admins.Any(a => a.ApplicationUserId == applicationUser.Id) &&
+			   !_context.Readers.Any(r => r.ApplicationUserId == applicationUser.Id && (r.Id == reader.Id)))
+			{
+				return Unauthorized("You are not authorised");
+			}
+
+			return Ok(reader.ReportedComments.Select(r => r.Id));
+			
+		}
+
+
+		[HttpGet]
+		[Authorize(AuthenticationSchemes = "Bearer")]
+		[Authorize(Roles = "Admin")]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType<List<int>>(StatusCodes.Status200OK)]
+		public IActionResult GetPendingReports() //admin pobiera nierozwiazane zgloszenia
+		{
+			var Email = User.FindFirst(ClaimTypes.Email);
+			if (Email == null)
+			{
+				return BadRequest("Email not found");
+			}
+
+			var applicationUser = _userManager.Users.FirstOrDefault(u => u.Email == Email.Value);
+			if (applicationUser == null)
+			{
+				return NotFound("App User not found");
+			}
+
+			var admin = _context.Admins.FirstOrDefault(a => a.ApplicationUserId == applicationUser.Id);
+			if (admin == null)
+			{
+				return Unauthorized("You are not an andmin");
+			}
+
+			var pendingReports = _context.CommentReports.Where(cr => cr.State == CommentReportState.Pending);
+			if (pendingReports == null)
+			{
+				return NotFound("Reports not found");
+			}
+
+
+			return Ok(pendingReports.Select(r=> r.Id));
+		}
+
+
+		[HttpGet]
+		[Authorize(AuthenticationSchemes = "Bearer")]
+		[Authorize(Roles = "Admin")]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType<List<int>>(StatusCodes.Status200OK)]
+		public IActionResult GetAdminResolvedReports() //admin pobiera te reports ktore rozwiązał
+		{
+			var Email = User.FindFirst(ClaimTypes.Email);
+			if (Email == null)
+			{
+				return BadRequest("Email not found");
+			}
+
+			var applicationUser = _userManager.Users.FirstOrDefault(u => u.Email == Email.Value);
+			if (applicationUser == null)
+			{
+				return NotFound("App User not found");
+			}
+
+			var admin = _context.Admins.FirstOrDefault(a => a.ApplicationUserId == applicationUser.Id);
+			if (admin == null)
+			{
+				return Unauthorized("You are not an andmin");
+			}
+
+			var adminResolvedReports = _context.CommentReports.Include(cr=> cr.ManagedBy)
+				.Where(cr => cr.State != CommentReportState.Pending && cr.ManagedBy != null && cr.ManagedBy.Id == admin.Id);
+			if (adminResolvedReports == null)
+			{
+				return NotFound("Reports not found");
+			}
+
+
+			return Ok(adminResolvedReports.Select(r => r.Id));
+		}
+
+
+
 	}
 }

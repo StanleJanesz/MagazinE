@@ -27,6 +27,21 @@ namespace MagazinEAPI.Models.Articles.Comment
             };
 
         }
-    }
+
+		public CommentReportDTO RestrictedToDTO()
+		{
+			return new CommentReportDTO()
+			{
+				Id = this.Id,
+				CommentId = this.CommentId,
+				ReportAuthorId = -1,
+				Reason = this.Reason,
+				Date = this.Date,
+				State = this.State,
+				ManagedById = -1
+			};
+
+		}
+	}
 
 }
