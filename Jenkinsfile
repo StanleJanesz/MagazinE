@@ -14,7 +14,7 @@ pipeline {
 
         stage('Build Docker Images') {
             steps {
-                echo "building docker images..."                
+                echo "building docker images..."                 
                 sh "docker-compose -f ${DOCKER_COMPOSE_FILE} build"
 
             }
