@@ -9,7 +9,7 @@ function ArticleTile({ title, photo, onSelect, id, sendToReview, rejectArticle, 
     };
 
     return (
-        <div className={isChosen ? 'at-selected' : 'at-container'} onClick={() => handleTileClick(id)}>
+        <div className={`at-container ${isChosen ? 'selected' : ''}`} onClick={() => handleTileClick(id)}>
             <img
                 src={photoPath}
                 alt={title}
