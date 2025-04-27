@@ -2,8 +2,7 @@
     margin-left: 2.5%;
     flex-direction: row;
     align-items: flex-start;
-    margin: auto;
-
+    margin: 10vh auto 1vh auto;
 }
 
 .inputField {
@@ -26,6 +25,6 @@
     }
 
     .inputField {
-        width: 70vw;
+        width: 50vw;
     }
 }
