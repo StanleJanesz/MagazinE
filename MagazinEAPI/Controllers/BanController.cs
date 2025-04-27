@@ -64,7 +64,7 @@ namespace MagazinEAPI.Controllers
 
 			var userReader = reader.ApplicationUser;
 
-			if (userReader.State == UserState.Banned || userReader.State == UserState.Blocked)
+			if (userReader.State == UserState.Banned)
 			{
 				return BadRequest("User is already Banned");
 			}
@@ -214,7 +214,7 @@ namespace MagazinEAPI.Controllers
 			return Ok(ban.toDTO());
 		}
 
-
+		[HttpGet]
 		[Authorize(AuthenticationSchemes = "Bearer")]
 		[Authorize(Roles = "Admin, Reader")]
 		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -284,7 +284,84 @@ namespace MagazinEAPI.Controllers
 		}
 
 
+		[HttpGet("{id}")]
+		[Authorize(AuthenticationSchemes = "Bearer")]
+		[Authorize(Roles = "Admin, Reader")]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType<List<int>>(StatusCodes.Status200OK)]
+		public async Task<IActionResult> GetUserBansId([FromRoute] int id) //reader id - id swoich banow lub admin pobiera bany danego readera
+		{
+			var email = User.FindFirst(ClaimTypes.Email);
+			if (email == null)
+			{
+				return BadRequest("Email not found");
+			}
 
+			//admin banujący i uzytkownik zbanowany moga pobrac bana:
+			var applicationUser = await _userManager.FindByEmailAsync(email.Value);
+			if (applicationUser == null)
+			{
+				return BadRequest("App user not found");
+			}
+
+			var reader = _context.Readers.Include(r => r.Bans).FirstOrDefault(r => r.Id == id);
+			if(reader == null)
+			{
+				return NotFound("Reader not found");
+			}
+			if (reader.Bans == null)
+			{
+				return NotFound("Reader Bans not found");
+			}
+
+
+			//jezeli jestem adminem albo jestem poszukiwanym uzytkownikiem 
+			if (!_context.Admins.Any(a => a.ApplicationUserId == applicationUser.Id) &&
+				!_context.Readers.Any(r => r.ApplicationUserId == applicationUser.Id && r.Id == reader.Id))
+			{
+				return Unauthorized("You are not an admin/banned user authorised to have info about this ban");
+			}
+
+
+			return Ok(reader.Bans.Select(b => b.Id));
+		}
+
+		[HttpGet]
+		[Authorize(AuthenticationSchemes = "Bearer")]
+		[Authorize(Roles = "Admin")]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType<List<int>>(StatusCodes.Status200OK)]
+		public async Task<IActionResult> GetAdminBansId() //admin pobiera swoje bany
+		{
+			var email = User.FindFirst(ClaimTypes.Email);
+			if (email == null)
+			{
+				return BadRequest("Email not found");
+			}
+
+			var applicationUser = await _userManager.FindByEmailAsync(email.Value);
+			if (applicationUser == null)
+			{
+				return BadRequest("App user not found");
+			}
+
+			var admin = _context.Admins.Include(a => a.Bans).FirstOrDefault(a => a.ApplicationUserId == applicationUser.Id);
+			if (admin == null)
+			{
+				return Unauthorized("You are not an admin");
+			}
+			if (admin.Bans == null)
+			{
+				return NotFound("Not found bans");
+			}
+
+
+			return Ok(admin.Bans.Select(b => b.Id));
+		}
 
 	}
 }
