@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from "motion/react";
-import ArticleTile from '../../Components/ArticleTile/ArticleTile';
+import ArticleTile from '../../Components/ListTile/ArticleTile/ArticleTile';
 import Button from "react-bootstrap/Button";
 import './ArticlesJournalistPage.css';
 
@@ -44,7 +44,6 @@ function ArticlesJournalistPage(journalistId) {
 
     const handleRemove = async (id) => {
         setArticles(articles.filter(article => article.id !== id));
-        
     }
 
     const content = isLoading ? (
@@ -67,8 +66,8 @@ function ArticlesJournalistPage(journalistId) {
                                 setChosenArticleId(id);
                                 setChosenArticle(data.find(article => article.id === id));
                             }}
-                            rejectArticle={() => handleRemove(article.id)}
-                            sendToReview={() => handleRemove(article.id)}
+                            reject={() => handleRemove(article.id)}
+                            accept={() => handleRemove(article.id)}
                             isChosen={chosenArticleId === article.id}
                         />
                     </motion.div>

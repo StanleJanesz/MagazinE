@@ -10,7 +10,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="src\Components\Comment\" />
+    <Folder Include="src\Components\ListTile\CommentReportTile\" />
+    <Folder Include="src\Components\ListTile\UnbanRequestTile\" />
     <Folder Include="src\Pages\EditArticlePage\" />
     <Folder Include="src\Pages\ArticlesJournalistPage\" />
+    <Folder Include="src\Pages\AdminPage\" />
   </ItemGroup>
 </Project>
