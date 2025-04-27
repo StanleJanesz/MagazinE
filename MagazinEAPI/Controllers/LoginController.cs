@@ -1,108 +1,128 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Google;
-using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-using MagazinEAPI.Contexts;
-using Microsoft.EntityFrameworkCore;
-using MagazinEAPI.Models;
-using MagazinEAPI.utils;
-using SharedLibrary.Base_Classes___Database;
-using SharedLibrary.DTO_Classes;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Text;
-using MagazinEAPI.Models.Users;
-using MagazinEAPI.Models.Users.Readers;
-using Microsoft.AspNetCore.Identity.Data;
-using Microsoft.AspNetCore.Identity;
-
-namespace MagazinEAPI.Controllers
+﻿namespace MagazinEAPI.Controllers
 {
+    using System.Security.Claims;
+    using MagazinEAPI.Contexts;
+    using MagazinEAPI.Models;
+    using MagazinEAPI.Models.Users;
+    using MagazinEAPI.Models.Users.Readers;
+    using MagazinEAPI.utils;
+    using Microsoft.AspNetCore.Authentication;
+    using Microsoft.AspNetCore.Authentication.Google;
+    using Microsoft.AspNetCore.Identity;
+    using Microsoft.AspNetCore.Identity.Data;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.EntityFrameworkCore;
+    using SharedLibrary.Base_Classes___Database;
+    using SharedLibrary.DTO_Classes;
+
+    /// <summary>
+    /// Controller for handling user login operations.
+    /// </summary>
     [ApiController]
     [Route("login")]
-
     public class LoginController : ControllerBase
     {
-        private readonly RolesBasedContext _context;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RolesBasedContext context;
+        private readonly UserManager<ApplicationUser> userManager;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LoginController"/> class.
+        /// </summary>
+        /// <param name="context">Database context.</param>
+        /// <param name="userManager">Provides API for managing user in presistence store.</param>
         public LoginController(RolesBasedContext context, UserManager<ApplicationUser> userManager)
         {
-            _context = context;
-            _userManager = userManager;
+            this.context = context;
+            this.userManager = userManager;
         }
+
+        /// <summary>
+        /// New login operation.
+        /// </summary>
+        /// <param name="request">login request's info.</param>
+        /// <returns>In case of success respose contains JWT token.</returns>
         [HttpPost("login")]
+        [ProducesResponseType(401)] // Unauthorized (HTTP 401)
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            var user = await _userManager.FindByEmailAsync(request.Email);
-            if (user == null || !await _userManager.CheckPasswordAsync(user, request.Password))
-                return Unauthorized("Invalid email or password.");
+            var user = await this.userManager.FindByEmailAsync(request.Email);
+            if (user == null || !await this.userManager.CheckPasswordAsync(user, request.Password))
+            {
+                return this.Unauthorized("Invalid email or password.");
+            }
 
-            var userRoles = await _userManager.GetRolesAsync(user);
+            var userRoles = await this.userManager.GetRolesAsync(user);
             var token = new JWTCreator().GenerateJwtToken(user, userRoles);
 
-            return Ok(new { token });
+            return this.Ok(new { token });
         }
+
+        /// <summary>
+        /// Login with Google.
+        /// </summary>
+        /// <returns>redirects to Google login.</returns>
         [HttpPost]
         [Route("google")]
-
         public IActionResult LoginWithGoogle()
         {
             var properties = new AuthenticationProperties
             {
                 RedirectUri = "google_response",
             };
-            return Challenge(properties, GoogleDefaults.AuthenticationScheme);
+            return this.Challenge(properties, GoogleDefaults.AuthenticationScheme);
         }
+
+        /// <summary>
+        /// Handles the response from Google after authentication.
+        /// </summary>
+        /// <returns>In case of success respose contains JWT token.</returns>
         [HttpGet]
         [Route("google_response")]
-
         public async Task<ActionResult> GoogleResponse()
         {
-            var authentificationResult = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
+            var authentificationResult = await this.HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
 
-            if (!authentificationResult.Succeeded)
+            if (authentificationResult == null || !authentificationResult.Succeeded)
             {
-                return BadRequest("Błąd uwierzytelniania");
+                return this.BadRequest("Błąd uwierzytelniania");
             }
 
             var claims = authentificationResult.Principal.Identities.FirstOrDefault().Claims;
 
-            var email = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
-            var name = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+            var email = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value ?? "UNKNOWN";
+            var name = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value ?? "UNKNOWN";
 
-            var appUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            var appUser = await this.context.Users.FirstOrDefaultAsync(u => u.Email == email);
             string role;
             if (appUser == null)
             {
-                appUser = await CreateUser(name, email);
+                appUser = await this.CreateUser(name, email);
                 role = "User";
             }
             else
             {
                 role = new RoleFinder().FindRole(appUser); // TODO: roles in ef
             }
-            var DTO = new ApplicationUserDTO
+
+            var dto = new ApplicationUserDTO
             {
                 FirstName = name,
                 Email = appUser.Email,
                 State = appUser.State,
             };
 
-            var JWTCreator = new JWTCreator();
-            var JWT = JWTCreator.CreateJWTToken(email, role);
+            var jwtCreator = new JWTCreator();
+            var jwt = jwtCreator.CreateJWTToken(email, role);
 
-            Response.Cookies.Append("JWT",JWT, new CookieOptions 
-            { 
+            this.Response.Cookies.Append("JWT", jwt, new CookieOptions
+            {
                 HttpOnly = true,
                 Secure = true,
                 Expires = DateTime.UtcNow.AddHours(2),
             });
 
-            return Ok("Zalogowano");
+            return this.Ok("Zalogowano");
         }
-
-        
 
         private async Task<ApplicationUser> CreateUser(string name, string email)
         {
@@ -118,8 +138,8 @@ namespace MagazinEAPI.Controllers
                 ApplicationUser = appUser,
             };
             appUser.User = user;
-            await _context.Users.AddAsync(appUser);
-            await _context.SaveChangesAsync();
+            await this.context.Users.AddAsync(appUser);
+            await this.context.SaveChangesAsync();
             return appUser;
         }
     }
