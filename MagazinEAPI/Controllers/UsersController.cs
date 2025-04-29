@@ -5,6 +5,7 @@ namespace MagazinEAPI.Controllers
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.EntityFrameworkCore;
     using SharedLibrary.DTO_Classes;
     using System.Security.Claims;
 
@@ -34,7 +35,7 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType<UserDTO>(StatusCodes.Status200OK)]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
             var email = this.User.FindFirst(ClaimTypes.Email);
             if (email == null)
@@ -42,7 +43,7 @@ namespace MagazinEAPI.Controllers
                 return this.BadRequest("Email not found");
             }
 
-            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            var applicationUser = await this.userManager.Users.FirstOrDefaultAsync(u => u.Email == email.Value);
             if (applicationUser == null)
             {
                 return this.NotFound("User not found");
@@ -68,9 +69,9 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType<UserDTO>(StatusCodes.Status200OK)]
-        public IActionResult Get([FromRoute] string id)
+        public async Task<IActionResult> Get([FromRoute] string id)
         {
-            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Id == id);
+            var applicationUser = await this.userManager.Users.FirstOrDefaultAsync(u => u.Id == id);
             if (applicationUser == null)
             {
                 return this.NotFound("User not found");
@@ -95,7 +96,7 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType<UserDTO>(StatusCodes.Status200OK)]
-        public IActionResult Put([FromRoute] int id)
+        public async Task<IActionResult> Put([FromRoute] int id)
         {
             var email = this.User.FindFirst(ClaimTypes.Email);
             if (email == null)
@@ -103,7 +104,7 @@ namespace MagazinEAPI.Controllers
                 return this.BadRequest("Email not found");
             }
 
-            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            var applicationUser = await this.userManager.Users.FirstOrDefaultAsync(u => u.Email == email.Value);
             if (applicationUser == null)
             {
                 return this.NotFound("User not found");
@@ -114,7 +115,7 @@ namespace MagazinEAPI.Controllers
                 return this.NotFound("User not found");
             }
 
-            var article = this.context.Articles.FirstOrDefault(u => u.Id == id);
+            var article = await this.context.Articles.FirstOrDefaultAsync(u => u.Id == id);
 
             if (article == null)
             {
@@ -125,7 +126,7 @@ namespace MagazinEAPI.Controllers
             {
                 applicationUser.User.ArticleToReadArticles.Add(article);
 
-                this.context.SaveChanges();
+                await this.context.SaveChangesAsync();
             }
             catch (Exception ex)
             {
@@ -148,7 +149,7 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType<UserDTO>(StatusCodes.Status200OK)]
-        public IActionResult DeleteToRead([FromRoute] int id)
+        public async Task<IActionResult> DeleteToRead([FromRoute] int id)
         {
             var email = this.User.FindFirst(ClaimTypes.Email);
             if (email == null)
@@ -156,7 +157,7 @@ namespace MagazinEAPI.Controllers
                 return this.BadRequest("Email not found");
             }
 
-            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            var applicationUser = await this.userManager.Users.FirstOrDefaultAsync(u => u.Email == email.Value);
             if (applicationUser == null)
             {
                 return this.NotFound("User not found");
@@ -167,7 +168,7 @@ namespace MagazinEAPI.Controllers
                 return this.NotFound("User not found");
             }
 
-            var article = this.context.Articles.FirstOrDefault(u => u.Id == id);
+            var article = await this.context.Articles.FirstOrDefaultAsync(u => u.Id == id);
 
             if (article == null)
             {
@@ -181,7 +182,7 @@ namespace MagazinEAPI.Controllers
                     return this.BadRequest("Article is not in the to read list");
                 }
 
-                this.context.SaveChanges();
+                await this.context.SaveChangesAsync();
 
             }
             catch (Exception ex)
@@ -205,7 +206,7 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType<UserDTO>(StatusCodes.Status200OK)]
-        public IActionResult DeleteFavorite([FromRoute] int id)
+        public async Task<IActionResult> DeleteFavorite([FromRoute] int id)
         {
             var email = this.User.FindFirst(ClaimTypes.Email);
             if (email == null)
@@ -213,7 +214,7 @@ namespace MagazinEAPI.Controllers
                 return this.BadRequest("Email not found");
             }
 
-            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            var applicationUser = await this.userManager.Users.FirstOrDefaultAsync(u => u.Email == email.Value);
             if (applicationUser == null)
             {
                 return this.NotFound("User not found");
@@ -224,7 +225,7 @@ namespace MagazinEAPI.Controllers
                 return this.NotFound("User not found");
             }
 
-            var article = this.context.Articles.FirstOrDefault(u => u.Id == id);
+            var article = await this.context.Articles.FirstOrDefaultAsync(u => u.Id == id);
 
             if (article == null)
             {
@@ -238,7 +239,7 @@ namespace MagazinEAPI.Controllers
                     return this.BadRequest("Article is not in the to favorite list");
                 }
 
-                this.context.SaveChanges();
+                await this.context.SaveChangesAsync();
 
             }
             catch (Exception ex)
@@ -262,7 +263,7 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType<UserDTO>(StatusCodes.Status200OK)]
-        public IActionResult PutFavoriteArticle([FromRoute] int id)
+        public async Task<IActionResult> PutFavoriteArticle([FromRoute] int id)
         {
             var email = this.User.FindFirst(ClaimTypes.Email);
             if (email == null)
@@ -270,7 +271,7 @@ namespace MagazinEAPI.Controllers
                 return this.BadRequest("Email not found");
             }
 
-            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            var applicationUser = await this.userManager.Users.FirstOrDefaultAsync(u => u.Email == email.Value);
             if (applicationUser == null)
             {
                 return this.NotFound("User not found");
@@ -281,7 +282,7 @@ namespace MagazinEAPI.Controllers
                 return this.NotFound("User not found");
             }
 
-            var article = this.context.Articles.FirstOrDefault(u => u.Id == id);
+            var article = await this.context.Articles.FirstOrDefaultAsync(u => u.Id == id);
 
             if (article == null)
             {
@@ -292,7 +293,7 @@ namespace MagazinEAPI.Controllers
             {
                 applicationUser.User.ArticleFavoriteArticles.Add(article);
 
-                this.context.SaveChanges();
+                await this.context.SaveChangesAsync();
 
             }
             catch (Exception ex)
@@ -316,7 +317,7 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType<UserDTO>(StatusCodes.Status200OK)]
-        public IActionResult PutFavoriteTag([FromRoute] int id)
+        public async Task<IActionResult> PutFavoriteTag([FromRoute] int id)
         {
             var email = this.User.FindFirst(ClaimTypes.Email);
             if (email == null)
@@ -324,7 +325,7 @@ namespace MagazinEAPI.Controllers
                 return this.BadRequest("Email not found");
             }
 
-            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            var applicationUser = await this.userManager.Users.FirstOrDefaultAsync(u => u.Email == email.Value);
             if (applicationUser == null)
             {
                 return this.NotFound("User not found");
@@ -335,7 +336,7 @@ namespace MagazinEAPI.Controllers
                 return this.NotFound("User not found");
             }
 
-            var tag = this.context.Tags.FirstOrDefault(u => u.Id == id);
+            var tag = await this.context.Tags.FirstOrDefaultAsync(u => u.Id == id);
 
             if (tag == null)
             {
@@ -346,7 +347,7 @@ namespace MagazinEAPI.Controllers
             {
                 applicationUser.User.FavouriteTags.Add(tag);
 
-                this.context.SaveChanges();
+                await this.context.SaveChangesAsync();
             }
             catch (Exception ex)
             {
@@ -369,7 +370,7 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType<UserDTO>(StatusCodes.Status200OK)]
-        public IActionResult DeleteFavoriteTag([FromRoute] int id)
+        public async Task<IActionResult> DeleteFavoriteTag([FromRoute] int id)
         {
             var email = this.User.FindFirst(ClaimTypes.Email);
             if (email == null)
@@ -377,7 +378,7 @@ namespace MagazinEAPI.Controllers
                 return this.BadRequest("Email not found");
             }
 
-            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            var applicationUser = await this.userManager.Users.FirstOrDefaultAsync(u => u.Email == email.Value);
             if (applicationUser == null)
             {
                 return this.NotFound("User not found");
@@ -388,7 +389,7 @@ namespace MagazinEAPI.Controllers
                 return this.NotFound("User not found");
             }
 
-            var tag = this.context.Tags.FirstOrDefault(u => u.Id == id);
+            var tag = await this.context.Tags.FirstOrDefaultAsync(u => u.Id == id);
 
             if (tag == null)
             {
@@ -402,7 +403,7 @@ namespace MagazinEAPI.Controllers
                     return this.BadRequest("Tag is not in the favorite tags list");
                 }
 
-                this.context.SaveChanges();
+                await this.context.SaveChangesAsync();
 
             }
             catch (Exception ex)
@@ -425,7 +426,7 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType<ICollection<int>>(StatusCodes.Status200OK)]
-        public IActionResult GetOwnedArticles()
+        public async Task<IActionResult> GetOwnedArticles()
         {
             var email = this.User.FindFirst(ClaimTypes.Email);
             if (email == null)
@@ -433,7 +434,7 @@ namespace MagazinEAPI.Controllers
                 return this.BadRequest("Email not found");
             }
 
-            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            var applicationUser = await this.userManager.Users.FirstOrDefaultAsync(u => u.Email == email.Value);
             if (applicationUser == null)
             {
                 return this.NotFound("User not found");
@@ -444,7 +445,7 @@ namespace MagazinEAPI.Controllers
                 return this.NotFound("User not found");
             }
 
-            var ownedArticles = applicationUser.User.OwnedArticles.Select( a => a.Id);
+            var ownedArticles = applicationUser.User.OwnedArticles.Select(a => a.Id);
 
             return this.Ok(ownedArticles);
         }
@@ -459,7 +460,7 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType<ApplicationUserDTO>(StatusCodes.Status200OK)]
-        public IActionResult GetPersonalInfo()
+        public async Task<IActionResult> GetPersonalInfo()
         {
             var email = this.User.FindFirst(ClaimTypes.Email);
             if (email == null)
@@ -467,7 +468,7 @@ namespace MagazinEAPI.Controllers
                 return this.BadRequest("Email not found");
             }
 
-            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            var applicationUser = await this.userManager.Users.FirstOrDefaultAsync(u => u.Email == email.Value);
             if (applicationUser == null)
             {
                 return this.NotFound("User not found");
@@ -487,9 +488,9 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType<ApplicationUserDTO>(StatusCodes.Status200OK)]
-        public IActionResult GetPersonalInfo([FromRoute] int id)
+        public async Task<IActionResult> GetPersonalInfo([FromRoute] int id)
         {
-            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.User.Id == id );
+            var applicationUser = await this.userManager.Users.FirstOrDefaultAsync(u => u.User.Id == id);
             if (applicationUser == null)
             {
                 return this.NotFound("User not found");
@@ -509,7 +510,7 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType<ApplicationUserDTO>(StatusCodes.Status200OK)]
-        public IActionResult PutPersonalInfo([FromBody] ApplicationUserDTO appUserDTO)
+        public async Task<IActionResult> PutPersonalInfo([FromBody] ApplicationUserDTO appUserDTO)
         {
             var email = this.User.FindFirst(ClaimTypes.Email);
             if (email == null)
@@ -517,7 +518,7 @@ namespace MagazinEAPI.Controllers
                 return this.BadRequest("Email not found");
             }
 
-            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            var applicationUser = await this.userManager.Users.FirstOrDefaultAsync(u => u.Email == email.Value);
             if (applicationUser == null)
             {
                 return this.NotFound("User not found");
@@ -527,7 +528,7 @@ namespace MagazinEAPI.Controllers
             applicationUser.LastName = appUserDTO.LastName;
             applicationUser.UserName = appUserDTO.Login;
 
-            this.context.SaveChanges();
+            await this.context.SaveChangesAsync();
 
             return this.Ok(applicationUser.ToDTO());
         }

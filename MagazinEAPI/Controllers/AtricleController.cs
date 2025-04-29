@@ -46,9 +46,9 @@
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
 
         [ProducesResponseType<ArticleDTO>(StatusCodes.Status200OK)]
-        public IActionResult Get([FromRoute] int id)
+        public async Task<IActionResult> Get([FromRoute] int id)
         {
-            var article = this.context.Articles.FirstOrDefault(a => a.Id == id);
+            var article = await this.context.Articles.FirstOrDefaultAsync(a => a.Id == id);
             if (article == null)
             {
                 return this.NotFound("Article not found");
@@ -60,7 +60,7 @@
                 return this.BadRequest("Email not found");
             }
 
-            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            var applicationUser = await this.userManager.Users.FirstOrDefaultAsync(u => u.Email == email.Value);
             if (applicationUser == null)
             {
                 return this.BadRequest("User not found");
@@ -88,9 +88,9 @@
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public IActionResult Put([FromRoute] int id, [FromBody] ArticleDTO articleDTO)
+        public async Task<IActionResult> Put([FromRoute] int id, [FromBody] ArticleDTO articleDTO)
         {
-            var article = this.context.Articles.FirstOrDefault(a => a.Id == id);
+            var article = await this.context.Articles.FirstOrDefaultAsync(a => a.Id == id);
             if (article == null)
             {
                 return this.NotFound("Article not found");
@@ -102,7 +102,7 @@
                 return this.BadRequest("Email not found");
             }
 
-            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            var applicationUser = await this.userManager.Users.FirstOrDefaultAsync(u => u.Email == email.Value);
             if (applicationUser == null)
             {
                 return this.BadRequest("User not found");
@@ -151,7 +151,7 @@
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public IActionResult Delete([FromRoute] int id)
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
             var article = this.context.Articles.FirstOrDefault(a => a.Id == id);
             if (article == null)
@@ -165,7 +165,7 @@
                 return this.BadRequest("Email not found");
             }
 
-            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            var applicationUser = await this.userManager.Users.FirstOrDefaultAsync(u => u.Email == email.Value);
             if (applicationUser == null)
             {
                 return this.BadRequest("User not found");
@@ -179,7 +179,7 @@
             try
             {
                 this.context.Articles.Remove(article);
-                this.context.SaveChanges();
+                await this.context.SaveChangesAsync();
             }
             catch
             {
@@ -198,7 +198,7 @@
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType<ICollection<ArticleDTO>>(StatusCodes.Status200OK)]
-        public IActionResult Get([FromQuery]ArticlesRequestDTO articlesRequestDTO) // TODO: decide what kind of filter will be used and which orders will be available
+        public async Task<IActionResult> Get([FromQuery]ArticlesRequestDTO articlesRequestDTO) // TODO: decide what kind of filter will be used and which orders will be available
         {
             if (articlesRequestDTO == null)
             {
@@ -211,7 +211,7 @@
 
             try // Ugly code, to be refactored
             {
-                articles = this.context.Articles
+                articles = await this.context.Articles
                     .Where(a => a.isPublished)
 
                    // .Where( a => articlesRequestDTO.Tags.All(t => a.Tags.Any(tag => tag.Id == t))) // dont know what kinds of filters will be used
@@ -219,7 +219,7 @@
                    .OrderBy(a => a.TimeOfPublication) // TODO: decide which order will be default
                    .Skip(skip)
                    .Take(articlesRequestDTO.BatchSize)
-                   .ToList();
+                   .ToListAsync();
             }
             catch
             {
@@ -264,7 +264,7 @@
                 return this.BadRequest("User not found");
             }
 
-            var journalist = this.context.Journalists.FirstOrDefault(j => j.ApplicationUserId == user.Id);
+            var journalist = await this.context.Journalists.FirstOrDefaultAsync(j => j.ApplicationUserId == user.Id);
             if (journalist == null)
             {
                 return this.Unauthorized("User is not a journalist");
