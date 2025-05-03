@@ -8,6 +8,8 @@ function AdminPage() {
     const [reports, setReports] = useState([]);
     const [unbanRequests, setUnbanRequests] = useState([]);
     const [view, setView] = useState("reports");
+    const [chosenItemId, setChosenItemId] = useState(Number.MAX_SAFE_INTEGER);
+    const [chosenItem, setChosenItem] = useState('');
 
     const unbanRequestStates = Object.freeze({
         pending: 'Pending',
@@ -73,11 +75,34 @@ function AdminPage() {
                         className={view === "reports" ? "reports-title" : "requests-title"}
                         reject={() => handleRemove(item.id)}
                         accept={() => handleRemove(item.id)}
+                        onSelect={(id) => {
+                            setChosenItemId(id);
+                            setChosenItem(
+                                view === "reports" ?
+                                    reports.find(report => report.id === id) :
+                                    unbanRequests.find(request => request.id === id));
+                        }}
+                        isChosen={chosenItemId === item.id}
+                        photo="src/assets/user.png"
                     />
                 </motion.div>
             ))}
         </AnimatePresence>
     );
+
+    const content =
+        chosenItemId === Number.MAX_SAFE_INTEGER || !chosenItem ? (
+            <h2 style={{ fontStyle: "italic", color: "#777" }}>Request preview</h2>
+        ) : (
+            <div style={{ backgroundColor: "#fff", padding: "20px", borderRadius: "8px", boxShadow: "0 2px 10px rgba(0,0,0,0.1)" }}>
+                <p><strong>From:</strong> User #{chosenItem.reportAuthorId ?? chosenItem.banId}</p>
+                {chosenItem.date && (
+                    <p><strong>Date:</strong> {new Date(chosenItem.date).toLocaleString()}</p>
+                )}
+                <hr style={{ margin: "12px 0" }} />
+                <p style={{ whiteSpace: "pre-wrap" }}>{chosenItem.reason}</p>
+            </div>
+        );
 
     return (
         <div className="ajp-container">
@@ -133,8 +158,7 @@ function AdminPage() {
 
 
             <div className="ajp-articlePreview">
-                Request preview
-                {/* TODO: render preview of selected tile here */}
+                {content}
             </div>
         </div>
     );
