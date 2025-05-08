@@ -6,8 +6,7 @@ services:
       context: .
       dockerfile: ./WebsiteFrontMagazinE/WebsiteFrontMagazinE.Server/Dockerfile
     ports:
-      - 8078:8078
-      - 8079:8079
+      - 5173:5173
     depends_on:
       - magazineapi
     networks:
@@ -31,7 +30,7 @@ services:
 
   mssql:
     image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: sqlserver_express
+    container_name: sqlserver_express1   
     environment:
       - ACCEPT_EULA=Y
       - MSSQL_PID=Express   # Specifies the edition to run as Express
