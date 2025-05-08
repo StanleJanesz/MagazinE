@@ -16,18 +16,18 @@
     /// </summary>
     [ApiController]
     [Route("articles")]
-    public class AtricleController : Controller
+    public class ArticleController : Controller
     {
         private readonly RolesBasedContext context;
         private readonly UserManager<ApplicationUser> userManager;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AtricleController"/> class.
+        /// Initializes a new instance of the <see cref="ArticleController"/> class.
         /// Constructor for AtricleController.
         /// </summary>
         /// <param name="context">Database context.</param>
         /// <param name="userManager">Provides API for managing user in presistence store.</param>
-        public AtricleController(RolesBasedContext context, UserManager<ApplicationUser> userManager)
+        public ArticleController(RolesBasedContext context, UserManager<ApplicationUser> userManager)
         {
             this.context = context;
             this.userManager = userManager;
