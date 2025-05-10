@@ -8,4 +8,11 @@
     <!-- Folder where production build objects will be placed -->
     <BuildOutputFolder>$(MSBuildProjectDirectory)\dist</BuildOutputFolder>
   </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="src\Components\Comment\" />
+    <Folder Include="src\Components\ListTile\BanRequestTile\" />
+    <Folder Include="src\Pages\EditArticlePage\" />
+    <Folder Include="src\Pages\ArticlesJournalistPage\" />
+    <Folder Include="src\Pages\GeneralEditorPage\" />
+  </ItemGroup>
 </Project>

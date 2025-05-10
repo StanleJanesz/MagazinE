@@ -39,7 +39,7 @@ namespace MagazinEAPI.Migrations
                     b.HasIndex("ApplicationUserId")
                         .IsUnique();
 
-                    b.ToTable("Admins", (string)null);
+                    b.ToTable("Admins");
                 });
 
             modelBuilder.Entity("MagazinEAPI.Models.ApplicationUser", b =>
@@ -62,11 +62,9 @@ namespace MagazinEAPI.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("FirstName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("LastName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("LockoutEnabled")
@@ -133,6 +131,10 @@ namespace MagazinEAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Introduction")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int?>("ReviewerId")
                         .HasColumnType("int");
 
@@ -155,7 +157,7 @@ namespace MagazinEAPI.Migrations
 
                     b.HasIndex("ReviewerId");
 
-                    b.ToTable("Articles", (string)null);
+                    b.ToTable("Articles");
                 });
 
             modelBuilder.Entity("MagazinEAPI.Models.Ban", b =>
@@ -166,8 +168,21 @@ namespace MagazinEAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("Active")
+                        .HasColumnType("bit");
+
                     b.Property<int>("AdminId")
                         .HasColumnType("int");
+
+                    b.Property<DateTime?>("BanEndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("BanStartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -178,7 +193,7 @@ namespace MagazinEAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Bans", (string)null);
+                    b.ToTable("Bans");
                 });
 
             modelBuilder.Entity("MagazinEAPI.Models.Comment", b =>
@@ -218,7 +233,7 @@ namespace MagazinEAPI.Migrations
 
                     b.HasIndex("ParentId");
 
-                    b.ToTable("Comments", (string)null);
+                    b.ToTable("Comments");
                 });
 
             modelBuilder.Entity("MagazinEAPI.Models.CommentReport", b =>
@@ -256,7 +271,7 @@ namespace MagazinEAPI.Migrations
 
                     b.HasIndex("ReportAuthorId");
 
-                    b.ToTable("CommentReports", (string)null);
+                    b.ToTable("CommentReports");
                 });
 
             modelBuilder.Entity("MagazinEAPI.Models.Dislike", b =>
@@ -271,7 +286,7 @@ namespace MagazinEAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Dislikes", (string)null);
+                    b.ToTable("Dislikes");
                 });
 
             modelBuilder.Entity("MagazinEAPI.Models.Editor", b =>
@@ -296,7 +311,7 @@ namespace MagazinEAPI.Migrations
 
                     b.HasIndex("HeadEditorId");
 
-                    b.ToTable("Editors", (string)null);
+                    b.ToTable("Editors");
                 });
 
             modelBuilder.Entity("MagazinEAPI.Models.FavoriteArticle", b =>
@@ -311,7 +326,7 @@ namespace MagazinEAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("FavoriteArticles", (string)null);
+                    b.ToTable("FavoriteArticles");
                 });
 
             modelBuilder.Entity("MagazinEAPI.Models.HeadEditor", b =>
@@ -331,7 +346,7 @@ namespace MagazinEAPI.Migrations
                     b.HasIndex("ApplicationUserId")
                         .IsUnique();
 
-                    b.ToTable("HeadEditors", (string)null);
+                    b.ToTable("HeadEditors");
                 });
 
             modelBuilder.Entity("MagazinEAPI.Models.Journalist", b =>
@@ -356,7 +371,7 @@ namespace MagazinEAPI.Migrations
 
                     b.HasIndex("HeadEditorId");
 
-                    b.ToTable("Journalists", (string)null);
+                    b.ToTable("Journalists");
                 });
 
             modelBuilder.Entity("MagazinEAPI.Models.Like", b =>
@@ -371,7 +386,7 @@ namespace MagazinEAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Likes", (string)null);
+                    b.ToTable("Likes");
                 });
 
             modelBuilder.Entity("MagazinEAPI.Models.Photo", b =>
@@ -382,18 +397,28 @@ namespace MagazinEAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ArticleId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ArticleId");
+                    b.ToTable("Photo");
+                });
 
-                    b.ToTable("Photos", (string)null);
+            modelBuilder.Entity("MagazinEAPI.Models.PhotoArticle", b =>
+                {
+                    b.Property<int>("ArticleId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PhotoId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ArticleId", "PhotoId");
+
+                    b.HasIndex("PhotoId");
+
+                    b.ToTable("PhotoArticle");
                 });
 
             modelBuilder.Entity("MagazinEAPI.Models.PublishRequest", b =>
@@ -422,7 +447,7 @@ namespace MagazinEAPI.Migrations
 
                     b.HasIndex("ReviewerId");
 
-                    b.ToTable("PublishRequests", (string)null);
+                    b.ToTable("PublishRequests");
                 });
 
             modelBuilder.Entity("MagazinEAPI.Models.RegisterRequest", b =>
@@ -441,17 +466,19 @@ namespace MagazinEAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsSuccesfull")
+                        .HasColumnType("bit");
+
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateTime>("RegisterDateTime")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.ToTable("RegisterRequests", (string)null);
+                    b.ToTable("RegisterRequests");
                 });
 
             modelBuilder.Entity("MagazinEAPI.Models.Subscription", b =>
@@ -478,7 +505,7 @@ namespace MagazinEAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Subscriptions", (string)null);
+                    b.ToTable("Subscriptions");
                 });
 
             modelBuilder.Entity("MagazinEAPI.Models.Tag", b =>
@@ -495,7 +522,7 @@ namespace MagazinEAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tags", (string)null);
+                    b.ToTable("Tags");
                 });
 
             modelBuilder.Entity("MagazinEAPI.Models.TagArticle", b =>
@@ -510,7 +537,7 @@ namespace MagazinEAPI.Migrations
 
                     b.HasIndex("TagId");
 
-                    b.ToTable("TagArticles", (string)null);
+                    b.ToTable("TagArticles");
                 });
 
             modelBuilder.Entity("MagazinEAPI.Models.TagEditor", b =>
@@ -525,7 +552,7 @@ namespace MagazinEAPI.Migrations
 
                     b.HasIndex("TagId");
 
-                    b.ToTable("TagEditors", (string)null);
+                    b.ToTable("TagEditors");
                 });
 
             modelBuilder.Entity("MagazinEAPI.Models.TagUser", b =>
@@ -540,7 +567,7 @@ namespace MagazinEAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("TagUsers", (string)null);
+                    b.ToTable("TagUsers");
                 });
 
             modelBuilder.Entity("MagazinEAPI.Models.ToReadArticle", b =>
@@ -555,7 +582,7 @@ namespace MagazinEAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ToReadArticles", (string)null);
+                    b.ToTable("ToReadArticles");
                 });
 
             modelBuilder.Entity("MagazinEAPI.Models.UnbanRequest", b =>
@@ -580,7 +607,7 @@ namespace MagazinEAPI.Migrations
 
                     b.HasIndex("BanId");
 
-                    b.ToTable("UnbanRequests", (string)null);
+                    b.ToTable("UnbanRequests");
                 });
 
             modelBuilder.Entity("MagazinEAPI.Models.User", b =>
@@ -600,7 +627,7 @@ namespace MagazinEAPI.Migrations
                     b.HasIndex("ApplicationUserId")
                         .IsUnique();
 
-                    b.ToTable("Readers", (string)null);
+                    b.ToTable("Readers");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -945,15 +972,23 @@ namespace MagazinEAPI.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("MagazinEAPI.Models.Photo", b =>
+            modelBuilder.Entity("MagazinEAPI.Models.PhotoArticle", b =>
                 {
                     b.HasOne("MagazinEAPI.Models.Article", "Article")
-                        .WithMany("Photos")
+                        .WithMany("PhotoArticles")
                         .HasForeignKey("ArticleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("MagazinEAPI.Models.Photo", "Photo")
+                        .WithMany("PhotoArticles")
+                        .HasForeignKey("PhotoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Article");
+
+                    b.Navigation("Photo");
                 });
 
             modelBuilder.Entity("MagazinEAPI.Models.PublishRequest", b =>
@@ -1161,7 +1196,7 @@ namespace MagazinEAPI.Migrations
 
                     b.Navigation("FavoriteArticles");
 
-                    b.Navigation("Photos");
+                    b.Navigation("PhotoArticles");
 
                     b.Navigation("PublishRequests");
 
@@ -1205,6 +1240,11 @@ namespace MagazinEAPI.Migrations
             modelBuilder.Entity("MagazinEAPI.Models.Journalist", b =>
                 {
                     b.Navigation("Articles");
+                });
+
+            modelBuilder.Entity("MagazinEAPI.Models.Photo", b =>
+                {
+                    b.Navigation("PhotoArticles");
                 });
 
             modelBuilder.Entity("MagazinEAPI.Models.Tag", b =>

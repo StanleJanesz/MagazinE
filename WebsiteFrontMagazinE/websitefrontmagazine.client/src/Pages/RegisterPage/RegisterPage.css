@@ -1,0 +1,19 @@
+body {
+}
+
+.titlePage {
+    margin-top: 2em;
+}
+
+.errorText {
+    color: red;
+    font-size: 0.85em;
+    text-align: left;
+    width: 30em;
+}
+
+@media screen and (max-width: 768px) {
+    .inputElement {
+        width: 25em;
+    }
+}
