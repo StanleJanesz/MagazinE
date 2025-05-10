@@ -3,6 +3,7 @@ import TextField from "@mui/material/TextField";
 import './SearchBar.css';
 import loupeIcon from '../../assets/loupe.png';
 
+
 function SearchBar({ handleSearchButtonClick, handleKeyDown }) {
     const [searchTerm, setSearchTerm] = useState("");
 
@@ -11,6 +12,7 @@ function SearchBar({ handleSearchButtonClick, handleKeyDown }) {
     };
 
     const handleIconClick = () => {
+
         handleSearchButtonClick(searchTerm);
     };
 
