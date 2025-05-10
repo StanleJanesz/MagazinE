@@ -14,8 +14,8 @@ pipeline {
 
         stage('Build Docker Images') {
             steps {
-                echo "building docker images..."                
-                powershell "docker-compose -f ${DOCKER_COMPOSE_FILE} build"
+                echo "building docker images..."                 
+                sh "docker-compose -f ${DOCKER_COMPOSE_FILE} build"
 
             }
         }
@@ -23,7 +23,7 @@ pipeline {
         stage('Start Containers') {
             steps {
                 echo "starting containers..."
-                powershell "docker-compose -f ${DOCKER_COMPOSE_FILE} up -d"                
+                sh "docker-compose -f ${DOCKER_COMPOSE_FILE} up -d"                
             }
         }        
 
@@ -31,7 +31,7 @@ pipeline {
             steps {
                 echo "Teardown..."
 
-                powershell "docker-compose -f ${DOCKER_COMPOSE_FILE} down -v"
+                sh "docker-compose -f ${DOCKER_COMPOSE_FILE} down -v"
             }
         }
     }
