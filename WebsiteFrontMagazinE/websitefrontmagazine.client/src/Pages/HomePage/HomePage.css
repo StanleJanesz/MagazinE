@@ -1,0 +1,159 @@
+.article-list-wrapper {
+    min-height: 30vw;
+    width: 100%;
+    position: relative;
+}
+
+.tag-search-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    margin-inline: auto;
+}
+
+
+.tag-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    padding: 10px;
+    display: flex;
+    flex-wrap: wrap; 
+    gap: 10px; 
+    justify-content: flex-start; 
+}
+
+.tag-container-full {
+    width: 100%;
+    padding: 0 20px;
+    box-sizing: border-box;
+    margin-top: 10px;
+    max-height: fit-content;
+}
+
+.tag-container-inner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+
+
+
+.large-tag-container {
+    min-height: 20vh;
+    height: auto;
+    margin-bottom: 20px;
+    z-index: 1000;
+}
+.tag-input {
+    width: 60vw;
+    max-width: 400px;
+    padding: 14px 16.5px;
+    font-size: 16px;
+    margin-top: 20px;
+    margin-inline: auto;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    background-color: white;
+    color: black;
+    align-self: flex-end;
+    height: 3em;
+ 
+}
+
+
+    .tag-input:focus {
+        border-color: #007bff;
+        outline: none;
+    }
+
+.tag-title {
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: #333;
+    padding-top: 10px;
+}
+
+
+.tag-item {
+    display: inline-flex; 
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis;
+    max-width: 100%; 
+    padding: 8px 12px; 
+    margin: 5px; 
+    border-radius: 15px; 
+    text-align: center; 
+    background-color: #FFD700;
+    color: white;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+    .tag-item:hover {
+        background-color: #FFA500;
+        transform: scale(1.1);
+    }
+
+
+
+.tag-badge {
+    background-color: #FFD700;
+    color: white;
+    margin: 5px;
+    padding: 0px 15px;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+}
+
+    .tag-badge button {
+        background-color: transparent;
+        border: none;
+        color: white;
+        margin-left: 5px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+        .tag-badge button:hover {
+            color: #ff6347;
+        }
+
+
+
+.hidden {
+    display: none;
+}
+
+.selected-tags-title {
+    margin-top: 20px;
+    font-size: 1.0em;
+    padding-block: 2px;
+}
+
+.tag-remove-button {
+    margin: 5px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+
+@media (max-width: 1800px) {
+    .large-tag-container {
+        min-height: 30vh;
+        height: auto;
+    }
+}

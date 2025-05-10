@@ -1,0 +1,50 @@
+.pageContainer {
+  
+}
+
+.editor {
+    width: 1200px;
+    height: 800px;
+    margin-bottom: 3rem;
+    margin-top: 3.5em;
+}
+
+
+.optionsContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    height: 2.5rem;
+    gap: 1%;
+    width: 100%;
+}
+
+.checkBox {
+    width: 15rem;
+}
+
+.checkBoxContainer {
+    margin-right: 10rem;
+}
+.saveButton {
+    background-color: whitesmoke !important;
+    color: #939F5C !important;
+    border: 2px solid #939F5C !important;
+}
+.sendButton {
+    background-color: #939F5C !important;
+    border: none !important;
+}
+
+.deleteButton {
+    background-color: red !important;
+    border: none !important;
+}
+
+@media screen and (max-width: 1250px) {
+    .editor {
+        width: 100%;
+        margin-bottom: 5em;
+    }
+
+}

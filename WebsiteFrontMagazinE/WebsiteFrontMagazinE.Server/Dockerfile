@@ -20,6 +20,7 @@ COPY ["WebsiteFrontMagazinE/WebsiteFrontMagazinE.Server/WebsiteFrontMagazinE.Ser
 COPY ["WebsiteFrontMagazinE/websitefrontmagazine.client/websitefrontmagazine.client.esproj", "WebsiteFrontMagazinE/websitefrontmagazine.client/"]
 RUN dotnet restore "./WebsiteFrontMagazinE/WebsiteFrontMagazinE.Server/WebsiteFrontMagazinE.Server.csproj"
 COPY . .
+COPY WebsiteFrontMagazinE/websitefrontmagazine.client/src/assets ./src/assets
 WORKDIR "/src/WebsiteFrontMagazinE/WebsiteFrontMagazinE.Server"
 RUN dotnet build "./WebsiteFrontMagazinE.Server.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
