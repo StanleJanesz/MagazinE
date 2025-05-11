@@ -28,22 +28,43 @@ function HomePage() {
         setIsLoading(true);
         await sleep(1100);
 
-        const data = [
-            { id: 0, title: "Analiza matematyczna 4 i Metody numeryczne 12 od nowego roku na MiNI", tags: [1, 2, 3, 4], isPremium: true },
-            { id: 1, title: "Another interesting topic", tags: [10, 12], isPremium: false },
-            { id: 2, title: "Another interesting topic2", tags: [5, 7], isPremium: false },
-            { id: 3, title: "Another interesting topic3", tags: [8, 13], isPremium: false },
-            { id: 4, title: "Another interesting topic4", tags: [6, 14], isPremium: false },
-            { id: 5, title: "Another interesting topic5", tags: [8, 9], isPremium: false },
-            { id: 6, title: "Another interesting topic6", tags: [10, 12], isPremium: false },
-            { id: 7, title: "Another interesting topic7", tags: [5, 6, 7], isPremium: true },
-            { id: 8, title: "Another interesting topic8", tags: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25], isPremium: true }
-        ];
+        const params = new URLSearchParams({
+            batchSize: 10,
+            page: 1
+        });
 
-        const articlesList = data.map(article => ({ ...article }));
+        try {
 
-        setArticles(articlesList);
-        setSearchedArticles(articlesList);
+            const response = await fetch(`https://localhost:7054/articles?${params.toString()}`);
+
+            if (!response.ok) {
+                throw new Error(`Failed to fetch articles ${response.status}`);
+            }
+
+            const data = response.json();
+
+            const articlesList = data.map(article => ({ ...article }));
+
+            setArticles(articlesList);
+            setSearchedArticles(articlesList);
+        }
+        catch (error) {
+            console.log(error);
+        }
+
+        //const data = [
+        //    { id: 0, title: "Analiza matematyczna 4 i Metody numeryczne 12 od nowego roku na MiNI", tags: [1, 2, 3, 4], isPremium: true },
+        //    { id: 1, title: "Another interesting topic", tags: [10, 12], isPremium: false },
+        //    { id: 2, title: "Another interesting topic2", tags: [5, 7], isPremium: false },
+        //    { id: 3, title: "Another interesting topic3", tags: [8, 13], isPremium: false },
+        //    { id: 4, title: "Another interesting topic4", tags: [6, 14], isPremium: false },
+        //    { id: 5, title: "Another interesting topic5", tags: [8, 9], isPremium: false },
+        //    { id: 6, title: "Another interesting topic6", tags: [10, 12], isPremium: false },
+        //    { id: 7, title: "Another interesting topic7", tags: [5, 6, 7], isPremium: true },
+        //    { id: 8, title: "Another interesting topic8", tags: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25], isPremium: true }
+        //];
+
+        
         // console.log(articlesList);
         //setIsLoading(false); -> teraz w next funcji
     };
