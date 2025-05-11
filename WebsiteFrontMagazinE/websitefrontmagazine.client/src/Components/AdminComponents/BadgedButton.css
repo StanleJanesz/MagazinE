@@ -1,0 +1,90 @@
+/* AdminPanel.css */
+
+/* Loading container */
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100%;
+}
+
+/* Content wrapper */
+.content-wrapper {
+    max-width: 1200px;
+    margin: 40px auto;
+    background: #FFF;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: justify;
+}
+
+/* Button container */
+.button-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 30px;
+}
+
+/* Gallery button */
+.gallery-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: #e0e0e0 !important;
+    color: #424242 !important;
+    border: 2px solid #bdbdbd !important;
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    min-width: 200px;
+    margin: 0;
+    text-transform: none;
+}
+
+    .gallery-button:hover {
+        background-color: #bdbdbd !important;
+        transform: scale(1.05);
+    }
+
+    .gallery-button:focus {
+        outline: none;
+        box-shadow: 0px 0px 5px rgba(189, 189, 189, 0.6);
+    }
+
+    .gallery-button .icon {
+        width: 24px;
+        height: 24px;
+    }
+
+/* Responsive styles */
+@media screen and (max-width: 968px) {
+    .content-wrapper {
+        padding: 20px;
+    }
+
+    .button-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .gallery-button {
+        padding: 10px 15px;
+        font-size: 14px;
+        min-width: 180px;
+        width: 100%;
+    }
+
+        .gallery-button .icon {
+            width: 20px;
+            height: 20px;
+        }
+}

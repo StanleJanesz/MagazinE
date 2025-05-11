@@ -12,10 +12,12 @@ import ArticlePage from './Pages/ArticlePage/ArticlePage.jsx';
 import EditArticlePage from './Pages/EditArticlePage/EditArticlePage.jsx';
 import ArticlesJournalistPage from './Pages/ArticlesJournalistPage/ArticlesJournalistPage.jsx';
 import GeneralEditorPage from './Pages/GeneralEditorPage/GeneralEditorPage.jsx';
+import AdminPanel from './Pages/AdminPanel/AdminPanel.jsx'
 
 // Styles imports
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import ReportsView from './Pages/AdminPanel/ReportsView/ReportsView.jsx';
 
 
 function App() {
@@ -31,7 +33,10 @@ function App() {
                 <Route path="/article" element={<ArticlePage />} />
                 <Route path="/edit-article" element={<EditArticlePage />} />
                 <Route path="/articles-view" element={<ArticlesJournalistPage />} />
-                <Route path="/general-editor" element={<GeneralEditorPage /> } />
+                <Route path="/general-editor" element={<GeneralEditorPage />} />
+                <Route path="/admin-panel" element={<AdminPanel />} />
+                <Route path="/admin-panel/reports" element={<ReportsView />} />
+
             </Routes>
         </Router>
     );
