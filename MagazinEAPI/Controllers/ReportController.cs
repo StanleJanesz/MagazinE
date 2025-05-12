@@ -28,7 +28,7 @@ namespace MagazinEAPI.Controllers
 			_userManager = userManager;
 		}
 
-		[HttpGet("{id}")]
+		[HttpGet("report/{id}")]
 		[Authorize(AuthenticationSchemes = "Bearer")]
 		[Authorize(Roles = "Reader, Admin")]
 		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -227,7 +227,7 @@ namespace MagazinEAPI.Controllers
 		}
 
 
-		[HttpGet("{id}")]
+		[HttpGet("comment/{id}")]
 		[Authorize(AuthenticationSchemes = "Bearer")]
 		[Authorize(Roles = "Reader, Admin")]
 		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -273,7 +273,7 @@ namespace MagazinEAPI.Controllers
 		}
 
 
-		[HttpGet("{id}")]
+		[HttpGet("user/{id}")]
 		[Authorize(AuthenticationSchemes = "Bearer")]
 		[Authorize(Roles = "Reader, Admin")]
 		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -317,7 +317,7 @@ namespace MagazinEAPI.Controllers
 		}
 
 
-		[HttpGet]
+		[HttpGet("pendin")]
 		[Authorize(AuthenticationSchemes = "Bearer")]
 		[Authorize(Roles = "Admin")]
 		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -354,7 +354,7 @@ namespace MagazinEAPI.Controllers
 		}
 
 
-		[HttpGet]
+		[HttpGet("admin")]
 		[Authorize(AuthenticationSchemes = "Bearer")]
 		[Authorize(Roles = "Admin")]
 		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
