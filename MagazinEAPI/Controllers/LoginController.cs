@@ -42,7 +42,8 @@
         /// <param name="request">login request's info.</param>
         /// <returns>In case of success respose contains JWT token.</returns>
         [HttpPost("login")]
-        [ProducesResponseType(401)] // Unauthorized (HTTP 401)
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
             var user = await this.userManager.FindByEmailAsync(request.Email);

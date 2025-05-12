@@ -29,8 +29,8 @@ function HomePage() {
         await sleep(1100);
 
         const params = new URLSearchParams({
-            batchSize: 10,
-            page: 1
+            BatchSize: 10,
+            Page: 0
         });
 
         try {
@@ -41,8 +41,8 @@ function HomePage() {
                 throw new Error(`Failed to fetch articles ${response.status}`);
             }
 
-            const data = response.json();
-
+            const data = await response.json();
+            console.log(data);
             const articlesList = data.map(article => ({ ...article }));
 
             setArticles(articlesList);

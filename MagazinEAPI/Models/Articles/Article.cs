@@ -70,8 +70,8 @@ namespace MagazinEAPI.Models.Articles
                 Introduction = Introduction,
                 TimeOfPublication = TimeOfPublication,
                 AuthorId = AuthorId,
-                Photos = Photos.Take(1).Select(p => p.Content).ToList(),
-                TagsIds = Tags.Select(t => t.Id).ToList()
+                Photos = Photos?.Take(1)?.Select(p => p.Content).ToList() ?? new List<string>(),
+                TagsIds = Tags?.Select(t => t.Id).ToList() ?? new List<int>(),
             };
             return articleDTO;
         }

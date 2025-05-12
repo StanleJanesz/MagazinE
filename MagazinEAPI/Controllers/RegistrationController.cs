@@ -56,7 +56,7 @@
         }
 
         [HttpPost(Name = "Register User")]
-        public async Task<IActionResult> Post(RegisterRequestDTO registerRequest)
+        public async Task<IActionResult> Post([FromBody]RegisterRequestDTO registerRequest)
         {
             string returnUrl = Url.Content("~/");
             ExternalLogins = (await signInManager.GetExternalAuthenticationSchemesAsync()).ToList();

@@ -5,8 +5,33 @@ body {
     margin-top: 2em;
 }
 
+.errorText {
+    color: red;
+    font-size: 0.85em;
+    text-align: left;
+    width: 30em;
+}
+
 @media screen and (max-width: 768px) {
     .inputElement {
         width: 25em;
+    }
+}
+
+
+.welcomeMessage {
+    font-family: monospace;
+    white-space: pre-wrap;
+    border-right: 2px solid #000;
+    animation: blink-caret 0.75s step-end infinite;
+}
+
+@keyframes blink-caret {
+    from, to {
+        border-color: transparent;
+    }
+
+    50% {
+        border-color: black;
     }
 }
