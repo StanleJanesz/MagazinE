@@ -9,6 +9,6 @@ namespace SharedLibrary.DTO_Classes
 {
 	public class SubscriptionDTO : SubscriptionAbstract
 	{
-
+		
 	}
 }

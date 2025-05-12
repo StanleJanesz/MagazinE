@@ -108,9 +108,11 @@ function HomePage() {
 
 
 
+
     const filteredTags = tags.filter(tag =>
         tag.name.toLowerCase().includes(searchTag.toLowerCase())
     );
+
 
 
 
