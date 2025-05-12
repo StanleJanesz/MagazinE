@@ -1,0 +1,147 @@
+/* CommentManagementPage.css */
+
+.comment-management-container {
+    display: flex;
+    width: calc(100vh );
+    height: calc(100vh - 4rem);
+    max-width: 1280px;
+    margin: 0 auto;
+    font-family: inherit;
+    text-align: left;
+    gap: 2rem; /* Space between columns */
+}
+
+/* Articles List - Left Side */
+.articles-column {
+    width: 35%;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    overflow-y: auto;
+}
+
+.articles-title {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    color: #333;
+    font-size: 1.5rem;
+}
+
+.articles-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.article-item {
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    background-color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-left: 4px solid transparent;
+}
+
+    .article-item:hover {
+        background-color: #f1f1f1;
+    }
+
+    .article-item.selected {
+        background-color: #e3f2fd;
+        border-left: 4px solid #2196f3;
+    }
+
+.article-id {
+    display: inline-block;
+    width: 2rem;
+    font-weight: bold;
+    color: #666;
+}
+
+.article-title {
+    display: inline;
+}
+
+/* Comments Section - Right Side */
+.comments-column {
+    width: 65%;
+    padding: 1.5rem;
+    overflow-y: auto;
+}
+
+.comments-title {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    color: #333;
+    font-size: 1.5rem;
+}
+
+.comment-container {
+    margin-bottom: 1.5rem;
+    padding: 1.25rem;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.comment-author {
+    font-weight: bold;
+    color: #2196f3;
+    margin: 0;
+}
+
+.comment-date {
+    color: #888;
+    font-size: 0.875rem;
+}
+
+.comment-text {
+    margin: 0.5rem 0;
+    line-height: 1.5;
+}
+
+.comment-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.action-button {
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.875rem;
+    transition: filter 0.3s;
+}
+
+    .action-button:hover {
+        filter: brightness(0.95);
+    }
+
+.ban-button {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.delete-button {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.no-comments {
+    color: #666;
+    font-style: italic;
+    text-align: center;
+    padding: 2rem;
+}

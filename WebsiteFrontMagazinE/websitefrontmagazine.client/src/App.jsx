@@ -13,11 +13,12 @@ import EditArticlePage from './Pages/EditArticlePage/EditArticlePage.jsx';
 import ArticlesJournalistPage from './Pages/ArticlesJournalistPage/ArticlesJournalistPage.jsx';
 import GeneralEditorPage from './Pages/GeneralEditorPage/GeneralEditorPage.jsx';
 import AdminPanel from './Pages/AdminPanel/AdminPanel.jsx'
-
+import ReportsView from './Pages/AdminPanel/ReportsView/ReportsView.jsx';
+import BrowseArticlesAdmin from './Pages/AdminPanel/BrowseArticles/BrowseArticlesAdmin.jsx';
 // Styles imports
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import ReportsView from './Pages/AdminPanel/ReportsView/ReportsView.jsx';
+
 
 
 function App() {
@@ -36,6 +37,8 @@ function App() {
                 <Route path="/general-editor" element={<GeneralEditorPage />} />
                 <Route path="/admin-panel" element={<AdminPanel />} />
                 <Route path="/admin-panel/reports" element={<ReportsView />} />
+                <Route path="/admin-panel/comments" element={<BrowseArticlesAdmin />} />
+
 
             </Routes>
         </Router>

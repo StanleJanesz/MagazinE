@@ -68,7 +68,7 @@ function AdminPanel({ articleId }) {
 
                         <button
                             className="gallery-button"
-                            onClick={() => navigate('/photos?articleId=')}
+                            onClick={() => navigate('/admin-panel/comments')}
                         >
                             <img src={gallery} alt="Articles Icon" className="icon" />
                             Browse Articles
