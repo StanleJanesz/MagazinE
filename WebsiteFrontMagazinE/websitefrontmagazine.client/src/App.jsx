@@ -1,4 +1,6 @@
+// React imports
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
 // Components imports
 import NavigationBar from './Components/NavigationBar/NavigationBar.jsx'
 
@@ -10,6 +12,7 @@ import ArticlePage from './Pages/ArticlePage/ArticlePage.jsx';
 import EditArticlePage from './Pages/EditArticlePage/EditArticlePage.jsx';
 import ArticlesJournalistPage from './Pages/ArticlesJournalistPage/ArticlesJournalistPage.jsx';
 import AdminPage from './Pages/AdminPage/AdminPage.jsx';
+import GeneralEditorPage from './Pages/GeneralEditorPage/GeneralEditorPage.jsx';
 
 // Styles imports
 import './App.css';
@@ -30,6 +33,7 @@ function App() {
                 <Route path="/edit-article" element={<EditArticlePage />} />
                 <Route path="/articles-view" element={<ArticlesJournalistPage />} />
                 <Route path="/admin-requests" element={<AdminPage/> } />
+                <Route path="/general-editor" element={<GeneralEditorPage /> } />
             </Routes>
         </Router>
     );

@@ -17,8 +17,8 @@
     background-color: #939F5C;
     color: white;
     transition: background-color 0.6s ease;
-
 }
+
 .at-title {
     font-size: 1em;
     flex: 1;
@@ -53,9 +53,11 @@
     .at-container, .at-selected {
         height: 100px;
     }
+  
     .at-photo {
         height: 0px;
     }
+  
     .at-buttonContainer {
         width: 150px;
         height: 50px;

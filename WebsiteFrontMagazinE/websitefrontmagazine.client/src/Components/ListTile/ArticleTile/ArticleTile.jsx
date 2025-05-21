@@ -2,6 +2,7 @@ import { useState } from "react";
 import './ArticleTile.css';
 
 function ArticleTile({ title, photo, onSelect, id, accept, reject, isChosen }) {
+
     const [photoPath, setPhotoPath] = useState(photo || 'src/assets/mini.jpg');
 
     const handleTileClick = (id) => {
@@ -20,7 +21,6 @@ function ArticleTile({ title, photo, onSelect, id, accept, reject, isChosen }) {
                 <button className="actionButton" onClick={accept}>
                     <img src="src/assets/accept.png" className="actionImage" />
                 </button>
-
                 <button className="actionButton" onClick={reject}>
                     <img src="src/assets/remove.png" className="actionImage" />
                 </button>

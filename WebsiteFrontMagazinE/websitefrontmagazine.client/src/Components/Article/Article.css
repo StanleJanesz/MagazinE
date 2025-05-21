@@ -15,6 +15,7 @@
     gap: 10%;
     padding-bottom: 1%;
     cursor: pointer;
+    
 }
     .articleContainer:hover {
         box-shadow: inset;

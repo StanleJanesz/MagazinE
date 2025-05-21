@@ -28,7 +28,7 @@ namespace MagazinEAPI.Contexts
         {
         }
         public DbSet<Admin> Admins { get; set; }
-        public DbSet<Article> Articles { get; set; }
+        public virtual DbSet<Article> Articles { get; set; }
         public DbSet<Ban> Bans { get; set; }
         public DbSet<Comment> Comments { get; set; }
         public DbSet<CommentReport> CommentReports { get; set; }

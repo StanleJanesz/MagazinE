@@ -15,5 +15,6 @@
     <Folder Include="src\Pages\EditArticlePage\" />
     <Folder Include="src\Pages\ArticlesJournalistPage\" />
     <Folder Include="src\Pages\AdminPage\" />
+    <Folder Include="src\Pages\GeneralEditorPage\" />
   </ItemGroup>
 </Project>

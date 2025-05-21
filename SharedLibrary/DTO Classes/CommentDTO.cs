@@ -9,10 +9,11 @@ namespace SharedLibrary.DTO_Classes
 {
 	public class CommentDTO : CommentAbstract
 	{
-		public int ParentId { get; set; }
+		public int? ParentId { get; set; }
 		public List<int> ChildrenIds { get; set; }
 
 		public int LikesCount { get; set; }
 		public int DislikesCount { get; set; }
-	}
+		public int ArticleId { get; set; }
+    }
 }
