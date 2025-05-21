@@ -12,10 +12,12 @@ import ArticlePage from './Pages/ArticlePage/ArticlePage.jsx';
 import EditArticlePage from './Pages/EditArticlePage/EditArticlePage.jsx';
 import ArticlesJournalistPage from './Pages/ArticlesJournalistPage/ArticlesJournalistPage.jsx';
 import GeneralEditorPage from './Pages/GeneralEditorPage/GeneralEditorPage.jsx';
+import UserArticlesPage from './Pages/UserArticlesPage/UserArticlesPage.jsx';
 
 // Styles imports
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+
 
 
 function App() {
@@ -31,7 +33,8 @@ function App() {
                 <Route path="/article" element={<ArticlePage />} />
                 <Route path="/edit-article" element={<EditArticlePage />} />
                 <Route path="/articles-view" element={<ArticlesJournalistPage />} />
-                <Route path="/general-editor" element={<GeneralEditorPage /> } />
+                <Route path="/general-editor" element={<GeneralEditorPage />} />
+                <Route path="/user-articles" element={<UserArticlesPage />} />
             </Routes>
         </Router>
     );

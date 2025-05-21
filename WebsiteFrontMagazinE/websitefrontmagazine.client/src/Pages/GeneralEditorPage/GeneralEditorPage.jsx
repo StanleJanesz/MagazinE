@@ -3,7 +3,7 @@ import MyDropdown from '../../Components/MyDropdown/MyDropdown.jsx';
 import SearchBar from '../../Components/SearchBar/SearchBar.jsx';
 import Table from 'react-bootstrap/Table';
 import './GeneralEditorPage.css';
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence } from "framer-motion";
 import Button from "react-bootstrap/Button";
 
 function GeneralEditorPage() {
