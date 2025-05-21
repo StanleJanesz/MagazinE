@@ -50,7 +50,7 @@ function RegisterPage() {
     useEffect(() => {
         if (!loginSuccess) return;
 
-        const fullMessage = " Welcome! Redirecting to home page";
+        const fullMessage = " Welcome to MagazinE! Redirecting to home page";
         let index = 0;
 
         const interval = setInterval(() => {
@@ -62,7 +62,7 @@ function RegisterPage() {
                 // Redirect 1 second after message finishes
                 setTimeout(() => {
                     navigate("/");
-                }, 2000);
+                }, 3000);
             }
         }, 50);
 
