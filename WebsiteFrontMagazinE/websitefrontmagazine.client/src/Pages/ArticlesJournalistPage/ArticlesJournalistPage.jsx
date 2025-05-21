@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence } from "framer-motion";
 import ArticleTile from '../../Components/ListTile/ArticleTile/ArticleTile';
 import Button from "react-bootstrap/Button";
 import './ArticlesJournalistPage.css';
