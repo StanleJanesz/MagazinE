@@ -10,18 +10,30 @@ using System.Text;
 using MagazinEAPI.Models.Users;
 using MagazinEAPI.utils.SeedCreators;
 using Microsoft.OpenApi.Models;
+using Microsoft.Data.SqlClient;
+using System;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowFrontend", policy =>
+//    {
+//        policy.WithOrigins("http://localhost:3000")
+//            .AllowCredentials()
+//            .AllowAnyHeader()
+//            .AllowAnyMethod();
+//    });
+//});
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontend", policy =>
+    options.AddPolicy("AllowAll", policy =>
     {
-        policy.WithOrigins("http://localhost:3000")
-            .AllowCredentials()
+        policy
+            .AllowAnyOrigin() // ⚠ Cannot be used with AllowCredentials()
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
@@ -85,8 +97,8 @@ var connectionString = builder.Services.AddDbContext<RolesBasedContext>(options 
 
 //czyli UserManager<CustomUser> oraz SignInManager<CustomUser> bêd¹ u¿ywa³y ApplicationDbContext
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options => options.SignIn.RequireConfirmedAccount = false)
-							.AddDefaultTokenProviders()
-							.AddEntityFrameworkStores<RolesBasedContext>();
+                            .AddDefaultTokenProviders()
+                            .AddEntityFrameworkStores<RolesBasedContext>();
 
 
 //builder.Services.AddControllers();
@@ -94,7 +106,11 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options => option
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    // Always listen on HTTP port 8082
+    serverOptions.ListenAnyIP(8082);
+});
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
@@ -117,34 +133,63 @@ builder.Services.AddSwaggerGen(c =>
                 Reference = new OpenApiReference
                 {
                     Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
+                    Id = "Bearer",
+                },
             },
-            new string[] {}
-        }
+            new string[] { }
+        },
     });
 });
 
 var app = builder.Build();
 
+
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-	app.UseSwagger();
-	app.UseSwaggerUI();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
-  
+
 app.UseHttpsRedirection();
 
-app.UseCors("AllowFrontend");
-
+// app.UseCors("AllowFrontend");
+app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseAuthorization();
 
-
 app.MapControllers();
 
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<RolesBasedContext>();
+
+    var maxRetries = 10;
+    var delay = TimeSpan.FromSeconds(5);
+
+    for (int retry = 0; retry < maxRetries; retry++)
+    {
+        try
+        {
+            Console.WriteLine(" Checking database connection...");
+            context.Database.Migrate(); // applies migrations
+            Console.WriteLine(" Database is up and migrations are applied.");
+            break;
+        }
+        catch (SqlException ex)
+        {
+            Console.WriteLine($" SQL not ready yet: {ex.Message}");
+            if (retry == maxRetries - 1)
+            {
+                throw;
+            }
+
+            Thread.Sleep(delay);
+        }
+    }
+}
 app.Run();
 
 
