@@ -5,6 +5,7 @@ USER app
 WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
+EXPOSE 5173
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS with-node
 RUN apt-get update
@@ -16,19 +17,18 @@ RUN apt-get -y install nodejs
 FROM with-node AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["WebsiteFrontMagazinE/WebsiteFrontMagazinE.Server/WebsiteFrontMagazinE.Server.csproj", "WebsiteFrontMagazinE/WebsiteFrontMagazinE.Server/"]
 COPY ["WebsiteFrontMagazinE/websitefrontmagazine.client/websitefrontmagazine.client.esproj", "WebsiteFrontMagazinE/websitefrontmagazine.client/"]
-RUN dotnet restore "./WebsiteFrontMagazinE/WebsiteFrontMagazinE.Server/WebsiteFrontMagazinE.Server.csproj"
 COPY . .
 COPY WebsiteFrontMagazinE/websitefrontmagazine.client/src/assets ./src/assets
-WORKDIR "/src/WebsiteFrontMagazinE/WebsiteFrontMagazinE.Server"
-RUN dotnet build "./WebsiteFrontMagazinE.Server.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
-FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./WebsiteFrontMagazinE.Server.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
-FROM base AS final
-WORKDIR /app
-COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "WebsiteFrontMagazinE.Server.dll"]
+WORKDIR /src/WebsiteFrontMagazinE/websitefrontmagazine.client
+RUN npm install
+RUN npm run build
+RUN npm install -g serve
+EXPOSE 5173
+CMD ["npm", "run", "dev", "--", "--host"]
+
+
+
+
