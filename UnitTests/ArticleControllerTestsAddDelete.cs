@@ -103,9 +103,12 @@ namespace UnitTests
 				}
 			};
 
+
+
 			var result = await controller.Post(articleDTO);
 			var createdResult = Xunit.Assert.IsType<CreatedResult>(result);
 			Xunit.Assert.Equal(201, createdResult.StatusCode);
+
 
 			var articleCount = await context.Articles.CountAsync();
 			Xunit.Assert.Equal(1, articleCount);
