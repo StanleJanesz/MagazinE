@@ -47,7 +47,7 @@ function RegisterPage() {
                 ConfirmPassword: password
             }
             try {
-                const response = await fetch('https://localhost:7054/register', {
+                const response = await fetch('http://localhost:8082/register', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

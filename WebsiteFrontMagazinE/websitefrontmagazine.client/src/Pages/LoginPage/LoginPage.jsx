@@ -12,7 +12,7 @@ function LoginPage() {
         if (validate()) {
             try {
                 const response =
-                    await fetch('https://localhost:7054/login/login', {
+                    await fetch('http://localhost:8082/login/login', {
                         method: 'POST',
                         headers: {
                             'Accept': 'application/json',
