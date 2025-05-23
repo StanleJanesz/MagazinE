@@ -11,6 +11,7 @@ import RegisterPage from './Pages/RegisterPage/RegisterPage.jsx';
 import ArticlePage from './Pages/ArticlePage/ArticlePage.jsx';
 import EditArticlePage from './Pages/EditArticlePage/EditArticlePage.jsx';
 import ArticlesJournalistPage from './Pages/ArticlesJournalistPage/ArticlesJournalistPage.jsx';
+import AdminPage from './Pages/AdminPage/AdminPage.jsx';
 import GeneralEditorPage from './Pages/GeneralEditorPage/GeneralEditorPage.jsx';
 
 // Styles imports
@@ -31,6 +32,7 @@ function App() {
                 <Route path="/article" element={<ArticlePage />} />
                 <Route path="/edit-article" element={<EditArticlePage />} />
                 <Route path="/articles-view" element={<ArticlesJournalistPage />} />
+                <Route path="/admin-requests" element={<AdminPage/> } />
                 <Route path="/general-editor" element={<GeneralEditorPage /> } />
             </Routes>
         </Router>
