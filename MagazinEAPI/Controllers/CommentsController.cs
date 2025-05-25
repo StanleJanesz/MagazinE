@@ -106,7 +106,10 @@ namespace MagazinEAPI.Controllers
                 return this.BadRequest("Email not found");
             }
 
-            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            var applicationUser = this.userManager.Users
+                .Include(u => u.User)
+                .FirstOrDefault(u => u.Email == email.Value);
+
             if (applicationUser == null || applicationUser.User == null)
             {
                 return this.BadRequest("User not found");
@@ -143,9 +146,7 @@ namespace MagazinEAPI.Controllers
 
             this.context.Add(comment);
             this.context.SaveChanges();
-            this.context.Comments.Add(comment);
-            this.context.SaveChanges();
-
+           
             return this.Ok(comment.ToDTO());
         }
 

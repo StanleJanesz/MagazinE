@@ -164,6 +164,7 @@ function ArticlePage() {
                                                 content={comment.content}
                                                 likesCount={comment.likesCount}
                                                 dislikesCount={comment.dislikesCount}
+                                                articleId={articleId}
                                             />
                                         ))
                                 ) : (

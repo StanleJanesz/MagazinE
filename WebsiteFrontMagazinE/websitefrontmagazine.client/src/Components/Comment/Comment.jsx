@@ -6,7 +6,7 @@ import answer from "/src/assets/answer.png";
 import report from "/src/assets/report.png";
 import { getTokenFromCookie } from '../../utils';
 
-function Comment({ author, date, content, answerIds, commentId, likesCount, dislikesCount }) {
+function Comment({ author, date, content, answerIds, commentId, likesCount, dislikesCount, articleId }) {
     const [likes, setLikes] = useState(likesCount);
     const [dislikes, setDislikes] = useState(dislikesCount);
     const [isAnswered, setIsAnswered] = useState(false);
@@ -131,8 +131,40 @@ function Comment({ author, date, content, answerIds, commentId, likesCount, disl
     };
 
 
-    const handleAnswer = () => {
-        setIsAnswered(true);
+    const handleAnswer = async (replyContent) => {
+        try {
+            const token = getTokenFromCookie(); 
+            const response = await fetch(`https://localhost:7054/api/Comments`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                        Content: 'Example',
+                        ArticleId: articleId,
+                        ParentId: commentId,
+                        Date: new Date().toISOString(), 
+                        ChildrenIds: [],
+                        LikesCount: 0,
+                        DislikesCount: 0,
+                }),
+            });
+
+            if (!response.ok) {
+                const errorMsg = await response.text();
+                throw new Error(errorMsg || "Failed to post comment");
+            }
+
+            const newComment = await response.json();
+            const updatedAnswers = [...answers, newComment];
+            const uniqueAnswers = [...new Map(updatedAnswers.map((c) => [c.id, c])).values()];
+            setAnswers(uniqueAnswers);
+
+        } catch (error) {
+            console.error("Error posting reply:", error);
+            alert(error.message || "Something went wrong while replying.");
+        }
     };
 
     const handleReport = () => setIsReported(true);
@@ -242,6 +274,7 @@ function Comment({ author, date, content, answerIds, commentId, likesCount, disl
                                 answerIds={answer.childrenIds}
                                 likesCount={answer.likesCount}
                                 dislikesCount={answer.dislikesCount}
+                                articleId={articleId}
                             />
                         ))
                     ) : (
