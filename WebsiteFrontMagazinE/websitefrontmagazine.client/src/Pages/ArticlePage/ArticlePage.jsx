@@ -2,20 +2,22 @@ import { useEffect, useState } from "react";
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
 import './ArticlePage.css';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Comment from '../../Components/Comment/Comment.jsx';
 import { Button } from "bootstrap";
 import mini from "/src/assets/mini.jpg";
 import gallery from "/src/assets/gallery.png";
 
 
-function ArticlePage({ articleId }) {
+function ArticlePage() {
     // TODO: PARSER BALD AND ITALICS
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [comments, setComments] = useState([]);
     const navigate = useNavigate();
-    const getRandomInt = (max) => Math.floor(Math.random() * max);
+    const [searchParams] = useSearchParams();
+    const articleId = searchParams.get("id");
+
     async function sleep(msec) {
         return new Promise(resolve => setTimeout(resolve, msec));
     }
@@ -27,57 +29,109 @@ function ArticlePage({ articleId }) {
     ];
 
     const fetchComments = async () => {
-        setComments(dummyComments.map(comment => ({ ...comment })));
+        const token = getTokenFromCookie();
+        setComments([]);
+        try {
+            console.log(data.commentsIds);
+            const fetchedComments = [];
+            for (const commentId of data.commentsIds) {
+                const response = await fetch(`https://localhost:7054/api/Comments/${commentId}`, {
+                    method: 'GET',
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+                // Check if the response is OK
+                if (response.ok) {
+                    const commentData = await response.json();
+                    fetchedComments.push(commentData);     
+                }
+            }
+
+            const uniqueComments = [...new Map(fetchedComments.map((c) => [c.id, c])).values()];
+            setComments(uniqueComments);
+            console.log(comments);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const fetchArticle = async () => {
+        try {
+            const token = getTokenFromCookie();
+            console.log(token);
+            const response = await fetch(`https://localhost:7054/articles/${articleId}`,
+                {
+                    method: 'GET',
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`, 
+                    },
+                });
+
+            // Not found or bad request
+            if (!response.ok && !response.status === 401) {
+                throw new Error(`Failed to fetch article`);
+            }
+
+            if (response.status === 401) {
+                throw new Error("Unathorized to retrieve article data!");
+                return;
+            }
+
+            const data = await response.json();
+            setData(data);
+        }
+        catch (error) {
+            console.log(error);
+        }
+
     }
 
-    const fetchArticle = async (isUserPremium) => {
-        if (isUserPremium) {
-            setData({
-                title: "Analiza Matematyczna 4 i Metody Numeryczne 3 juz od nowego roku na MiNI",
-                author: "Juan de Barbas",
-                content: `
-            
-                Wydzial Matematyki i Nauk Informacyjnych Politechniki Warszawskiej oglosil, ze od nowego roku akademickiego wprowadza dwa nowe przedmioty obowiazkowe: *Analiza Matematyczna 4* oraz *Metody Numeryczne 3*. Decyzja ta jest odpowiedzia na wieloletnie postulaty studentow o "wieksze wyzwania akademickie" oraz "prawdziwe odczucie studiow inzynierskich".
-                \n
-                
+    const getTokenFromCookie = () => {
+        const cookieName = "jwt="; 
+        const cookies = document.cookie.split("; "); 
 
-                Po latach spekulacji, kiedy tylko zartowano o mozliwosci istnienia czwartego semestru analizy matematycznej, stalo sie to rzeczywistoscia. Nowy przedmiot obejmie:
-                - Dowod, ze istnieje jeszcze jeden, trudniejszy dowod twierdzenia Stokesa,
-                - Zastosowanie analizy zespolonej do gotowania makaronu,
-                - Wplyw rachunku wariacyjnego na poziom stresu studentow,
-                - Niezaleznosc hipotezy continuum od organizmu smiertelnego.
+        for (const cookie of cookies) {
+            if (cookie.startsWith(cookieName)) {
+                return cookie.substring(cookieName.length);
+            }
+        }
 
-                Jak informuje jeden z wykladowcow: "Po trzecim semestrze analizy wielu studentow ma niedosyt. Czulismy, ze musimy im dac cos wiecej. Dlatego AM4 bedzie miala obowiazkowe projekty badawcze, a studenci na zaliczenie beda musieli napisac podrecznik do Analizy 5."`,
-
-            });
-        }
-        else {
-            setData({
-                title: "Analiza Matematyczna 4 i Metody Numeryczne 3",
-                author: "Juan de Barbas",
-                content: "",
-            });
-        }
-    }
-
-    const fetchData = async () => {
-        setLoading(true);
-        await sleep(1000);
-        if (getRandomInt(10) % 2 === 0) {
-            // TODO: integrate secure checking with backend 
-            fetchArticle(true);
-        }
-        else {
-            fetchArticle(false);
-        }
-        fetchComments();
-        setLoading(false);
-    }
+        return null; // Return null if the cookie is not found
+    };
 
     useEffect(() => {
-        fetchData();
+        const fetchArticleData = async () => {
+            setLoading(true);
+            try {
+                await fetchArticle(); // This updates `data` state
+            } catch (error) {
+                console.error("Error fetching article:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchArticleData();
     }, [articleId]);
 
+    const fetchCommentsData = async () => {
+        try {
+            setComments([]);
+            await fetchComments();
+        } catch (error) {
+            console.error("Error fetching comments:", error);
+        }
+    };
+
+    useEffect(() => {
+        if (data && data.commentsIds) {
+            fetchCommentsData();
+        }
+    }, [data]);
 
     return (
         <>
@@ -93,8 +147,30 @@ function ArticlePage({ articleId }) {
                     </button>
                     <h1>{data.title}</h1>
                     <h2>Author: {data.author}</h2>
-                    {data.content.length > 0 ? (
-                        <p>{data.content}</p>
+                    {data !== null ? (
+                        <>
+                            <p>{data.content}</p>
+                            <div className="commentsSection">
+                                <h3>Comments:</h3>
+                                {comments.length > 0 ? (
+                                    comments
+                                        .filter(comment => comment.parentId === null) // Top-level comments only
+                                        .map((comment, index) => (
+                                            <Comment
+                                                commentId={comment.id} // Prefer unique IDs if available
+                                                author={comment.authorId}
+                                                date={comment.date}
+                                                answerIds={comment.childrenIds}
+                                                content={comment.content}
+                                                likesCount={comment.likesCount}
+                                                dislikesCount={comment.dislikesCount}
+                                            />
+                                        ))
+                                ) : (
+                                    <p>No comments yet. Be the first to comment!</p>
+                                )}
+                            </div>
+                        </>
                     ) : (
                         <div className="paywall">
                             <p>This article is available for premium users only. Subscribe to unlock full access!</p>
@@ -108,16 +184,6 @@ function ArticlePage({ articleId }) {
                             </div>
                         </div>
                     )}
-                    <div className="commentsSection">
-                        <h3>Comments:</h3>
-                        {comments.length > 0 ? (
-                            comments.map((comment, index) => (
-                                <Comment key={index} author={comment.author} date={comment.date} content={comment.content} />
-                            ))
-                        ) : (
-                            <p>No comments yet. Be the first to comment!</p>
-                        )}
-                    </div>
                 </div>
             }
         </>

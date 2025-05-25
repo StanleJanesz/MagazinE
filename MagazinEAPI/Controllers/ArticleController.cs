@@ -44,11 +44,14 @@
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-
         [ProducesResponseType<ArticleDTO>(StatusCodes.Status200OK)]
         public IActionResult Get([FromRoute] int id)
         {
-            var article = this.context.Articles.FirstOrDefault(a => a.Id == id);
+            var article = this.context.Articles
+                .Include(article => article.Author.ApplicationUser)
+                .Include(article => article.Comments)
+                .FirstOrDefault(a => a.Id == id);
+
             if (article == null)
             {
                 return this.NotFound("Article not found");

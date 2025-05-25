@@ -80,3 +80,20 @@
         font-size: 14px;
     }
 }
+
+.answersSection {
+    margin-top: 15px;
+    padding-left: 20px;
+    border-left: 2px solid #ddd;
+}
+
+.answer {
+    margin-bottom: 10px;
+}
+
+    .answer p {
+        margin: 5px 0;
+        font-size: 14px;
+        color: #555;
+    }
+
