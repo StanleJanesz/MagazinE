@@ -48,10 +48,17 @@
         public IActionResult Get([FromRoute] int id)
         {
             var article = this.context.Articles
+<<<<<<< HEAD
                 .Include(article => article.Author.ApplicationUser)
                 .Include(article => article.Comments)
                 .FirstOrDefault(a => a.Id == id);
 
+=======
+                .Include(a => a.Comments)
+                .Include(a => a.Tags)
+                .Include(a => a.Photos)
+                .FirstOrDefault(a => a.Id == id);
+>>>>>>> develop
             if (article == null)
             {
                 return this.NotFound("Article not found");
@@ -280,7 +287,8 @@
 
             try
             {
-                this.context.Articles.Add(new Article
+
+                var article = new Article
                 {
                     Title = articleDTO.Title,
                     Content = articleDTO.Content,
@@ -288,17 +296,21 @@
                     isPremium = false,
                     isPublished = false,
                     AuthorId = journalist.Id,
-                    TimeOfPublication = null,
+                    TimeOfPublication = DateTime.Now,
                     Author = journalist,
-                });
-                this.context.SaveChanges();
-            }
+                };
+
+				this.context.Articles.Add(article);
+
+                await this.context.SaveChangesAsync();
+
+				//return Created();
+				return Created("", null);
+			}
             catch
             {
                 return this.BadRequest("Adding article failed");
             }
-
-            return this.Created();
         }
     }
 }

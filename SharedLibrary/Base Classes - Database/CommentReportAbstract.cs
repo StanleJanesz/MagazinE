@@ -13,6 +13,6 @@ namespace SharedLibrary.Base_Classes___Database
 		public int ReportAuthorId { get; set; }
 		public string Reason { get; set; }
 		public DateTime Date { get; set; }
-		public bool Result { get; set; }
+		public CommentReportState State { get; set; }
 	}
 }

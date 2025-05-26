@@ -4,17 +4,26 @@ namespace MagazinEAPI.Controllers
     using MagazinEAPI.Contexts;
     using MagazinEAPI.Models.Articles.Comment;
     using MagazinEAPI.Models.Users;
-    using Microsoft.AspNetCore.Authorization;
-    using Microsoft.AspNetCore.Http;
+	using Microsoft.AspNetCore.Authorization;
+	using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
+<<<<<<< HEAD
     using Microsoft.EntityFrameworkCore;
     using SharedLibrary.DTO_Classes;
+=======
+	using SharedLibrary.DTO_Classes;
+>>>>>>> develop
 
-    /// <summary>
-    /// Controller for managing comments.
-    /// </summary>
-    [Route("api/[controller]")]
+	using Microsoft.EntityFrameworkCore;
+	using Microsoft.EntityFrameworkCore.Query;
+	using SharedLibrary.Base_Classes___Database;
+	using Xunit;
+
+	/// <summary>
+	/// Controller for managing comments.
+	/// </summary>
+	[Route("api/[controller]")]
     [ApiController]
     public class CommentsController : Controller
     {
@@ -46,6 +55,7 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType<CommentDTO>(StatusCodes.Status200OK)]
         public IActionResult Get([FromRoute] int id)
         {
+<<<<<<< HEAD
             var comment = this.context.Comments
                 .Include(comment => comment.Article)
                 .Include(comment => comment.Children)
@@ -54,6 +64,9 @@ namespace MagazinEAPI.Controllers
                 .Include(comment => comment.Author)
                 .Include(comment => comment.Author.ApplicationUser)
                 .FirstOrDefault(c => c.Id == id);
+=======
+			var comment = this.context.Comments.Include(c => c.Article).FirstOrDefault(c => c.Id == id);
+>>>>>>> develop
             if (comment == null)
             {
                 return this.NotFound("Comment not found");
