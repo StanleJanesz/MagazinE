@@ -87,21 +87,9 @@ function LoginPage() {
         return Object.keys(newErrors).length === 0;
     };
 
-    const GoogleLogin = async () => {
-
-        try {
-            const response =
-                await fetch('/login/google');
-            const content = await response.json();
-
-            console.log(content);
-
-        }
-        catch (error) {
-            console.log(error);
-        }
-
-    }
+    const GoogleLogin = () => {
+        window.location.href = 'https://localhost:7054/login/google';
+    };
 
     return (
         <div className="container">

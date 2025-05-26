@@ -16,6 +16,10 @@ function Comment({ author, date, content, answerIds, commentId, likesCount, disl
     const [answers, setAnswers] = useState([]);
     const [showAnswers, setShowAnswers] = useState(false);
     const [loadingAnswers, setLoadingAnswers] = useState(false);
+    const [isAnswering, setIsAnswering] = useState(false);
+    const [replyContent, setReplyContent] = useState('');
+    const [isReporting, setIsReporting] = useState(false);
+    const [reportContent, setReportContent] = useState('');
 
     useEffect(() => {
         setLikes(likesCount);
@@ -131,9 +135,9 @@ function Comment({ author, date, content, answerIds, commentId, likesCount, disl
     };
 
 
-    const handleAnswer = async (replyContent) => {
+    const submitAnswer = async () => {
         try {
-            const token = getTokenFromCookie(); 
+            const token = getTokenFromCookie();
             const response = await fetch(`https://localhost:7054/api/Comments`, {
                 method: "POST",
                 headers: {
@@ -141,13 +145,13 @@ function Comment({ author, date, content, answerIds, commentId, likesCount, disl
                     Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify({
-                        Content: 'Example',
-                        ArticleId: articleId,
-                        ParentId: commentId,
-                        Date: new Date().toISOString(), 
-                        ChildrenIds: [],
-                        LikesCount: 0,
-                        DislikesCount: 0,
+                    Content: replyContent,
+                    ArticleId: articleId,
+                    ParentId: commentId,
+                    Date: new Date().toISOString(),
+                    ChildrenIds: [],
+                    LikesCount: 0,
+                    DislikesCount: 0,
                 }),
             });
 
@@ -160,7 +164,9 @@ function Comment({ author, date, content, answerIds, commentId, likesCount, disl
             const updatedAnswers = [...answers, newComment];
             const uniqueAnswers = [...new Map(updatedAnswers.map((c) => [c.id, c])).values()];
             setAnswers(uniqueAnswers);
-
+            setReplyContent('');
+            setIsAnswering(false);
+            setIsAnswered(true);
         } catch (error) {
             console.error("Error posting reply:", error);
             alert(error.message || "Something went wrong while replying.");
@@ -168,6 +174,7 @@ function Comment({ author, date, content, answerIds, commentId, likesCount, disl
     };
 
     const handleReport = () => setIsReported(true);
+    const rejectAnswer = () => setIsAnswering(false); 
 
     const fetchAnswers = async () => {
         setLoadingAnswers(true);
@@ -217,7 +224,7 @@ function Comment({ author, date, content, answerIds, commentId, likesCount, disl
     };
 
     return (
-        <div className="comment">
+        <div className="commentWrapper">
             <div className="commentHeader">
                 <h4 className="commentAuthor">{author}</h4>
                 <p className="commentDate">{new Date(date).toLocaleDateString()}</p>
@@ -239,25 +246,71 @@ function Comment({ author, date, content, answerIds, commentId, likesCount, disl
                 >
                     <img src={dislike} className="actionImage" /> {dislikes}
                 </button>
-                <button
-                    className="actionButton"
-                    onClick={handleAnswer}
-                    disabled={isAnswered}
-                >
-                    <img src={answer} className="actionImage" />
-                    {isAnswered ? "Answered" : "Answer"}
-                </button>
-                <button
-                    className="actionButton"
-                    onClick={handleReport}
-                    disabled={isReported}
-                >
-                    <img src={report} className="actionImage" />
-                    {isReported ? "Reported" : "Report"}
-                </button>
+                {isReporting ? (
+                    <div className="answerInputSection">
+                        <textarea
+                            className="answerTextarea"
+                            value={reportContent}
+                            onChange={(e) => setReportContent(e.target.value)}
+                            placeholder="Write report justification..."
+                        />
+                        <button
+                            className="answerButton submit"
+                            onClick={() => {
+                                setIsReporting(false);
+                                setIsReported(true);
+                            }}
+                        >
+                            Submit
+                        </button>
+                        <button
+                            className="answerButton reject"
+                            onClick={() => {
+                                setIsReporting(false);
+                                setIsReported(false);
+                            }}>
+                            Reject
+                        </button>
+                    </div>
+                ) : (
+                    <button
+                            className="actionButton"
+                            onClick={() => setIsReporting(true)}
+                            disabled={isReported}
+                    >
+                            <img
+                                src={report}
+                                className="actionImage" />
+                        {isReported ? "Reported" : "Report"}
+                    </button>
+                )}
                 <button className="actionButton" onClick={toggleAnswers}>
                     {showAnswers ? "Hide Answers" : "Show Answers"}
                 </button>
+                {isAnswering ? (
+                    <div className="answerInputSection">
+                        <textarea
+                            className="answerTextarea"
+                            value={replyContent}
+                            onChange={(e) => setReplyContent(e.target.value)}
+                            placeholder="Write your answer..."
+                        />
+                        <button className="answerButton submit" onClick={submitAnswer}>
+                            Submit
+                        </button>
+                        <button className="answerButton reject" onClick={rejectAnswer}>
+                            Reject
+                        </button>
+                    </div>
+                ) : (
+                    <button
+                        className="actionButton"
+                        onClick={() => setIsAnswering(true)}
+                    >
+                        <img src={answer} className="actionImage" />
+                        {isAnswered ? "Answered" : "Answer"}
+                    </button>
+                )}
             </div>
 
             {showAnswers && (
@@ -267,7 +320,7 @@ function Comment({ author, date, content, answerIds, commentId, likesCount, disl
                     ) : answers.length > 0 ? (
                         answers.map((answer, index) => (
                             <Comment
-                                author={answer.authorId}
+                                author={answer.authorEmail}
                                 commentId={answer.id}
                                 date={answer.date}
                                 content={answer.content}

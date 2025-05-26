@@ -158,7 +158,7 @@ function ArticlePage() {
                                         .map((comment, index) => (
                                             <Comment
                                                 commentId={comment.id} // Prefer unique IDs if available
-                                                author={comment.authorId}
+                                                author={comment.authorEmail}
                                                 date={comment.date}
                                                 answerIds={comment.childrenIds}
                                                 content={comment.content}

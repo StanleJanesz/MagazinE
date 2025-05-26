@@ -62,7 +62,7 @@
         /// Login with Google.
         /// </summary>
         /// <returns>redirects to Google login.</returns>
-        [HttpPost]
+        [HttpGet]
         [Route("google")]
         public IActionResult LoginWithGoogle()
         {
@@ -117,11 +117,13 @@
 
             this.Response.Cookies.Append("JWT", jwt, new CookieOptions
             {
-                HttpOnly = true,
+                HttpOnly = false,
                 Secure = true,
                 Expires = DateTime.UtcNow.AddHours(2),
+                SameSite = SameSiteMode.None,
             });
 
+            
             return this.Ok("Zalogowano");
         }
 

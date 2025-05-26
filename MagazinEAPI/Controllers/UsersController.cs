@@ -531,6 +531,5 @@ namespace MagazinEAPI.Controllers
 
             return this.Ok(applicationUser.ToDTO());
         }
-
     }
 }

@@ -40,8 +40,8 @@ namespace MagazinEAPI.Models.Articles.Comment
                 LikesCount = this.Likes.Count,
                 DislikesCount = this.Dislikes.Count,
                 ChildrenIds = this.Children.Select(c => c.Id).ToList(),
-                ArticleId = this.ArticleId
-
+                ArticleId = this.ArticleId,
+                AuthorEmail = this.Author.ApplicationUser.Email,
             };
             return commentDTO;
         }

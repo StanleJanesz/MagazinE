@@ -51,6 +51,8 @@ namespace MagazinEAPI.Controllers
                 .Include(comment => comment.Children)
                 .Include(comment => comment.Likes)
                 .Include(comment => comment.Dislikes)
+                .Include(comment => comment.Author)
+                .Include(comment => comment.Author.ApplicationUser)
                 .FirstOrDefault(c => c.Id == id);
             if (comment == null)
             {
