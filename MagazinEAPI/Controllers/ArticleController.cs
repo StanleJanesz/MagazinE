@@ -229,7 +229,7 @@
                 return this.BadRequest("Getting articles failed");
             }
 
-            return this.Ok(articles.Select(a => a.ToInfoDTO()));
+            return this.Ok(articles.Select(a => a.ToInfoDTO()).ToList());
         }
 
         /// <summary>
@@ -273,7 +273,7 @@
                 return this.Unauthorized("User is not a journalist");
             }
 
-            if (this.context.Articles.Any(a => a.Title == articleDTO.Title)) // TODO: we have to decide if we want to allow articles with the same title
+            if (this.context.Articles != null && this.context.Articles.Count() > 0 && this.context.Articles.Any(a => a.Title == articleDTO.Title)) // TODO: we have to decide if we want to allow articles with the same title
             {
                 return this.BadRequest("Article with this title already exists");
             }
