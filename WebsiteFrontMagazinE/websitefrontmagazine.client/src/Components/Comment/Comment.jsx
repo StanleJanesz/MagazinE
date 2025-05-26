@@ -6,7 +6,16 @@ import answer from "/src/assets/answer.png";
 import report from "/src/assets/report.png";
 import { getTokenFromCookie } from '../../utils';
 
-function Comment({ author, date, content, answerIds, commentId, likesCount, dislikesCount, articleId }) {
+function Comment({
+    author,
+    authorId,
+    date,
+    content,
+    answerIds,
+    commentId,
+    likesCount,
+    dislikesCount,
+    articleId }) {
     const [likes, setLikes] = useState(likesCount);
     const [dislikes, setDislikes] = useState(dislikesCount);
     const [isAnswered, setIsAnswered] = useState(false);
@@ -173,7 +182,6 @@ function Comment({ author, date, content, answerIds, commentId, likesCount, disl
         }
     };
 
-    const handleReport = () => setIsReported(true);
     const rejectAnswer = () => setIsAnswering(false); 
 
     const fetchAnswers = async () => {
@@ -223,6 +231,40 @@ function Comment({ author, date, content, answerIds, commentId, likesCount, disl
         return null; // Return null if the cookie is not found
     };
 
+    const handleReport = async () => {
+        setIsReported(true);
+
+        const token = getTokenFromCookie(); // assuming this function exists
+
+        const report = {
+            reason: reportContent,
+            commentId: commentId,
+        };
+
+        try {
+            const response = await fetch(`https://localhost:7054/reports`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(report),
+            });
+
+            if (!response.ok) {
+                const errText = await response.text();
+                throw new Error(errText || "Failed to report comment");
+            }
+
+            alert("Comment reported successfully.");
+            setIsReported(true);
+            setIsReporting(false);
+        } catch (error) {
+            console.error("Error reporting comment:", error);
+            alert("An error occurred while reporting. Please try again.");
+            setIsReported(false); // revert state if failed
+        }
+    };
     return (
         <div className="commentWrapper">
             <div className="commentHeader">
@@ -235,14 +277,12 @@ function Comment({ author, date, content, answerIds, commentId, likesCount, disl
                 <button
                     className="actionButton"
                     onClick={handleLike}
-                   //disabled={isLiked || isDisliked}
                 >
                     <img src={like} className="actionImage" /> {likes}
                 </button>
                 <button
                     className="actionButton"
                     onClick={handleDislike}
-                    //disabled={isLiked || isDisliked}
                 >
                     <img src={dislike} className="actionImage" /> {dislikes}
                 </button>
@@ -256,10 +296,7 @@ function Comment({ author, date, content, answerIds, commentId, likesCount, disl
                         />
                         <button
                             className="answerButton submit"
-                            onClick={() => {
-                                setIsReporting(false);
-                                setIsReported(true);
-                            }}
+                            onClick={handleReport}
                         >
                             Submit
                         </button>

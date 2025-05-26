@@ -159,6 +159,7 @@ function ArticlePage() {
                                             <Comment
                                                 commentId={comment.id} // Prefer unique IDs if available
                                                 author={comment.authorEmail}
+                                                authorId={comment.authorId}
                                                 date={comment.date}
                                                 answerIds={comment.childrenIds}
                                                 content={comment.content}

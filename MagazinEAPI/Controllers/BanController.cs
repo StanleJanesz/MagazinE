@@ -307,7 +307,7 @@ namespace MagazinEAPI.Controllers
 			}
 
 			var reader = _context.Readers.Include(r => r.Bans).FirstOrDefault(r => r.Id == id);
-			if(reader == null)
+			if (reader == null)
 			{
 				return NotFound("Reader not found");
 			}
@@ -362,6 +362,5 @@ namespace MagazinEAPI.Controllers
 
 			return Ok(admin.Bans.Select(b => b.Id));
 		}
-
 	}
 }

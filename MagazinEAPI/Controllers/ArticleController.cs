@@ -48,17 +48,12 @@
         public IActionResult Get([FromRoute] int id)
         {
             var article = this.context.Articles
-<<<<<<< HEAD
                 .Include(article => article.Author.ApplicationUser)
                 .Include(article => article.Comments)
+                .Include(article => article.Tags)
+                .Include(article => article.Photos)
                 .FirstOrDefault(a => a.Id == id);
 
-=======
-                .Include(a => a.Comments)
-                .Include(a => a.Tags)
-                .Include(a => a.Photos)
-                .FirstOrDefault(a => a.Id == id);
->>>>>>> develop
             if (article == null)
             {
                 return this.NotFound("Article not found");
