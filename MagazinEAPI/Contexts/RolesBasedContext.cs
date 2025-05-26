@@ -28,7 +28,7 @@ namespace MagazinEAPI.Contexts
         {
         }
         public DbSet<Admin> Admins { get; set; }
-        public DbSet<Article> Articles { get; set; }
+        public virtual DbSet<Article> Articles { get; set; }
         public DbSet<Ban> Bans { get; set; }
         public DbSet<Comment> Comments { get; set; }
         public DbSet<CommentReport> CommentReports { get; set; }
@@ -36,7 +36,7 @@ namespace MagazinEAPI.Contexts
         public DbSet<Editor> Editors { get; set; }
         public DbSet<FavoriteArticle> FavoriteArticles { get; set; }
         public DbSet<HeadEditor> HeadEditors { get; set; }
-        public DbSet<Journalist> Journalists { get; set; }
+        public virtual DbSet<Journalist> Journalists { get; set; }
         public DbSet<Like> Likes { get; set; }
         public DbSet<Photo> Photos { get; set; }
         public DbSet<PhotoArticle> PhotoArticles { get; set; }

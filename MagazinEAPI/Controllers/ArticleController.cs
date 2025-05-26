@@ -16,18 +16,18 @@
     /// </summary>
     [ApiController]
     [Route("articles")]
-    public class AtricleController : Controller
+    public class ArticleController : Controller
     {
         private readonly RolesBasedContext context;
         private readonly UserManager<ApplicationUser> userManager;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AtricleController"/> class.
+        /// Initializes a new instance of the <see cref="ArticleController"/> class.
         /// Constructor for AtricleController.
         /// </summary>
         /// <param name="context">Database context.</param>
         /// <param name="userManager">Provides API for managing user in presistence store.</param>
-        public AtricleController(RolesBasedContext context, UserManager<ApplicationUser> userManager)
+        public ArticleController(RolesBasedContext context, UserManager<ApplicationUser> userManager)
         {
             this.context = context;
             this.userManager = userManager;
@@ -44,11 +44,14 @@
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-
         [ProducesResponseType<ArticleDTO>(StatusCodes.Status200OK)]
         public IActionResult Get([FromRoute] int id)
         {
-            var article = this.context.Articles.FirstOrDefault(a => a.Id == id);
+            var article = this.context.Articles
+                .Include(a => a.Comments)
+                .Include(a => a.Tags)
+                .Include(a => a.Photos)
+                .FirstOrDefault(a => a.Id == id);
             if (article == null)
             {
                 return this.NotFound("Article not found");
@@ -277,7 +280,8 @@
 
             try
             {
-                this.context.Articles.Add(new Article
+
+                var article = new Article
                 {
                     Title = articleDTO.Title,
                     Content = articleDTO.Content,
@@ -285,17 +289,21 @@
                     isPremium = false,
                     isPublished = false,
                     AuthorId = journalist.Id,
-                    TimeOfPublication = null,
+                    TimeOfPublication = DateTime.Now,
                     Author = journalist,
-                });
-                this.context.SaveChanges();
-            }
+                };
+
+				this.context.Articles.Add(article);
+
+                await this.context.SaveChangesAsync();
+
+				//return Created();
+				return Created("", null);
+			}
             catch
             {
                 return this.BadRequest("Adding article failed");
             }
-
-            return this.Created();
         }
     }
 }

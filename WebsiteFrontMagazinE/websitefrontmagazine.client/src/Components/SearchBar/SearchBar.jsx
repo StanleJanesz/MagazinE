@@ -3,8 +3,10 @@ import TextField from "@mui/material/TextField";
 import './SearchBar.css';
 import loupeIcon from '../../assets/loupe.png';
 
+
 function SearchBar({ handleSearchButtonClick, handleKeyDown }) {
     const [searchTerm, setSearchTerm] = useState("");
+
     const handleInputChange = (e) => {
         setSearchTerm(e.target.value);
     };
@@ -28,6 +30,7 @@ function SearchBar({ handleSearchButtonClick, handleKeyDown }) {
                 variant="outlined"
                 label="Search"
                 className="inputField"
+
                 value={searchTerm}
                 onChange={handleInputChange}
                 onKeyPress={handleKey}
@@ -35,6 +38,7 @@ function SearchBar({ handleSearchButtonClick, handleKeyDown }) {
             <img
                 src={loupeIcon}
                 className="loupeIcon"
+
                 onClick={handleIconClick}
                 alt="Search"
             />

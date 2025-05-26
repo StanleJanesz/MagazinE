@@ -10,7 +10,7 @@ using System.Text;
 using MagazinEAPI.Models.Users;
 using MagazinEAPI.utils.SeedCreators;
 using Microsoft.OpenApi.Models;
-
+//namespace MagazinEAPI;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +20,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:3000")
+        policy.WithOrigins("http://localhost:5137")
             .AllowCredentials()
             .AllowAnyHeader()
             .AllowAnyMethod();
@@ -82,6 +82,8 @@ var connectionString = builder.Services.AddDbContext<RolesBasedContext>(options 
 		options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
 		options => options.EnableRetryOnFailure());
 	});
+
+Console.WriteLine(connectionString);
 
 //czyli UserManager<CustomUser> oraz SignInManager<CustomUser> bêd¹ u¿ywa³y ApplicationDbContext
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options => options.SignIn.RequireConfirmedAccount = false)
@@ -146,3 +148,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+
+public partial class Program { }
