@@ -17,7 +17,7 @@ using Microsoft.EntityFrameworkCore.Query;
 
 namespace UnitTests.MagazienEAPI.Controllers
 {
-    public class JournalistControllerTests
+    public class JournalistControllerTests // Tests for JournalistController
     {
         private readonly Mock<UserManager<ApplicationUser>> _mockUserManager;
         private readonly Mock<RolesBasedContext> _mockContext;
