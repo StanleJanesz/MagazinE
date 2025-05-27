@@ -142,8 +142,8 @@ namespace MagazinEAPI.Controllers
 
             this.context.Add(comment);
             this.context.SaveChanges();
-            this.context.Comments.Add(comment);
-            this.context.SaveChanges();
+            //this.context.Comments.Add(comment); - tu by³ b³ad, bo dodawa³o dwa razy ten sam komentarz
+            //this.context.SaveChanges();
 
             return this.Ok(comment.ToDTO());
         }
@@ -173,11 +173,16 @@ namespace MagazinEAPI.Controllers
                 return this.BadRequest("Email not found");
             }
 
-            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            var applicationUser = this.userManager.Users.Include(u => u.Admin).FirstOrDefault(u => u.Email == email.Value); 
             if (applicationUser == null)
             {
                 return this.BadRequest("User not found");
             }
+
+            if(applicationUser.Admin == null)
+            {
+				return this.Unauthorized("User is not an admin");
+			}
 
             comment.IsDeleted = true;
             comment.DeletedBy = applicationUser.Admin;
