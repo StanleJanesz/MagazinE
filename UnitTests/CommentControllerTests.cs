@@ -28,7 +28,7 @@ namespace UnitTests;
 public class CommentsControllerTests
 {
 	private readonly Mock<UserManager<ApplicationUser>> _mockUserManager;
-	private readonly RolesBasedContext _context;  // tutaj użyj np. InMemory DbContext
+	private readonly RolesBasedContext _context;
 	private readonly CommentsController _controller;
 	private ApplicationUser userEntity;
 	private User userInfo;
@@ -38,14 +38,15 @@ public class CommentsControllerTests
 	private HeadEditor headEditor;
 	private Article article;
 	private Comment comment;
+	private ClaimsPrincipal claims;
 
 
 	public CommentsControllerTests()
 	{
-		// Setup in-memory db context, e.g.:
 		var options = new DbContextOptionsBuilder<RolesBasedContext>()
-			.UseInMemoryDatabase(databaseName: "TestDb")
+			.UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
 			.Options;
+
 		_context = new RolesBasedContext(options);
 
 		var store = new Mock<IUserStore<ApplicationUser>>();
@@ -59,8 +60,7 @@ public class CommentsControllerTests
 
 		_controller = new CommentsController(_context, _mockUserManager.Object);
 
-		// Ustawienie User w controllerze z fake email claim
-		var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+		claims = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
 		{
 			new Claim(ClaimTypes.Email, "test@example.com"),
 			new Claim(ClaimTypes.Role, "Reader"),
@@ -68,7 +68,7 @@ public class CommentsControllerTests
 
 		_controller.ControllerContext = new ControllerContext()
 		{
-			HttpContext = new DefaultHttpContext() { User = user }
+			HttpContext = new DefaultHttpContext() { User = claims }
 		};
 
 
@@ -77,12 +77,12 @@ public class CommentsControllerTests
 
 	private void SeedData()
 	{
-		userEntity = new ApplicationUser {  Email = "test@example.com" };
+		userEntity = new ApplicationUser { Email = "test@example.com" };
 		userInfo = new User { ApplicationUser = userEntity };
 
 
 		headEditor = new HeadEditor() { ApplicationUser = userEntity };
-	    journalist = new Journalist() { ApplicationUser = userEntity, HeadEditor = headEditor };
+		journalist = new Journalist() { ApplicationUser = userEntity, HeadEditor = headEditor };
 		editor = new Editor() { ApplicationUser = userEntity, HeadEditor = headEditor };
 		admin = new Admin() { ApplicationUser = userEntity };
 
@@ -92,14 +92,11 @@ public class CommentsControllerTests
 		userEntity.Editor = editor;
 		userEntity.Admin = admin;
 
-		// Tworzymy artykuł
 		article = new Article
 		{
 			isPublished = true,
 			isPremium = false,
-			//AuthorId = journalist.Id,
 			Author = journalist,
-			//ReviewerId = editor.Id,
 			Reviewer = editor,
 			Content = "some article",
 			Title = "some title",
@@ -116,9 +113,7 @@ public class CommentsControllerTests
 		comment = new Comment
 		{
 			Content = "Test comment",
-			//ArticleId = article.Id,
 			Article = article,
-			//AuthorId = userInfo.Id,
 			Author = userInfo,
 			IsDeleted = false,
 			LikeUsers = new List<User>(),
@@ -141,14 +136,8 @@ public class CommentsControllerTests
 		_context.Articles.Add(article);
 		_context.Comments.Add(comment);
 
-		// Zapisujemy zmiany
 		_context.SaveChanges();
 
-		// Mockowanie UserManager - IQueryable<ApplicationUser>
-		//var userList = new List<ApplicationUser> { userEntity }.AsQueryable();
-		//_mockUserManager.Setup(um => um.Users).Returns(userList);
-
-		// Mockowanie UserManager - IQueryable<ApplicationUser>
 		var userList = _context.Users.ToList().AsQueryable();
 		_mockUserManager.Setup(um => um.Users).Returns(userList);
 	}
@@ -156,19 +145,13 @@ public class CommentsControllerTests
 	[Fact]
 	public void Get_ExistingComment_ReturnsOk()
 	{
-		var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
-		{
-			new Claim(ClaimTypes.Email, "test@example.com"),
-			new Claim(ClaimTypes.Role, "Reader"),
-		}, "mock"));
-
-
 		var result = _controller.Get(comment.Id);
 
 		var okResult = Xunit.Assert.IsType<OkObjectResult>(result);
 
 		var dto = Xunit.Assert.IsType<CommentDTO>(okResult.Value);
 		Xunit.Assert.Equal(comment.Id, dto.Id);
+
 	}
 
 	[Fact]
@@ -182,15 +165,6 @@ public class CommentsControllerTests
 	[Fact]
 	public void Post_ValidComment_ReturnsOk()
 	{
-		var readerUser = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
-		{
-			new Claim(ClaimTypes.Email, "test@example.com"),
-			new Claim(ClaimTypes.Role, "Reader"),
-		}, "mock"));
-
-		_controller.ControllerContext.HttpContext.User = readerUser;
-
-
 		var newCommentDto = new CommentDTO
 		{
 			ArticleId = article.Id,
@@ -213,18 +187,10 @@ public class CommentsControllerTests
 			Content = "New comment content"
 		};
 
-		var readerUser = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
-		{
-			new Claim(ClaimTypes.Email, "test@example.com"),
-			new Claim(ClaimTypes.Role, "Reader"),
-		}, "mock"));
-
-		_controller.ControllerContext.HttpContext.User = readerUser;
 
 		var result = _controller.Post(newCommentDto);
 
-		var xx = Xunit.Assert.IsType<NotFoundObjectResult>(result); //NitFound
-
+		Xunit.Assert.IsType<NotFoundObjectResult>(result); //NitFound
 	}
 
 	[Fact]
@@ -232,8 +198,8 @@ public class CommentsControllerTests
 	{
 		var adminUser = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
 		{
-			new Claim(ClaimTypes.Email, "test@example.com"),
-			new Claim(ClaimTypes.Role, "Admin"),
+				new Claim(ClaimTypes.Email, "test@example.com"),
+				new Claim(ClaimTypes.Role, "Admin"),
 		}, "mock"));
 
 		_controller.ControllerContext.HttpContext.User = adminUser;
@@ -258,8 +224,6 @@ public class CommentsControllerTests
 		var result = _controller.Delete(comment2.Id);
 
 		Xunit.Assert.IsType<OkResult>(result);
-
-		
 	}
 
 	[Fact]
@@ -267,8 +231,8 @@ public class CommentsControllerTests
 	{
 		var adminUser = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
 		{
-			new Claim(ClaimTypes.Email, "test@example.com"),
-			new Claim(ClaimTypes.Role, "Admin"),
+				new Claim(ClaimTypes.Email, "test@example.com"),
+				new Claim(ClaimTypes.Role, "Admin"),
 		}, "mock"));
 
 		_controller.ControllerContext.HttpContext.User = adminUser;
@@ -311,7 +275,7 @@ public class CommentsControllerTests
 	{
 		var otherUser = new ApplicationUser { Email = "other@example.com" };
 		_context.Add(otherUser);
-		await _context.SaveChangesAsync();
+		_context.SaveChanges();
 
 
 		var reader = new User();
@@ -321,7 +285,7 @@ public class CommentsControllerTests
 
 		_context.Add(reader);
 		_context.Update(otherUser);
-		await _context.SaveChangesAsync();
+		_context.SaveChanges();
 
 		var userList = _context.Users.ToList().AsQueryable();
 		_mockUserManager.Setup(um => um.Users).Returns(userList);
@@ -339,7 +303,7 @@ public class CommentsControllerTests
 
 		_context.Remove(otherUser);
 		_context.Remove(reader);
-		await _context.SaveChangesAsync();
+		_context.SaveChanges();
 
 		userList = _context.Users.ToList().AsQueryable();
 		_mockUserManager.Setup(um => um.Users).Returns(userList);
@@ -353,7 +317,7 @@ public class CommentsControllerTests
 	{
 		var otherUser = new ApplicationUser { Email = "other@example.com" };
 		_context.Add(otherUser);
-		await _context.SaveChangesAsync();
+		_context.SaveChanges();
 
 
 		var reader = new User();
@@ -363,7 +327,7 @@ public class CommentsControllerTests
 
 		_context.Add(reader);
 		_context.Update(otherUser);
-		await _context.SaveChangesAsync();
+		_context.SaveChanges();
 
 		var userList = _context.Users.ToList().AsQueryable();
 		_mockUserManager.Setup(um => um.Users).Returns(userList);
@@ -383,7 +347,7 @@ public class CommentsControllerTests
 
 		_context.Remove(otherUser);
 		_context.Remove(reader);
-		await _context.SaveChangesAsync();
+		_context.SaveChanges();
 
 		userList = _context.Users.ToList().AsQueryable();
 		_mockUserManager.Setup(um => um.Users).Returns(userList);
@@ -393,16 +357,16 @@ public class CommentsControllerTests
 		Xunit.Assert.Equal("User can only edit his comments", unauthorized.Value);
 	}
 
-	
+
 
 	[Fact]
 	public void Get_CommentFromNotPublishedArticle_ReturnsUnauthorized()
 	{
-		var article2 = new Article 
-		{ 
-			isPublished = false, 
-			Author = journalist, 
-			AuthorId = journalist.Id, 
+		var article2 = new Article
+		{
+			isPublished = false,
+			Author = journalist,
+			AuthorId = journalist.Id,
 			isPremium = false,
 			Title = "new title",
 			Introduction = "some text",
