@@ -19,6 +19,10 @@ function SearchBar({ handleSearchButtonClick, handleKeyDown }) {
         handleKeyDown(searchTerm, e);
     };
 
+    const handleKey = (e) => {
+        handleKeyDown(searchTerm, e);
+    };
+
     return (
         <div className="search">
             <TextField
