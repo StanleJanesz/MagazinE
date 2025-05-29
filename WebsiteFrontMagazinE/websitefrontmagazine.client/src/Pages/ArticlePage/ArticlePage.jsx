@@ -41,7 +41,7 @@ function ArticlePage() {
             console.log(data.commentsIds);
             const fetchedComments = [];
             for (const commentId of data.commentsIds) {
-                const response = await fetch(`https://localhost:5001/api/Comments/${commentId}`, {
+                const response = await fetch(`https://localhost:8083/api/Comments/${commentId}`, {
                     method: 'GET',
                     headers: {
                         "Content-Type": "application/json",
@@ -68,7 +68,7 @@ function ArticlePage() {
         try {
             const token = getTokenFromCookie();
             console.log(token);
-            const response = await fetch(`https://localhost:5001/articles/${articleId}`,
+            const response = await fetch(`https://localhost:8083/articles/${articleId}`,
                 {
                     method: 'GET',
                     headers: {
@@ -141,7 +141,7 @@ function ArticlePage() {
             return;
         }
         try {
-            const response = await fetch(`https://localhost:5001/api/Comments`, {
+            const response = await fetch(`https://localhost:8083/api/Comments`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                 body: JSON.stringify({

@@ -63,7 +63,7 @@ function Comment({
     const checkLikeStatus = async () => {
         const token = getTokenFromCookie();
         try {
-            const res = await fetch(`https://localhost:5001/api/Comments/${commentId}/isLiked`, {
+            const res = await fetch(`https://localhost:8083/api/Comments/${commentId}/isLiked`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             if (res.ok) setIsLiked(await res.json());
@@ -73,7 +73,7 @@ function Comment({
     const checkDislikeStatus = async () => {
         const token = getTokenFromCookie();
         try {
-            const res = await fetch(`https://localhost:5001/api/Comments/${commentId}/isDisliked`, {
+            const res = await fetch(`https://localhost:8083/api/Comments/${commentId}/isDisliked`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             if (res.ok) setIsDisliked(await res.json());
@@ -83,7 +83,7 @@ function Comment({
     const handleLike = async () => {
         const token = getTokenFromCookie();
         try {
-            const res = await fetch(`https://localhost:5001/api/Comments/${commentId}/likes`, {
+            const res = await fetch(`https://localhost:8083/api/Comments/${commentId}/likes`, {
                 method: isLiked ? 'DELETE' : 'POST',
                 headers: { Authorization: `Bearer ${token}` },
             });
@@ -97,7 +97,7 @@ function Comment({
     const handleDislike = async () => {
         const token = getTokenFromCookie();
         try {
-            const res = await fetch(`https://localhost:5001/api/Comments/${commentId}/dislikes`, {
+            const res = await fetch(`https://localhost:8083/api/Comments/${commentId}/dislikes`, {
                 method: isDisliked ? 'DELETE' : 'POST',
                 headers: { Authorization: `Bearer ${token}` },
             });
@@ -111,7 +111,7 @@ function Comment({
     const handleReport = async () => {
         const token = getTokenFromCookie();
         try {
-            const res = await fetch(`https://localhost:5001/reports`, {
+            const res = await fetch(`https://localhost:8083/reports`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                 body: JSON.stringify({ reason: reportContent, commentId }),
@@ -130,7 +130,7 @@ function Comment({
     const handleReplySubmit = async () => {
         const token = getTokenFromCookie();
         try {
-            const res = await fetch(`https://localhost:5001/api/Comments`, {
+            const res = await fetch(`https://localhost:8083/api/Comments`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                 body: JSON.stringify({

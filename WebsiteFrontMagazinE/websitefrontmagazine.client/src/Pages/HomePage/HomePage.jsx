@@ -36,7 +36,7 @@ function HomePage() {
         });
 
         try {
-            const response = await fetch(`https://localhost:5001/articles?${params.toString()}`);
+            const response = await fetch(`https://localhost:8083/articles?${params.toString()}`);
 
             if (!response.ok) {
                 throw new Error(`Failed to fetch articles ${response.status}`);
@@ -60,7 +60,7 @@ function HomePage() {
 
         try {
             const token = getTokenFromCookie();
-            const response = await fetch(`https://localhost:5001/api/Tags`, {
+            const response = await fetch(`https://localhost:8083/api/Tags`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json', Authorization: `Bearer ${token}`

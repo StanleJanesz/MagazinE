@@ -33,7 +33,7 @@ const CommentReplies = ({ answerIds, articleId }) => {
         try {
             const fetched = await Promise.all(
                 answerIds.map(async (id) => {
-                    const res = await fetch(`https://localhost:5001/api/Comments/${id}`, {
+                    const res = await fetch(`https://localhost:8083/api/Comments/${id}`, {
                         headers: { Authorization: `Bearer ${token}` },
                     });
                     return res.ok ? res.json() : null;

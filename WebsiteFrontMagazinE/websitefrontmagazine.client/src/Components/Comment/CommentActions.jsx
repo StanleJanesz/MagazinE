@@ -51,7 +51,7 @@ function CommentActions({
     const checkAuthor = async () => {
         const token = getTokenFromCookie();
         try {
-            const res = await fetch(`https://localhost:5001/PersonalInfo`, {
+            const res = await fetch(`https://localhost:8083/PersonalInfo`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
