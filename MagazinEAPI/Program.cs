@@ -14,6 +14,7 @@ using Microsoft.Data.SqlClient;
 using System;
 
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -94,6 +95,8 @@ var connectionString = builder.Services.AddDbContext<RolesBasedContext>(options 
 		options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
 		options => options.EnableRetryOnFailure());
 	});
+
+Console.WriteLine(connectionString);
 
 //czyli UserManager<CustomUser> oraz SignInManager<CustomUser> bêd¹ u¿ywa³y ApplicationDbContext
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options => options.SignIn.RequireConfirmedAccount = false)
