@@ -50,7 +50,6 @@ function ArticlesJournalistPage(journalistId) {
 
     const handleRemove = async (id) => {
         setArticles(articles.filter(article => article.id !== id));
-        
     }
 
     const content = isLoading ? (
@@ -74,8 +73,8 @@ function ArticlesJournalistPage(journalistId) {
                                 setChosenArticleId(id);
                                 setChosenArticle(data.find(article => article.id === id));
                             }}
-                            rejectArticle={() => handleRemove(article.id)}
-                            sendToReview={() => handleRemove(article.id)}
+                            reject={() => handleRemove(article.id)}
+                            accept={() => handleRemove(article.id)}
                             isChosen={chosenArticleId === article.id}
                         />
                     </motion.div>

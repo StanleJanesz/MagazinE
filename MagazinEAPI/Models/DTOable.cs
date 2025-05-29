@@ -4,6 +4,6 @@ namespace MagazinEAPI.Models
 {
     public interface DTOable<T> where T : class
     {
-        T ToDTO();
+        public T ToDTO();
     }
 }

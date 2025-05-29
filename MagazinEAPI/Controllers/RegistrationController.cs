@@ -70,9 +70,13 @@
             };
 
 
-            //if (ModelState.IsValid)
-            //jezeli nie mamy jeszcze  usera z tym emailem
-            if (await userManager.FindByEmailAsync(registerRequest.Email) == null)
+			if (!ModelState.IsValid)
+			{
+				return BadRequest(new { errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
+			}
+
+			//jezeli nie mamy jeszcze  usera z tym emailem
+			if (await userManager.FindByEmailAsync(registerRequest.Email) == null)
             {
                 var user = CreateApplicationUser();
 
