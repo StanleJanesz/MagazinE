@@ -4,29 +4,35 @@ import Box from '@mui/material/Box';
 import './ArticlePage.css';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Comment from '../../Components/Comment/Comment.jsx';
-import { Button } from "bootstrap";
 import mini from "/src/assets/mini.jpg";
 import gallery from "/src/assets/gallery.png";
+import { getTokenFromCookie } from "../../utils";
+import CommentInputBox from "../../Components/Comment/CommentInputBox";
 
+/**
+ * ArticlePage Component
+ *
+ * This page displays the full content of a selected article, including its metadata,
+ * cover image, and associated user comments. It also provides access to related photos
+ * via a gallery button and includes conditional logic for premium content access.
+ *
+ * TODO:
+ * - Add content parsing for bold and italic styles.
+ * - Improve error handling and authorization flow.
+ * - dynamic displaying comments state change
+ *
+ * @returns {JSX.Element} Article view component.
+ */
 
 function ArticlePage() {
-    // TODO: PARSER BALD AND ITALICS
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [commentsLoading, setCommentsLoading] = useState(true);
     const [comments, setComments] = useState([]);
+    const [newComment, setNewComment] = useState("");
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const articleId = searchParams.get("id");
-
-    async function sleep(msec) {
-        return new Promise(resolve => setTimeout(resolve, msec));
-    }
-
-    const dummyComments = [
-        { author: "Jeanne Barbe", date: Date.now(), content: "Great news! I believe it will improve the results from students surveys!" },
-        { author: "Paul deCat", date: Date.now(), content: "I'm excited about these new courses. Looking forward to AM4!" },
-        { author: "Mr. Captain", date: Date.now(), content: "Will the new subjects have practical applications? Like Turing Machine!" },
-    ];
 
     const fetchComments = async () => {
         const token = getTokenFromCookie();
@@ -35,7 +41,7 @@ function ArticlePage() {
             console.log(data.commentsIds);
             const fetchedComments = [];
             for (const commentId of data.commentsIds) {
-                const response = await fetch(`https://localhost:7054/api/Comments/${commentId}`, {
+                const response = await fetch(`https://localhost:5001/api/Comments/${commentId}`, {
                     method: 'GET',
                     headers: {
                         "Content-Type": "application/json",
@@ -62,7 +68,7 @@ function ArticlePage() {
         try {
             const token = getTokenFromCookie();
             console.log(token);
-            const response = await fetch(`https://localhost:7054/articles/${articleId}`,
+            const response = await fetch(`https://localhost:5001/articles/${articleId}`,
                 {
                     method: 'GET',
                     headers: {
@@ -90,18 +96,6 @@ function ArticlePage() {
 
     }
 
-    const getTokenFromCookie = () => {
-        const cookieName = "jwt="; 
-        const cookies = document.cookie.split("; "); 
-
-        for (const cookie of cookies) {
-            if (cookie.startsWith(cookieName)) {
-                return cookie.substring(cookieName.length);
-            }
-        }
-
-        return null; // Return null if the cookie is not found
-    };
 
     useEffect(() => {
         const fetchArticleData = async () => {
@@ -119,12 +113,14 @@ function ArticlePage() {
     }, [articleId]);
 
     const fetchCommentsData = async () => {
+        setCommentsLoading(true);
         try {
             setComments([]);
             await fetchComments();
         } catch (error) {
             console.error("Error fetching comments:", error);
         }
+        setCommentsLoading(false);
     };
 
     useEffect(() => {
@@ -132,6 +128,46 @@ function ArticlePage() {
             fetchCommentsData();
         }
     }, [data]);
+
+    const handleCommentSubmit = async () => {
+        if (!newComment.trim()) {
+            alert("Comment cannot be empty");
+            return;
+        }
+        const token = getTokenFromCookie();
+        if (!token) {
+            alert("You must be logged in to comment.");
+            navigate('/login');
+            return;
+        }
+        try {
+            const response = await fetch(`https://localhost:5001/api/Comments`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                body: JSON.stringify({
+                    Content: newComment,
+                    ArticleId: articleId,
+                    ParentId: null,
+                    Date: new Date().toISOString(),
+                    ChildrenIds: [],
+                    LikesCount: 0,
+                    DislikesCount: 0,
+                }),
+            });
+            
+            console.log(response);
+            if (response.ok) {
+                const newCommentData = await response.json(); 
+                setComments(prev => [newCommentData, ...prev]);
+                setNewComment("");  // clear textarea on success
+            }
+            await fetchCommentsData();
+        } catch (error) {
+            console.error(error);
+            alert("Failed to submit comment. Please try again.");
+        }
+    };
+
 
     return (
         <>
@@ -152,12 +188,13 @@ function ArticlePage() {
                             <p>{data.content}</p>
                             <div className="commentsSection">
                                 <h3>Comments:</h3>
-                                {comments.length > 0 ? (
+                                {!commentsLoading ? (
                                     comments
-                                        .filter(comment => comment.parentId === null) // Top-level comments only
+                                        .filter(comment => comment.parentId === null) 
                                         .map((comment, index) => (
                                             <Comment
-                                                commentId={comment.id} // Prefer unique IDs if available
+                                                key={comment.id}
+                                                commentId={comment.id} 
                                                 author={comment.authorEmail}
                                                 authorId={comment.authorId}
                                                 date={comment.date}
@@ -166,11 +203,29 @@ function ArticlePage() {
                                                 likesCount={comment.likesCount}
                                                 dislikesCount={comment.dislikesCount}
                                                 articleId={articleId}
+                                                comments={comments}
+                                                setComments={setComments}
                                             />
                                         ))
                                 ) : (
-                                    <p>No comments yet. Be the first to comment!</p>
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                            }}
+                                        >
+                                            <CircularProgress />
+                                        </Box>
                                 )}
+                                {/* Always show input box for adding new comment */}
+                                <CommentInputBox
+                                    placeholder="Write your comment!"
+                                    value={newComment}
+                                    onChange={setNewComment}
+                                    onSubmit={handleCommentSubmit}
+                                    submitLabel="Submit"
+                                />
                             </div>
                         </>
                     ) : (

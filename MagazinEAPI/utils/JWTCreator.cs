@@ -40,7 +40,7 @@ namespace MagazinEAPI.utils
         }
         public string CreateJWTToken(string email, string role)
         {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("")); // TODO: move to secrets and change to real one
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("sdfshdfjhdsfkjsdhfksdjssdjfhsdkjfhdsfjkhdsfjkhdsfkjsdfhkjsdhsdfjkhfskjfhdsjkh")); // TODO: move to secrets and change to real one
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var claims = new List<Claim>

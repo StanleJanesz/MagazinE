@@ -18,7 +18,7 @@ function NavigationBar() {
     };
 
     return (
-        <Navbar data-bs-theme="dark" fixed="top" expand={true} style={{ backgroundColor: '#939F5C' }}>
+        <Navbar data-bs-theme="dark" fixed="top" expand={true} style={{ backgroundColor: '#313715' }}>
             <Container>
                 <Navbar.Brand href="/">MagazinE</Navbar.Brand>
                 <Nav className="ms-auto">

@@ -4,8 +4,13 @@ import Button from "react-bootstrap/Button";
 import './LoginPage.css';
 import GoogleButton from 'react-google-button';
 import Form from 'react-bootstrap/Form';
+import { getTokenFromCookie, saveTokenToCookie } from "../../utils";
 
-
+/**
+ * LoginPage Component
+ * Renders a login form with email/password and Google OAuth options.
+ * Handles input validation, displays error messages, and redirects upon successful login.
+ */
 function LoginPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -37,11 +42,18 @@ function LoginPage() {
         return () => clearInterval(interval);
     }, [loginSuccess, navigate]);
 
-    const saveTokenToCookie = (token) => {
-        const expirationDays = 7;
-        const expires = new Date(Date.now() + expirationDays * 24 * 60 * 60 * 1000).toUTCString();
-        document.cookie = `jwt=${token}; path=/; expires=${expires}; secure`;
-    };
+
+    useEffect(() => {
+        // Parse the token from the URL after redirection
+
+        const token = getTokenFromCookie();
+
+        if (token) {
+            setLoginSuccess(true);
+            console.log('Google login successful and token saved');
+        }
+    }, []);
+
 
     const Login = async () => {
         if (validate()) {
@@ -53,7 +65,7 @@ function LoginPage() {
                     TwoFactorRecoveryCode: ''
                 };
 
-                const loginResponse = await fetch('https://localhost:7054/login/login', {
+                const loginResponse = await fetch('https://localhost:5001/login/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(loginRequest)
@@ -87,9 +99,49 @@ function LoginPage() {
         return Object.keys(newErrors).length === 0;
     };
 
-    const GoogleLogin = () => {
-        window.location.href = 'https://localhost:7054/login/google';
+    //const GoogleLogin = async () => {
+    //    try {
+    //        // Redirect to the backend Google login endpoint
+    //        window.location.href = 'https://localhost:5001/login/google';
+    //    } catch (error) {
+    //        console.error("Error during Google login:", error);
+    //    }
+    //};
+
+    const GoogleLogin = async () => {
+        try {
+            window.location.replace('https://localhost:5001/login/google');
+        }
+        catch (error) {
+            console.log(error);
+        }
+
+        //try {
+        //    const response = await fetch('https://localhost:5001/login/google', {
+        //        method: 'GET',
+        //        credentials: 'include', 
+        //        headers: new Headers({
+        //            'Accept': 'application/json',
+        //            'Access-Control-Allow-Origin': 'http://localhost:5173/login',
+        //            'Content-Type': 'application/json',
+        //        })
+        //    });
+
+        //    if (response.ok) {
+        //        const { token } = await response.json();
+        //        saveTokenToCookie(token); // Save the JWT token to a cookie
+        //        setLoginSuccess(true);
+        //        console.log('Google login successful and token saved');
+        //    } else {
+        //        const error = await response.json();
+        //        console.error('Google login failed:', error.error);
+        //    }
+        //} catch (error) {
+        //    console.error("Error during Google login:", error);
+        //}
     };
+
+
 
     return (
         <div className="container">

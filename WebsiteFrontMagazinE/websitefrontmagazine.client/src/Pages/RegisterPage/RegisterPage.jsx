@@ -3,7 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import Button from "react-bootstrap/Button";
 import Form from 'react-bootstrap/Form';
 import './RegisterPage.css';
+import { saveTokenToCookie } from "../../utils";
 
+/** 
+ * RegisterPage component
+ * Render an input form for the users
+ */
 function RegisterPage() {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
@@ -69,12 +74,6 @@ function RegisterPage() {
         return () => clearInterval(interval);
     }, [loginSuccess, navigate]);
 
-    const saveTokenToCookie = (token) => {
-        const expirationDays = 7;
-        const expires = new Date(Date.now() + expirationDays * 24 * 60 * 60 * 1000).toUTCString();
-        document.cookie = `jwt=${token}; path=/; expires=${expires}; secure`;
-    };
-
     const handleSubmit = async () => {
         if (!validate()) return;
 
@@ -87,7 +86,7 @@ function RegisterPage() {
         };
 
         try {
-            const registerResponse = await fetch('https://localhost:7054/register', {
+            const registerResponse = await fetch('https://localhost:5001/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(registerRequest)
@@ -103,7 +102,7 @@ function RegisterPage() {
                     TwoFactorRecoveryCode: ''
                 };
 
-                const loginResponse = await fetch('https://localhost:7054/login/login', {
+                const loginResponse = await fetch('https://localhost:5001/login/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(loginRequest)

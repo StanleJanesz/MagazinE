@@ -217,12 +217,13 @@
             try // Ugly code, to be refactored
             {
                 articles = this.context.Articles
+                    
                     .Where(a => a.isPublished)
-
                    // .Where( a => articlesRequestDTO.Tags.All(t => a.Tags.Any(tag => tag.Id == t))) // dont know what kinds of filters will be used
                    // .Where(a => articlesRequestDTO.Authors.Any(author => a.Author.Id == author))  // dont know what kinds of filters will be used
                    .OrderBy(a => a.TimeOfPublication) // TODO: decide which order will be default
                    .Skip(skip)
+                   .Include(a => a.Tags)
                    .Take(articlesRequestDTO.BatchSize)
                    .ToList();
             }

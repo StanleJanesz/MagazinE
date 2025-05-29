@@ -6,6 +6,11 @@ import './GeneralEditorPage.css';
 import { motion, AnimatePresence } from "motion/react";
 import Button from "react-bootstrap/Button";
 
+
+/**
+ * GeneralEditorPage Component
+ * This page allows general editors to view, search, and manage user accounts.
+ */
 function GeneralEditorPage() {
     const [users, setUsers] = useState([]);
     const [filteredUsers, setFilteredUsers] = useState([]);

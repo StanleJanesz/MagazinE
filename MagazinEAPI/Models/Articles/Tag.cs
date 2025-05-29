@@ -1,6 +1,7 @@
 ﻿using MagazinEAPI.Models.Users.Editors;
 using MagazinEAPI.Models.Users.Readers;
 using SharedLibrary.Base_Classes___Database;
+using SharedLibrary.DTO_Classes;
 namespace MagazinEAPI.Models.Articles
 {
     public class Tag : TagAbstract
@@ -13,6 +14,18 @@ namespace MagazinEAPI.Models.Articles
 
         public List<Article> Articles { get; } = [];
         public List<TagArticle> TagArticles { get; set; } = []; //has 1...n articles (many-to-many)
-
+        
+        /// <summary>
+        /// returns a DTO object of the current Tag object.
+        /// </summary>
+        /// <returns>DTO object.</returns>
+        public TagDTO ToDTO()
+        {
+            return new TagDTO
+            {
+                Id = this.Id,
+                Name = this.Name,
+            };
+        }
     }
 }

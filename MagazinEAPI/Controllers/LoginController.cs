@@ -68,7 +68,7 @@
         {
             var properties = new AuthenticationProperties
             {
-                RedirectUri = "google_response",
+                RedirectUri = "/login/google_response",
             };
             return this.Challenge(properties, GoogleDefaults.AuthenticationScheme);
         }
@@ -93,7 +93,14 @@
             var email = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value ?? "UNKNOWN";
             var name = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value ?? "UNKNOWN";
 
-            var appUser = await this.context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            var appUser = await this.context.Users
+                .Include(u => u.Admin)
+                .Include(u => u.User)
+                .Include(u => u.Journalist)
+                .Include(u => u.Editor)
+                .Include(u => u.HeadEditor)
+                .FirstOrDefaultAsync(u => u.Email == email);
+
             string role;
             if (appUser == null)
             {
@@ -115,7 +122,7 @@
             var jwtCreator = new JWTCreator();
             var jwt = jwtCreator.CreateJWTToken(email, role);
 
-            this.Response.Cookies.Append("JWT", jwt, new CookieOptions
+            this.Response.Cookies.Append("jwt", jwt, new CookieOptions
             {
                 HttpOnly = false,
                 Secure = true,
@@ -123,8 +130,7 @@
                 SameSite = SameSiteMode.None,
             });
 
-            
-            return this.Ok("Zalogowano");
+            return this.Redirect("http://localhost:5173/login");
         }
 
         private async Task<ApplicationUser> CreateUser(string name, string email)

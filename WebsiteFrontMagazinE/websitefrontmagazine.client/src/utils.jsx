@@ -13,3 +13,10 @@ export function getTokenFromCookie() {
 
     return null; 
 };
+
+// Function to save jwt token to cookies
+export function saveTokenToCookie(token) {
+    const expirationDays = 7;
+    const expires = new Date(Date.now() + expirationDays * 24 * 60 * 60 * 1000).toUTCString();
+    document.cookie = `jwt=${token}; path=/; expires=${expires}; secure`;
+};
