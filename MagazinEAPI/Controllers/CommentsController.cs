@@ -8,7 +8,8 @@ namespace MagazinEAPI.Controllers
 	using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
-	using SharedLibrary.DTO_Classes;
+    using Microsoft.EntityFrameworkCore;
+    using SharedLibrary.DTO_Classes;
 
 	using Microsoft.EntityFrameworkCore;
 	using Microsoft.EntityFrameworkCore.Query;
@@ -48,9 +49,9 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType<CommentDTO>(StatusCodes.Status200OK)]
-        public IActionResult Get([FromRoute] int id)
+        public async Task<IActionResult> Get([FromRoute] int id)
         {
-			var comment = this.context.Comments.Include(c => c.Article).FirstOrDefault(c => c.Id == id);
+            var comment = await this.context.Comments.FirstOrDefaultAsync(c => c.Id == id);
             if (comment == null)
             {
                 return this.NotFound("Comment not found");
@@ -72,7 +73,7 @@ namespace MagazinEAPI.Controllers
                 return this.BadRequest("Email not found");
             }
 
-            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            var applicationUser = await this.userManager.Users.FirstOrDefaultAsync(u => u.Email == email.Value);
             if (applicationUser == null)
             {
                 return this.BadRequest("User not found");
@@ -97,7 +98,7 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult Post([FromBody] CommentDTO commentDTO)
+        public async Task<IActionResult> Post([FromBody] CommentDTO commentDTO)
         {
             var email = this.User.FindFirst(ClaimTypes.Email);
             if (email == null)
@@ -105,13 +106,13 @@ namespace MagazinEAPI.Controllers
                 return this.BadRequest("Email not found");
             }
 
-            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            var applicationUser = await this.userManager.Users.FirstOrDefaultAsync(u => u.Email == email.Value);
             if (applicationUser == null || applicationUser.User == null)
             {
                 return this.BadRequest("User not found");
             }
 
-            var article = this.context.Articles.FirstOrDefault(a => a.Id == commentDTO.ArticleId);
+            var article = await this.context.Articles.FirstOrDefaultAsync(a => a.Id == commentDTO.ArticleId);
             if (article == null)
             {
                 return this.NotFound("Article not found");
@@ -127,7 +128,7 @@ namespace MagazinEAPI.Controllers
 
             if (commentDTO.ParentId != null)
             {
-                var parent = this.context.Comments.FirstOrDefault(c => c.Id == commentDTO.ParentId);
+                var parent = await this.context.Comments.FirstOrDefaultAsync(c => c.Id == commentDTO.ParentId);
                 if (parent == null)
                 {
                     return this.NotFound("Parent comment not found");
@@ -159,9 +160,9 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var comment = this.context.Comments.FirstOrDefault(c => c.Id == id);
+            var comment = await this.context.Comments.FirstOrDefaultAsync(c => c.Id == id);
             if (comment == null)
             {
                 return this.NotFound("Comment not found");
@@ -173,7 +174,7 @@ namespace MagazinEAPI.Controllers
                 return this.BadRequest("Email not found");
             }
 
-            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            var applicationUser = await this.userManager.Users.FirstOrDefaultAsync(u => u.Email == email.Value);
             if (applicationUser == null)
             {
                 return this.BadRequest("User not found");
@@ -197,9 +198,9 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public IActionResult Restore(int id)
+        public async Task<IActionResult> Restore(int id)
         {
-            var comment = this.context.Comments.FirstOrDefault(c => c.Id == id);
+            var comment = await this.context.Comments.FirstOrDefaultAsync(c => c.Id == id);
             if (comment == null)
             {
                 return this.NotFound("Comment not found");
@@ -225,7 +226,7 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType<CommentDTO>(StatusCodes.Status200OK)]
-        public IActionResult Put(int id, [FromBody] CommentDTO commentDTO)
+        public async Task<IActionResult> Put(int id, [FromBody] CommentDTO commentDTO)
         {
             var comment = this.context.Comments.FirstOrDefault(c => c.Id == id);
             if (comment == null)
@@ -239,7 +240,7 @@ namespace MagazinEAPI.Controllers
                 return this.BadRequest("Email not found");
             }
 
-            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            var applicationUser = await this.userManager.Users.FirstOrDefaultAsync(u => u.Email == email.Value);
             if (applicationUser == null || applicationUser.User == null)
             {
                 return this.BadRequest("User not found");
@@ -252,7 +253,7 @@ namespace MagazinEAPI.Controllers
 
             comment.Content = commentDTO.Content;
 
-            this.context.SaveChanges();
+            await this.context.SaveChangesAsync();
 
             return this.Ok(comment.ToDTO());
         }
@@ -269,9 +270,9 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType<int>(StatusCodes.Status200OK)]
         [HttpPost("{id}/likes")]
-        public IActionResult Like([FromRoute] int id)
+        public async Task<IActionResult> Like([FromRoute] int id)
         {
-            var comment = this.context.Comments.FirstOrDefault(c => c.Id == id);
+            var comment = await this.context.Comments.FirstOrDefaultAsync(c => c.Id == id);
             if (comment == null)
             {
                 return this.NotFound("Comment not found");
@@ -283,7 +284,7 @@ namespace MagazinEAPI.Controllers
                 return this.BadRequest("Email not found");
             }
 
-            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            var applicationUser = await this.userManager.Users.FirstOrDefaultAsync(u => u.Email == email.Value);
             if (applicationUser == null || applicationUser.User == null)
             {
                 return this.BadRequest("User not found");
@@ -295,7 +296,7 @@ namespace MagazinEAPI.Controllers
             }
 
             comment.LikeUsers.Add(applicationUser.User);
-            this.context.SaveChanges();
+            await this.context.SaveChangesAsync();
 
             return this.Ok(comment.LikeUsers.Count);
         }
@@ -312,7 +313,7 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType<int>(StatusCodes.Status200OK)]
-        public IActionResult DelateLike([FromRoute] int id)
+        public async Task<IActionResult> DelateLike([FromRoute] int id)
         {
             var comment = this.context.Comments.FirstOrDefault(c => c.Id == id);
             if (comment == null)
@@ -326,7 +327,7 @@ namespace MagazinEAPI.Controllers
                 return this.BadRequest("Email not found");
             }
 
-            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            var applicationUser = await this.userManager.Users.FirstOrDefaultAsync(u => u.Email == email.Value);
             if (applicationUser == null || applicationUser.User == null)
             {
                 return this.BadRequest("User not found");
@@ -338,7 +339,7 @@ namespace MagazinEAPI.Controllers
             }
 
             comment.LikeUsers.Remove(applicationUser.User);
-            this.context.SaveChanges();
+            await this.context.SaveChangesAsync();
 
             return this.Ok(comment.LikeUsers.Count);
         }
@@ -355,9 +356,9 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType<int>(StatusCodes.Status200OK)]
         [HttpPost("{id}/dislikes")]
-        public IActionResult Disike([FromRoute] int id)
+        public async Task<IActionResult> Disike([FromRoute] int id)
         {
-            var comment = this.context.Comments.FirstOrDefault(c => c.Id == id);
+            var comment = await this.context.Comments.FirstOrDefaultAsync(c => c.Id == id);
             if (comment == null)
             {
                 return this.NotFound("Comment not found");
@@ -369,7 +370,7 @@ namespace MagazinEAPI.Controllers
                 return this.BadRequest("Email not found");
             }
 
-            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            var applicationUser = await this.userManager.Users.FirstOrDefaultAsync(u => u.Email == email.Value);
             if (applicationUser == null || applicationUser.User == null)
             {
                 return this.BadRequest("User not found");
@@ -381,7 +382,7 @@ namespace MagazinEAPI.Controllers
             }
 
             comment.DislikeUsers.Add(applicationUser.User);
-            this.context.SaveChanges();
+            await this.context.SaveChangesAsync();
 
             return this.Ok(comment.DislikeUsers.Count);
         }
@@ -398,7 +399,7 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType<int>(StatusCodes.Status200OK)]
-        public IActionResult DelateDisike([FromRoute] int id)
+        public async Task<IActionResult> DelateDisike([FromRoute] int id)
         {
             var comment = this.context.Comments.FirstOrDefault(c => c.Id == id);
             if (comment == null)
@@ -412,7 +413,7 @@ namespace MagazinEAPI.Controllers
                 return this.BadRequest("Email not found");
             }
 
-            var applicationUser = this.userManager.Users.FirstOrDefault(u => u.Email == email.Value);
+            var applicationUser = await this.userManager.Users.FirstOrDefaultAsync(u => u.Email == email.Value);
             if (applicationUser == null || applicationUser.User == null)
             {
                 return this.BadRequest("User not found");
@@ -424,7 +425,7 @@ namespace MagazinEAPI.Controllers
             }
 
             comment.LikeUsers.Remove(applicationUser.User);
-            this.context.SaveChanges();
+            await this.context.SaveChangesAsync();
 
             return this.Ok(comment.LikeUsers.Count);
         }
