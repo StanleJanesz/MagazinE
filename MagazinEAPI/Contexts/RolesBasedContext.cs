@@ -74,6 +74,7 @@ namespace MagazinEAPI.Contexts
 
         public virtual DbSet<User> Readers { get; set; } //USERS było zajęte
 
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
