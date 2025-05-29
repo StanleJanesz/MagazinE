@@ -65,7 +65,7 @@ function LoginPage() {
                     TwoFactorRecoveryCode: ''
                 };
 
-                const loginResponse = await fetch('https://localhost:5001/login/login', {
+                const loginResponse = await fetch('https://localhost:8083/login/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(loginRequest)
@@ -110,7 +110,7 @@ function LoginPage() {
 
     const GoogleLogin = async () => {
         try {
-            window.location.replace('https://localhost:5001/login/google');
+            window.location.replace('https://localhost:8083/login/google');
         }
         catch (error) {
             console.log(error);

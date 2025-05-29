@@ -86,7 +86,7 @@ function RegisterPage() {
         };
 
         try {
-            const registerResponse = await fetch('https://localhost:5001/register', {
+            const registerResponse = await fetch('https://localhost:8083/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(registerRequest)
@@ -102,7 +102,7 @@ function RegisterPage() {
                     TwoFactorRecoveryCode: ''
                 };
 
-                const loginResponse = await fetch('https://localhost:5001/login/login', {
+                const loginResponse = await fetch('https://localhost:8083/login/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(loginRequest)
