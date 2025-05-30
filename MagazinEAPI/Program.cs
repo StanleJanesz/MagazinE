@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Microsoft.Data.SqlClient;
 using System;
+using Microsoft.Extensions.Options;
 
 
 
@@ -109,11 +110,16 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options => option
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Configuration.AddUserSecrets<Program>();
 
 builder.WebHost.ConfigureKestrel(serverOptions =>
 {
     // Always listen on HTTP port 8082
     serverOptions.ListenAnyIP(8082);
+    serverOptions.ListenAnyIP(8083, listenOptions =>
+    {
+        listenOptions.UseHttps(); 
+    });
 });
 builder.Services.AddSwaggerGen(c =>
 {

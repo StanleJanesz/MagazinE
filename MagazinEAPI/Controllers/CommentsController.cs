@@ -325,7 +325,7 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType<int>(StatusCodes.Status200OK)]
-        public IActionResult DeleteLike([FromRoute] int id)
+        public async Task<IActionResult> DeleteLike([FromRoute] int id)
         {
             var comment = this.context.Comments
                 .Include(comment => comment.LikeUsers)
@@ -422,7 +422,7 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType<int>(StatusCodes.Status200OK)]
-        public IActionResult DeleteDislike([FromRoute] int id)
+        public async Task<IActionResult> DeleteDislike([FromRoute] int id)
         {
             var comment = this.context.Comments
                 .Include(comment => comment.DislikeUsers)

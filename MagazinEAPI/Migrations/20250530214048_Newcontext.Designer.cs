@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace MagazinEAPI.Migrations.RolesBased
+namespace MagazinEAPI.Migrations
 {
     [DbContext(typeof(RolesBasedContext))]
-    [Migration("20250329213247_MigrationWithSeed")]
-    partial class MigrationWithSeed
+    [Migration("20250530214048_Newcontext")]
+    partial class Newcontext
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -47,7 +47,7 @@ namespace MagazinEAPI.Migrations.RolesBased
                     b.Property<int?>("ReviewerId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("TimeOfPublication")
+                    b.Property<DateTime?>("TimeOfPublication")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Title")
@@ -136,8 +136,8 @@ namespace MagazinEAPI.Migrations.RolesBased
                     b.Property<int>("ReportAuthorId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("Result")
-                        .HasColumnType("bit");
+                    b.Property<int>("State")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -319,7 +319,7 @@ namespace MagazinEAPI.Migrations.RolesBased
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("SolvedById")
+                    b.Property<int?>("SolvedById")
                         .HasColumnType("int");
 
                     b.Property<int>("State")
@@ -513,6 +513,7 @@ namespace MagazinEAPI.Migrations.RolesBased
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@EXAMPLE.COM",
                             NormalizedUserName = "ADMIN",
+                            PasswordHash = "AQAAAAIAAYagAAAAEGjtaYT1QQugEtDzxCHL5AD80LCJ9rX+EAYl44HijtqzIHZXfphoRhNjjBW2WujvIw==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "c5ba1859-83da-4fed-b0b8-965f2b80d3ea",
                             State = 0,
@@ -529,6 +530,7 @@ namespace MagazinEAPI.Migrations.RolesBased
                             LockoutEnabled = false,
                             NormalizedEmail = "HEADEDITOR@EXAMPLE.COM",
                             NormalizedUserName = "HEADEDITOR",
+                            PasswordHash = "AQAAAAIAAYagAAAAENKzyCo5g+I320Z15/ZxFZopnss/ggALZ73kN4z2QWrVG+NRZz9bk7L+w7dSBYa4Ag==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "dd7090c7-30a5-46d5-9e05-815f38bbd6ab",
                             State = 0,
@@ -545,6 +547,7 @@ namespace MagazinEAPI.Migrations.RolesBased
                             LockoutEnabled = false,
                             NormalizedEmail = "EDITOR@EXAMPLE.COM",
                             NormalizedUserName = "EDITOR",
+                            PasswordHash = "AQAAAAIAAYagAAAAEDaQJNcmsFaqlvYpylJ8LL9S9aYOCTsB7PtdbsCQsymITYP5lz9PK77Q3FJw+xFmGw==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "dd709037-30a5-46d5-9e05-815f38bbd6ab",
                             State = 0,
@@ -561,6 +564,7 @@ namespace MagazinEAPI.Migrations.RolesBased
                             LockoutEnabled = false,
                             NormalizedEmail = "JOURNALIST@EXAMPLE.COM",
                             NormalizedUserName = "JOURNALIST",
+                            PasswordHash = "AQAAAAIAAYagAAAAEOAXkcsy7IiVg45vv09dUPqtwHOzbwnO1kOLG7lC4iVA9G8VOr2qjWxBcGtQN1zC+w==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "dd709037-30a5-46d5-9e05-815f38b6d6ab",
                             State = 0,
@@ -577,6 +581,7 @@ namespace MagazinEAPI.Migrations.RolesBased
                             LockoutEnabled = false,
                             NormalizedEmail = "READER@EXAMPLE.COM",
                             NormalizedUserName = "READER",
+                            PasswordHash = "AQAAAAIAAYagAAAAECAtlY2RA/vjLYvmweL9IBRZJl25Few+FUY8QMsC3/rJADAsQxzWxlD4QR4/ZJoSAw==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "dd709037-30a5-46d5-9e05-515f38b6d6ab",
                             State = 0,
@@ -604,9 +609,6 @@ namespace MagazinEAPI.Migrations.RolesBased
 
                     b.Property<DateTime>("BanStartDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
 
                     b.Property<string>("Reason")
                         .IsRequired()
@@ -740,6 +742,21 @@ namespace MagazinEAPI.Migrations.RolesBased
                     b.HasIndex("UserId");
 
                     b.ToTable("FavoriteArticles");
+                });
+
+            modelBuilder.Entity("MagazinEAPI.Models.Users.Readers.OwnedArticles", b =>
+                {
+                    b.Property<int>("ArticleId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ArticleId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("OwnedArticles");
                 });
 
             modelBuilder.Entity("MagazinEAPI.Models.Users.Readers.Subscription", b =>
@@ -1253,6 +1270,25 @@ namespace MagazinEAPI.Migrations.RolesBased
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("MagazinEAPI.Models.Users.Readers.OwnedArticles", b =>
+                {
+                    b.HasOne("MagazinEAPI.Models.Articles.Article", "Article")
+                        .WithMany("OwnedToArticles")
+                        .HasForeignKey("ArticleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MagazinEAPI.Models.Users.Readers.User", "User")
+                        .WithMany("OwnedToArticles")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Article");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("MagazinEAPI.Models.Users.Readers.Subscription", b =>
                 {
                     b.HasOne("MagazinEAPI.Models.Users.Readers.User", "User")
@@ -1370,6 +1406,8 @@ namespace MagazinEAPI.Migrations.RolesBased
 
                     b.Navigation("FavoriteArticles");
 
+                    b.Navigation("OwnedToArticles");
+
                     b.Navigation("PhotoArticles");
 
                     b.Navigation("PublishRequests");
@@ -1467,6 +1505,8 @@ namespace MagazinEAPI.Migrations.RolesBased
                     b.Navigation("FavouriteTagUsers");
 
                     b.Navigation("Likes");
+
+                    b.Navigation("OwnedToArticles");
 
                     b.Navigation("ReportedComments");
 
