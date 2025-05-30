@@ -17,8 +17,12 @@ namespace MagazinEAPI.Models.Articles
         public List<Article> Articles { get; } = [];
 
         public List<TagArticle> TagArticles { get; set; } = []; //has 1...n articles (many-to-many)
+<<<<<<< HEAD
+        
+=======
 
 
+>>>>>>> develop
         /// <summary>
         /// returns a DTO object of the current Tag object.
         /// </summary>

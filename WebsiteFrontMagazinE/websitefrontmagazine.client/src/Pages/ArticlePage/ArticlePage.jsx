@@ -2,81 +2,171 @@ import { useEffect, useState } from "react";
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
 import './ArticlePage.css';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Comment from '../../Components/Comment/Comment.jsx';
-import { Button } from "bootstrap";
 import mini from "/src/assets/mini.jpg";
 import gallery from "/src/assets/gallery.png";
+import { getTokenFromCookie } from "../../utils";
+import CommentInputBox from "../../Components/Comment/CommentInputBox";
 
+/**
+ * ArticlePage Component
+ *
+ * This page displays the full content of a selected article, including its metadata,
+ * cover image, and associated user comments. It also provides access to related photos
+ * via a gallery button and includes conditional logic for premium content access.
+ *
+ * TODO:
+ * - Add content parsing for bold and italic styles.
+ * - Improve error handling and authorization flow.
+ * - dynamic displaying comments state change
+ *
+ * @returns {JSX.Element} Article view component.
+ */
 
-function ArticlePage({ articleId }) {
-    // TODO: PARSER BALD AND ITALICS
+function ArticlePage() {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [commentsLoading, setCommentsLoading] = useState(true);
     const [comments, setComments] = useState([]);
+    const [newComment, setNewComment] = useState("");
     const navigate = useNavigate();
-    const getRandomInt = (max) => Math.floor(Math.random() * max);
-    async function sleep(msec) {
-        return new Promise(resolve => setTimeout(resolve, msec));
-    }
-
-    const dummyComments = [
-        { author: "Jeanne Barbe", date: Date.now(), content: "Great news! I believe it will improve the results from students surveys!" },
-        { author: "Paul deCat", date: Date.now(), content: "I'm excited about these new courses. Looking forward to AM4!" },
-        { author: "Mr. Captain", date: Date.now(), content: "Will the new subjects have practical applications? Like Turing Machine!" },
-    ];
+    const [searchParams] = useSearchParams();
+    const articleId = searchParams.get("id");
 
     const fetchComments = async () => {
-        setComments(dummyComments.map(comment => ({ ...comment })));
+        const token = getTokenFromCookie();
+        setComments([]);
+        try {
+            console.log(data.commentsIds);
+            const fetchedComments = [];
+            for (const commentId of data.commentsIds) {
+                const response = await fetch(`https://localhost:8083/api/Comments/${commentId}`, {
+                    method: 'GET',
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+                // Check if the response is OK
+                if (response.ok) {
+                    const commentData = await response.json();
+                    fetchedComments.push(commentData);     
+                }
+            }
+
+            const uniqueComments = [...new Map(fetchedComments.map((c) => [c.id, c])).values()];
+            setComments(uniqueComments);
+            console.log(comments);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const fetchArticle = async () => {
+        try {
+            const token = getTokenFromCookie();
+            console.log(token);
+            const response = await fetch(`https://localhost:8083/articles/${articleId}`,
+                {
+                    method: 'GET',
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`, 
+                    },
+                });
+
+            // Not found or bad request
+            if (!response.ok && !response.status === 401) {
+                throw new Error(`Failed to fetch article`);
+            }
+
+            if (response.status === 401) {
+                throw new Error("Unathorized to retrieve article data!");
+                return;
+            }
+
+            const data = await response.json();
+            setData(data);
+        }
+        catch (error) {
+            console.log(error);
+        }
+
     }
 
-    const fetchArticle = async (isUserPremium) => {
-        if (isUserPremium) {
-            setData({
-                title: "Analiza Matematyczna 4 i Metody Numeryczne 3 juz od nowego roku na MiNI",
-                author: "Juan de Barbas",
-                content: `
-            
-                Wydzial Matematyki i Nauk Informacyjnych Politechniki Warszawskiej oglosil, ze od nowego roku akademickiego wprowadza dwa nowe przedmioty obowiazkowe: *Analiza Matematyczna 4* oraz *Metody Numeryczne 3*. Decyzja ta jest odpowiedzia na wieloletnie postulaty studentow o "wieksze wyzwania akademickie" oraz "prawdziwe odczucie studiow inzynierskich".
-                \n
-                
-
-                Po latach spekulacji, kiedy tylko zartowano o mozliwosci istnienia czwartego semestru analizy matematycznej, stalo sie to rzeczywistoscia. Nowy przedmiot obejmie:
-                - Dowod, ze istnieje jeszcze jeden, trudniejszy dowod twierdzenia Stokesa,
-                - Zastosowanie analizy zespolonej do gotowania makaronu,
-                - Wplyw rachunku wariacyjnego na poziom stresu studentow,
-                - Niezaleznosc hipotezy continuum od organizmu smiertelnego.
-
-                Jak informuje jeden z wykladowcow: "Po trzecim semestrze analizy wielu studentow ma niedosyt. Czulismy, ze musimy im dac cos wiecej. Dlatego AM4 bedzie miala obowiazkowe projekty badawcze, a studenci na zaliczenie beda musieli napisac podrecznik do Analizy 5."`,
-
-            });
-        }
-        else {
-            setData({
-                title: "Analiza Matematyczna 4 i Metody Numeryczne 3",
-                author: "Juan de Barbas",
-                content: "",
-            });
-        }
-    }
-
-    const fetchData = async () => {
-        setLoading(true);
-        await sleep(1000);
-        if (getRandomInt(10) % 2 === 0) {
-            // TODO: integrate secure checking with backend 
-            fetchArticle(true);
-        }
-        else {
-            fetchArticle(false);
-        }
-        fetchComments();
-        setLoading(false);
-    }
 
     useEffect(() => {
-        fetchData();
+        const fetchArticleData = async () => {
+            setLoading(true);
+            try {
+                await fetchArticle(); // This updates `data` state
+            } catch (error) {
+                console.error("Error fetching article:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchArticleData();
     }, [articleId]);
+
+    const fetchCommentsData = async () => {
+        setCommentsLoading(true);
+        try {
+            setComments([]);
+            await fetchComments();
+        } catch (error) {
+            console.error("Error fetching comments:", error);
+        }
+        setCommentsLoading(false);
+    };
+
+    useEffect(() => {
+        if (data && data.commentsIds) {
+            fetchCommentsData();
+        }
+    }, [data]);
+
+    const handleCommentSubmit = async () => {
+        if (!newComment.trim()) {
+            alert("Comment cannot be empty");
+            return;
+        }
+        const token = getTokenFromCookie();
+        if (!token) {
+            alert("You must be logged in to comment.");
+            navigate('/login');
+            return;
+        }
+        try {
+            const response = await fetch(`https://localhost:8083/api/Comments`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                body: JSON.stringify({
+                    Content: newComment,
+                    ArticleId: articleId,
+                    ParentId: null,
+                    Date: new Date().toISOString(),
+                    ChildrenIds: [],
+                    LikesCount: 0,
+                    DislikesCount: 0,
+                }),
+            });
+            
+            console.log(response);
+            if (response.ok) {
+                const newCommentData = await response.json(); 
+                setComments(prev => [newCommentData, ...prev]);
+                setNewComment("");  // clear textarea on success
+            }
+            await fetchCommentsData();
+        } catch (error) {
+            console.error(error);
+            alert("Failed to submit comment. Please try again.");
+        }
+    };
 
 
     return (
@@ -93,8 +183,51 @@ function ArticlePage({ articleId }) {
                     </button>
                     <h1>{data.title}</h1>
                     <h2>Author: {data.author}</h2>
-                    {data.content.length > 0 ? (
-                        <p>{data.content}</p>
+                    {data !== null ? (
+                        <>
+                            <p>{data.content}</p>
+                            <div className="commentsSection">
+                                <h3>Comments:</h3>
+                                {!commentsLoading ? (
+                                    comments
+                                        .filter(comment => comment.parentId === null) 
+                                        .map((comment, index) => (
+                                            <Comment
+                                                key={comment.id}
+                                                commentId={comment.id} 
+                                                author={comment.authorEmail}
+                                                authorId={comment.authorId}
+                                                date={comment.date}
+                                                answerIds={comment.childrenIds}
+                                                content={comment.content}
+                                                likesCount={comment.likesCount}
+                                                dislikesCount={comment.dislikesCount}
+                                                articleId={articleId}
+                                                comments={comments}
+                                                setComments={setComments}
+                                            />
+                                        ))
+                                ) : (
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                            }}
+                                        >
+                                            <CircularProgress />
+                                        </Box>
+                                )}
+                                {/* Always show input box for adding new comment */}
+                                <CommentInputBox
+                                    placeholder="Write your comment!"
+                                    value={newComment}
+                                    onChange={setNewComment}
+                                    onSubmit={handleCommentSubmit}
+                                    submitLabel="Submit"
+                                />
+                            </div>
+                        </>
                     ) : (
                         <div className="paywall">
                             <p>This article is available for premium users only. Subscribe to unlock full access!</p>
@@ -108,16 +241,6 @@ function ArticlePage({ articleId }) {
                             </div>
                         </div>
                     )}
-                    <div className="commentsSection">
-                        <h3>Comments:</h3>
-                        {comments.length > 0 ? (
-                            comments.map((comment, index) => (
-                                <Comment key={index} author={comment.author} date={comment.date} content={comment.content} />
-                            ))
-                        ) : (
-                            <p>No comments yet. Be the first to comment!</p>
-                        )}
-                    </div>
                 </div>
             }
         </>

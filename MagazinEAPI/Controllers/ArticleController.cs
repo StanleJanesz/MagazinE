@@ -48,10 +48,12 @@
         public async Task<IActionResult> Get([FromRoute] int id)
         {
             var article = this.context.Articles
-                .Include(a => a.Comments)
-                .Include(a => a.Tags)
-                .Include(a => a.Photos)
+                .Include(article => article.Author.ApplicationUser)
+                .Include(article => article.Comments)
+                .Include(article => article.Tags)
+                .Include(article => article.Photos)
                 .FirstOrDefault(a => a.Id == id);
+
             if (article == null)
             {
                 return this.NotFound("Article not found");
@@ -214,13 +216,14 @@
 
             try // Ugly code, to be refactored
             {
+
                 articles = await this.context.Articles
                     .Where(a => a.isPublished)
-
                    // .Where( a => articlesRequestDTO.Tags.All(t => a.Tags.Any(tag => tag.Id == t))) // dont know what kinds of filters will be used
                    // .Where(a => articlesRequestDTO.Authors.Any(author => a.Author.Id == author))  // dont know what kinds of filters will be used
                    .OrderBy(a => a.TimeOfPublication) // TODO: decide which order will be default
                    .Skip(skip)
+                   .Include(a => a.Tags)
                    .Take(articlesRequestDTO.BatchSize)
                    .ToListAsync();
             }

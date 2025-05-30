@@ -42,7 +42,8 @@
         /// <param name="request">login request's info.</param>
         /// <returns>In case of success respose contains JWT token.</returns>
         [HttpPost("login")]
-        [ProducesResponseType(401)] // Unauthorized (HTTP 401)
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
             var user = await this.userManager.FindByEmailAsync(request.Email);
@@ -61,13 +62,13 @@
         /// Login with Google.
         /// </summary>
         /// <returns>redirects to Google login.</returns>
-        [HttpPost]
+        [HttpGet]
         [Route("google")]
         public IActionResult LoginWithGoogle()
         {
             var properties = new AuthenticationProperties
             {
-                RedirectUri = "google_response",
+                RedirectUri = "/login/google_response",
             };
             return this.Challenge(properties, GoogleDefaults.AuthenticationScheme);
         }
@@ -92,7 +93,14 @@
             var email = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value ?? "UNKNOWN";
             var name = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value ?? "UNKNOWN";
 
-            var appUser = await this.context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            var appUser = await this.context.Users
+                .Include(u => u.Admin)
+                .Include(u => u.User)
+                .Include(u => u.Journalist)
+                .Include(u => u.Editor)
+                .Include(u => u.HeadEditor)
+                .FirstOrDefaultAsync(u => u.Email == email);
+
             string role;
             if (appUser == null)
             {
@@ -114,14 +122,15 @@
             var jwtCreator = new JWTCreator();
             var jwt = jwtCreator.CreateJWTToken(email, role);
 
-            this.Response.Cookies.Append("JWT", jwt, new CookieOptions
+            this.Response.Cookies.Append("jwt", jwt, new CookieOptions
             {
-                HttpOnly = true,
+                HttpOnly = false,
                 Secure = true,
                 Expires = DateTime.UtcNow.AddHours(2),
+                SameSite = SameSiteMode.None,
             });
 
-            return this.Ok("Zalogowano");
+            return this.Redirect("http://localhost:5173/login");
         }
 
         private async Task<ApplicationUser> CreateUser(string name, string email)

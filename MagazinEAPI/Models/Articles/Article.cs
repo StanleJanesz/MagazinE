@@ -54,9 +54,10 @@
                 Introduction = Introduction,
                 TimeOfPublication = TimeOfPublication,
                 AuthorId = AuthorId,
+                Author = this.Author.ApplicationUser.UserName,
                 CommentsIds = Comments.Select(c => c.Id).ToList(),
                 Photos = Photos.Select(p => p.Content).ToList(),
-                TagsIds = Tags.Select(t => t.Id).ToList()
+                TagsIds = Tags.Select(t => t.Id).ToList(),
             };
             return articleDTO;
         }
@@ -73,11 +74,12 @@
                 Introduction = Introduction,
                 TimeOfPublication = TimeOfPublication,
                 AuthorId = AuthorId,
-                Photos = Photos.Take(1).Select(p => p.Content).ToList(),
-                TagsIds = Tags.Select(t => t.Id).ToList()
+                Photos = Photos?.Take(1)?.Select(p => p.Content).ToList() ?? new List<string>(),
+                TagsIds = Tags?.Select(t => t.Id).ToList() ?? new List<int>(),
             };
             return articleDTO;
         }
+
         public bool CanBeViewedBy(ApplicationUser user, RolesBasedContext context, UserManager<ApplicationUser> userManager) // used to check if user can see article
         {
             List<string> roles = userManager.GetRolesAsync(user).Result.ToList();
@@ -87,8 +89,8 @@
                 { "Journalist", VisibleToJournalist }, // Journalist can see only his articles
                 { "Reader", VisibleToReader }, // Reader can see all articles if they are free or he is subscribed
                 { "Editor", VisibleToEditor }, // Editor can see articles with tags allowed by his HeadEditor
-                { "HeadEditor", VisibleToHeadEditor } // HeadEditor can see articles of his Journalists
-             };
+                { "HeadEditor", VisibleToHeadEditor }, // HeadEditor can see articles of his Journalists
+            };
             return roles.Any(role => roleVisibilityMap.ContainsKey(role) && roleVisibilityMap[role](user, context));
         }
 

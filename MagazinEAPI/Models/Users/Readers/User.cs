@@ -36,7 +36,6 @@ namespace MagazinEAPI.Models.Users.Readers
                 SubscriptionState = Subscriptions.Any(s => s.State == SubscriptionState.Active),
                 PersonInfoId = ApplicationUserId,
                 Id = Id,
-
             };
         }
 

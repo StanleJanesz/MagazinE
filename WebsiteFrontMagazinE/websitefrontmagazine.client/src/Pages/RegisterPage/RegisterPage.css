@@ -17,3 +17,21 @@ body {
         width: 25em;
     }
 }
+
+
+.welcomeMessage {
+    font-family: monospace;
+    white-space: pre-wrap;
+    border-right: 2px solid #000;
+    animation: blink-caret 0.75s step-end infinite;
+}
+
+@keyframes blink-caret {
+    from, to {
+        border-color: transparent;
+    }
+
+    50% {
+        border-color: black;
+    }
+}

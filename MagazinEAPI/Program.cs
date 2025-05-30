@@ -1,14 +1,14 @@
+using System.Text;
 using MagazinEAPI.Contexts;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.SqlServer;
+using MagazinEAPI.Models.Users;
+using MagazinEAPI.utils.SeedCreators;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.SqlServer;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using MagazinEAPI.Models.Users;
-using MagazinEAPI.utils.SeedCreators;
 using Microsoft.OpenApi.Models;
 using Microsoft.Data.SqlClient;
 using System;
@@ -34,7 +34,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAll", policy =>
     {
         policy
-            .AllowAnyOrigin() // ⚠ Cannot be used with AllowCredentials()
+            .AllowAnyOrigin() // ! Cannot be used with AllowCredentials()
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
@@ -69,6 +69,7 @@ builder.Services.AddAuthentication(options =>
 {
     googleOptions.ClientId = builder.Configuration.GetValue<string>("Authentication:Google:ClientID");
     googleOptions.ClientSecret = builder.Configuration.GetValue<string>("Authentication:Google:ClientSecret");
+    googleOptions.SaveTokens = true;
 })
 .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
 {

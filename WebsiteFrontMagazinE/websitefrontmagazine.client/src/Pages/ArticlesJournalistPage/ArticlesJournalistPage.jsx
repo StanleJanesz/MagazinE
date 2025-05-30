@@ -1,10 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from "motion/react";
-import ArticleTile from '../../Components/ListTile/ArticleTile/ArticleTile';
 import Button from "react-bootstrap/Button";
 import './ArticlesJournalistPage.css';
+import ListTile from '../../Components/ListTile/ListTile';
 
+/**
+ * ArticlesJournalistPage component
+ * Page with journalists articles, which they may browse in order to
+ * edit them, send to review, or rejecr
+ * @param {number} journalistId  
+ */
 function ArticlesJournalistPage(journalistId) {
     const [articles, setArticles] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -60,7 +66,7 @@ function ArticlesJournalistPage(journalistId) {
                         exit={{ opacity: 0, scale: 0 }}
                         transition={{duration: 0.3} }
                     >
-                        <ArticleTile
+                        <ListTile
                             id={article.id}
                             title={article.title}
                             onSelect={(id) => {
