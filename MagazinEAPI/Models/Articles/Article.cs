@@ -82,7 +82,17 @@
 
         public bool CanBeViewedBy(ApplicationUser user, RolesBasedContext context, UserManager<ApplicationUser> userManager) // used to check if user can see article
         {
-            List<string> roles = userManager.GetRolesAsync(user).Result.ToList();
+            List<string> roles;
+            try
+            {
+                 roles = userManager.GetRolesAsync(user).Result.ToList();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting roles for user {user.UserName}: {ex.Message}");
+                return false;
+            }
+
             var roleVisibilityMap = new Dictionary<string, Func<ApplicationUser, RolesBasedContext, bool>>
             {
                 { "Admin", VisibleToAdmin }, // Admin can see all articles
@@ -96,7 +106,17 @@
 
         public bool CanBeDelatedBy(ApplicationUser user, RolesBasedContext context, UserManager<ApplicationUser> userManager) // used to check if user can delete article
         {
-            List<string> roles = userManager.GetRolesAsync(user).Result.ToList();
+            List<string> roles;
+            try
+            {
+                 roles = userManager.GetRolesAsync(user).Result.ToList();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting roles for user {user.UserName}: {ex.Message}");
+                return false;
+            }
+
             var roleVisibilityMap = new Dictionary<string, Func<ApplicationUser, RolesBasedContext, bool>>
             {
                // { "Admin", VisibleToAdmin }, // Admin can delete all articles   // TODO: decide if Admin can delete all articles
@@ -109,7 +129,16 @@
 
         public bool CanBeEditedBy(ApplicationUser user, RolesBasedContext context, UserManager<ApplicationUser> userManager) // used to check if user can edit article
         {
-            List<string> roles = userManager.GetRolesAsync(user).Result.ToList();
+            List<string> roles;
+            try
+            {
+                roles = userManager.GetRolesAsync(user).Result.ToList();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting roles for user {user.UserName}: {ex.Message}");
+                return false;
+            }
             var roleVisibilityMap = new Dictionary<string, Func<ApplicationUser, RolesBasedContext, bool>>
             {
                // { "Admin", VisibleToAdmin }, // preaty sure that Admin can't edit articles
