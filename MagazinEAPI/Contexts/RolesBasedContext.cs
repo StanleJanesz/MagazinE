@@ -77,7 +77,11 @@ namespace MagazinEAPI.Contexts
 
             UsersSeed.InitializeUsers(modelBuilder); // FOR TESTING PURPOSES ONLY
 
+            ArticlesSeed.InitializeArticles(modelBuilder);
 
+           CommentsSeed.InitializeComments(modelBuilder);
+
+            TagsSeed.InitializeTags(modelBuilder);
         }
 
     }
