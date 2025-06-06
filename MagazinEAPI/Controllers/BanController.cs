@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using SharedLibrary.DTO_Classes;
 using SharedLibrary.Base_Classes___Database;
 using Microsoft.EntityFrameworkCore;
-using MagazinEAPI.Migrations;
 
 namespace MagazinEAPI.Controllers
 {

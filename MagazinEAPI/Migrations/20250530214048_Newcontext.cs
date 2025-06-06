@@ -3,10 +3,12 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace MagazinEAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class DatabaseCreationv10 : Migration
+    public partial class Newcontext : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -16,6 +18,7 @@ namespace MagazinEAPI.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true)
@@ -30,8 +33,8 @@ namespace MagazinEAPI.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     State = table.Column<int>(type: "int", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -54,15 +57,29 @@ namespace MagazinEAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Photos",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Photos", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "RegisterRequests",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    IsSuccesfull = table.Column<bool>(type: "bit", nullable: false),
+                    RegisterDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -249,8 +266,7 @@ namespace MagazinEAPI.Migrations
                 name: "Editors",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<int>(type: "int", nullable: false),
                     HeadEditorId = table.Column<int>(type: "int", nullable: false),
                     ApplicationUserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
@@ -264,11 +280,10 @@ namespace MagazinEAPI.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Editors_HeadEditors_HeadEditorId",
-                        column: x => x.HeadEditorId,
+                        name: "FK_Editors_HeadEditors_Id",
+                        column: x => x.Id,
                         principalTable: "HeadEditors",
-                        principalColumn: "Id"/*,
-                        onDelete: ReferentialAction.Cascade*/);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -293,8 +308,8 @@ namespace MagazinEAPI.Migrations
                         name: "FK_Journalists_HeadEditors_HeadEditorId",
                         column: x => x.HeadEditorId,
                         principalTable: "HeadEditors",
-                        principalColumn: "Id" /*,
-                        onDelete: ReferentialAction.Cascade*/ );
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -303,8 +318,12 @@ namespace MagazinEAPI.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<int>(type: "int", nullable: false),
                     AdminId = table.Column<int>(type: "int", nullable: false),
-                    UserId = table.Column<int>(type: "int", nullable: false)
+                    Reason = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Active = table.Column<bool>(type: "bit", nullable: false),
+                    BanStartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    BanEndDate = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -313,14 +332,14 @@ namespace MagazinEAPI.Migrations
                         name: "FK_Bans_Admins_AdminId",
                         column: x => x.AdminId,
                         principalTable: "Admins",
-                        principalColumn: "Id" /*,
-                        onDelete: ReferentialAction.Cascade*/);
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Bans_Readers_UserId",
                         column: x => x.UserId,
                         principalTable: "Readers",
-                        principalColumn: "Id" ,
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -378,7 +397,7 @@ namespace MagazinEAPI.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TagEditors", x => new { x.EditorId, x.TagId });
+                    table.PrimaryKey("PK_TagEditors", x => new { x.TagId, x.EditorId });
                     table.ForeignKey(
                         name: "FK_TagEditors_Editors_EditorId",
                         column: x => x.EditorId,
@@ -404,8 +423,9 @@ namespace MagazinEAPI.Migrations
                     isPublished = table.Column<bool>(type: "bit", nullable: false),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     AuthorId = table.Column<int>(type: "int", nullable: false),
+                    Introduction = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    TimeOfPublication = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    TimeOfPublication = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -419,8 +439,7 @@ namespace MagazinEAPI.Migrations
                         name: "FK_Articles_Journalists_AuthorId",
                         column: x => x.AuthorId,
                         principalTable: "Journalists",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -429,6 +448,7 @@ namespace MagazinEAPI.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    SolvedById = table.Column<int>(type: "int", nullable: true),
                     Reason = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     BanId = table.Column<int>(type: "int", nullable: false),
                     State = table.Column<int>(type: "int", nullable: false)
@@ -436,6 +456,11 @@ namespace MagazinEAPI.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_UnbanRequests", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UnbanRequests_Admins_SolvedById",
+                        column: x => x.SolvedById,
+                        principalTable: "Admins",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_UnbanRequests_Bans_BanId",
                         column: x => x.BanId,
@@ -450,6 +475,7 @@ namespace MagazinEAPI.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     DeletedById = table.Column<int>(type: "int", nullable: true),
                     ArticleId = table.Column<int>(type: "int", nullable: false),
                     ParentId = table.Column<int>(type: "int", nullable: true),
@@ -480,8 +506,8 @@ namespace MagazinEAPI.Migrations
                         name: "FK_Comments_Readers_AuthorId",
                         column: x => x.AuthorId,
                         principalTable: "Readers",
-                        principalColumn: "Id" /*,
-                        onDelete: ReferentialAction.Cascade*/);
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -504,26 +530,54 @@ namespace MagazinEAPI.Migrations
                         name: "FK_FavoriteArticles_Readers_UserId",
                         column: x => x.UserId,
                         principalTable: "Readers",
-                        principalColumn: "Id"/*,
-                        onDelete: ReferentialAction.Cascade*/);
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Photos",
+                name: "OwnedArticles",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: false),
                     ArticleId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Photos", x => x.Id);
+                    table.PrimaryKey("PK_OwnedArticles", x => new { x.ArticleId, x.UserId });
                     table.ForeignKey(
-                        name: "FK_Photos_Articles_ArticleId",
+                        name: "FK_OwnedArticles_Articles_ArticleId",
                         column: x => x.ArticleId,
                         principalTable: "Articles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_OwnedArticles_Readers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Readers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PhotoArticles",
+                columns: table => new
+                {
+                    PhotoId = table.Column<int>(type: "int", nullable: false),
+                    ArticleId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PhotoArticles", x => new { x.ArticleId, x.PhotoId });
+                    table.ForeignKey(
+                        name: "FK_PhotoArticles_Articles_ArticleId",
+                        column: x => x.ArticleId,
+                        principalTable: "Articles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PhotoArticles_Photos_PhotoId",
+                        column: x => x.PhotoId,
+                        principalTable: "Photos",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -569,8 +623,8 @@ namespace MagazinEAPI.Migrations
                         name: "FK_TagArticles_Articles_ArticleId",
                         column: x => x.ArticleId,
                         principalTable: "Articles",
-                        principalColumn: "Id" /*,
-                        onDelete: ReferentialAction.Cascade*/);
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_TagArticles_Tags_TagId",
                         column: x => x.TagId,
@@ -599,8 +653,8 @@ namespace MagazinEAPI.Migrations
                         name: "FK_ToReadArticles_Readers_UserId",
                         column: x => x.UserId,
                         principalTable: "Readers",
-                        principalColumn: "Id"/*,
-                        onDelete: ReferentialAction.Cascade*/);
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -614,7 +668,7 @@ namespace MagazinEAPI.Migrations
                     ReportAuthorId = table.Column<int>(type: "int", nullable: false),
                     Reason = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Result = table.Column<bool>(type: "bit", nullable: false)
+                    State = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -634,8 +688,7 @@ namespace MagazinEAPI.Migrations
                         name: "FK_CommentReports_Readers_ReportAuthorId",
                         column: x => x.ReportAuthorId,
                         principalTable: "Readers",
-                        principalColumn: "Id"   /*,
-                        onDelete: ReferentialAction.Cascade*/);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -653,13 +706,13 @@ namespace MagazinEAPI.Migrations
                         column: x => x.CommentId,
                         principalTable: "Comments",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Dislikes_Readers_UserId",
                         column: x => x.UserId,
                         principalTable: "Readers",
-                        principalColumn: "Id" /*,
-                        onDelete: ReferentialAction.Cascade*/);
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -677,14 +730,75 @@ namespace MagazinEAPI.Migrations
                         column: x => x.CommentId,
                         principalTable: "Comments",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Likes_Readers_UserId",
                         column: x => x.UserId,
                         principalTable: "Readers",
-                        principalColumn: "Id" /*,
-                        onDelete: ReferentialAction.Cascade*/);
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
+
+            migrationBuilder.InsertData(
+                table: "AspNetRoles",
+                columns: new[] { "Id", "ConcurrencyStamp", "Description", "Name", "NormalizedName" },
+                values: new object[,]
+                {
+                    { "2c5e174e-3b0e-446f-86af-483d56fd7210", null, "Admin", "Admin", "ADMIN" },
+                    { "2c5e174e-3b0e-446f-86af-483d56fd7211", null, "Reader", "Reader", "READER" },
+                    { "2c5e174e-3b0e-446f-86af-483d56fd7212", null, "Editor", "Editor", "EDITOR" },
+                    { "2c5e174e-3b0e-446f-86af-483d56fd7213", null, "HeadEditor", "HeadEditor", "HEADEDITOR" },
+                    { "2c5e174e-3b0e-446f-86af-483d56fd7214", null, "Journalist", "Journalist", "JOURNALIST" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "AspNetUsers",
+                columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "FirstName", "LastName", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "State", "TwoFactorEnabled", "UserName" },
+                values: new object[,]
+                {
+                    { "2c5w174e-3b0e-446f-86af-483d56fd7214", 0, "599c3aa8-eda2-4861-a51d-5c6ba68596c0", "admin@example.com", true, null, null, false, null, "ADMIN@EXAMPLE.COM", "ADMIN", "AQAAAAIAAYagAAAAEGjtaYT1QQugEtDzxCHL5AD80LCJ9rX+EAYl44HijtqzIHZXfphoRhNjjBW2WujvIw==", null, false, "c5ba1859-83da-4fed-b0b8-965f2b80d3ea", 0, false, "admin" },
+                    { "2c5w174e-3b0e-486f-86af-483d56fd7213", 0, "dd2d325e-0c77-4a07-9b08-42ed37020384", "headeditor@example.com", true, null, null, false, null, "HEADEDITOR@EXAMPLE.COM", "HEADEDITOR", "AQAAAAIAAYagAAAAENKzyCo5g+I320Z15/ZxFZopnss/ggALZ73kN4z2QWrVG+NRZz9bk7L+w7dSBYa4Ag==", null, false, "dd7090c7-30a5-46d5-9e05-815f38bbd6ab", 0, false, "HeadEditor" },
+                    { "2c5w174r-3b0e-446f-86af-483d56fd7211", 0, "dd2d323e-0c77-4a07-9b08-422d38020384", "reader@example.com", true, null, null, false, null, "READER@EXAMPLE.COM", "READER", "AQAAAAIAAYagAAAAECAtlY2RA/vjLYvmweL9IBRZJl25Few+FUY8QMsC3/rJADAsQxzWxlD4QR4/ZJoSAw==", null, false, "dd709037-30a5-46d5-9e05-515f38b6d6ab", 0, false, "reader" },
+                    { "2c5w174r-3b0e-446f-86af-483d56fd7214", 0, "dd2d323e-0c77-4a07-9b08-42ed38020384", "journalist@example.com", true, null, null, false, null, "JOURNALIST@EXAMPLE.COM", "JOURNALIST", "AQAAAAIAAYagAAAAEOAXkcsy7IiVg45vv09dUPqtwHOzbwnO1kOLG7lC4iVA9G8VOr2qjWxBcGtQN1zC+w==", null, false, "dd709037-30a5-46d5-9e05-815f38b6d6ab", 0, false, "Journalist" },
+                    { "2c5w179e-3b0e-446f-86af-483d56fd7212", 0, "dd2d323e-0c77-4a07-9b08-42ed37020384", "editor@example.com", true, null, null, false, null, "EDITOR@EXAMPLE.COM", "EDITOR", "AQAAAAIAAYagAAAAEDaQJNcmsFaqlvYpylJ8LL9S9aYOCTsB7PtdbsCQsymITYP5lz9PK77Q3FJw+xFmGw==", null, false, "dd709037-30a5-46d5-9e05-815f38bbd6ab", 0, false, "Editor" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Admins",
+                columns: new[] { "Id", "ApplicationUserId" },
+                values: new object[] { 1, "2c5w174e-3b0e-446f-86af-483d56fd7214" });
+
+            migrationBuilder.InsertData(
+                table: "AspNetUserRoles",
+                columns: new[] { "RoleId", "UserId" },
+                values: new object[,]
+                {
+                    { "2c5e174e-3b0e-446f-86af-483d56fd7210", "2c5w174e-3b0e-446f-86af-483d56fd7214" },
+                    { "2c5e174e-3b0e-446f-86af-483d56fd7213", "2c5w174e-3b0e-486f-86af-483d56fd7213" },
+                    { "2c5e174e-3b0e-446f-86af-483d56fd7211", "2c5w174r-3b0e-446f-86af-483d56fd7211" },
+                    { "2c5e174e-3b0e-446f-86af-483d56fd7214", "2c5w174r-3b0e-446f-86af-483d56fd7214" },
+                    { "2c5e174e-3b0e-446f-86af-483d56fd7212", "2c5w179e-3b0e-446f-86af-483d56fd7212" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "HeadEditors",
+                columns: new[] { "Id", "ApplicationUserId" },
+                values: new object[] { 1, "2c5w174e-3b0e-486f-86af-483d56fd7213" });
+
+            migrationBuilder.InsertData(
+                table: "Readers",
+                columns: new[] { "Id", "ApplicationUserId" },
+                values: new object[] { 1, "2c5w174r-3b0e-446f-86af-483d56fd7211" });
+
+            migrationBuilder.InsertData(
+                table: "Editors",
+                columns: new[] { "Id", "ApplicationUserId", "HeadEditorId" },
+                values: new object[] { 1, "2c5w179e-3b0e-446f-86af-483d56fd7212", 1 });
+
+            migrationBuilder.InsertData(
+                table: "Journalists",
+                columns: new[] { "Id", "ApplicationUserId", "HeadEditorId" },
+                values: new object[] { 1, "2c5w174r-3b0e-446f-86af-483d56fd7214", 1 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Admins_ApplicationUserId",
@@ -798,11 +912,6 @@ namespace MagazinEAPI.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Editors_HeadEditorId",
-                table: "Editors",
-                column: "HeadEditorId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_FavoriteArticles_UserId",
                 table: "FavoriteArticles",
                 column: "UserId");
@@ -830,9 +939,14 @@ namespace MagazinEAPI.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Photos_ArticleId",
-                table: "Photos",
-                column: "ArticleId");
+                name: "IX_OwnedArticles_UserId",
+                table: "OwnedArticles",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PhotoArticles_PhotoId",
+                table: "PhotoArticles",
+                column: "PhotoId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PublishRequests_ArticleId",
@@ -861,9 +975,9 @@ namespace MagazinEAPI.Migrations
                 column: "TagId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TagEditors_TagId",
+                name: "IX_TagEditors_EditorId",
                 table: "TagEditors",
-                column: "TagId");
+                column: "EditorId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_TagUsers_UserId",
@@ -879,6 +993,11 @@ namespace MagazinEAPI.Migrations
                 name: "IX_UnbanRequests_BanId",
                 table: "UnbanRequests",
                 column: "BanId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UnbanRequests_SolvedById",
+                table: "UnbanRequests",
+                column: "SolvedById");
         }
 
         /// <inheritdoc />
@@ -912,7 +1031,10 @@ namespace MagazinEAPI.Migrations
                 name: "Likes");
 
             migrationBuilder.DropTable(
-                name: "Photos");
+                name: "OwnedArticles");
+
+            migrationBuilder.DropTable(
+                name: "PhotoArticles");
 
             migrationBuilder.DropTable(
                 name: "PublishRequests");
@@ -943,6 +1065,9 @@ namespace MagazinEAPI.Migrations
 
             migrationBuilder.DropTable(
                 name: "Comments");
+
+            migrationBuilder.DropTable(
+                name: "Photos");
 
             migrationBuilder.DropTable(
                 name: "Tags");

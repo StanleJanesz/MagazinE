@@ -1,5 +1,4 @@
 import { useState } from "react";
-import './ArticleTile.css';
 
 function ArticleTile({ title, photo, onSelect, id, accept, reject, isChosen }) {
 

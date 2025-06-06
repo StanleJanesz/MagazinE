@@ -29,25 +29,27 @@ services:
  
   magazineapi:
     build:
-      context: .
-      dockerfile: ./MagazinEAPI/Dockerfile
-      args:
-        - configuration=Debug
+        context: .
+        dockerfile: ./MagazinEAPI/Dockerfile
+        args:
+         - configuration=Debug
     ports:
-      - 8082:8082
-      - 8083:8083
+        - 8082:8082
+        - 8083:8083
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_HTTP_PORTS=8082
-      - ASPNETCORE_URLS=http://+:8082
-
+        - ASPNETCORE_ENVIRONMENT=Development
+        - ASPNETCORE_HTTP_PORTS=8082
+        - ASPNETCORE_HTTPS_PORT=8083
+        - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+        - ASPNETCORE_Kestrel__Certificates__Default__Password=MySuperSecurePassword
     volumes:
-      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
-      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+        - ./https:/https:ro
+        - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
     depends_on:
-      - mssql
+        - mssql
     networks:
-      - mssql_network
+        - mssql_network
+
 
        
 
