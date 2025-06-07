@@ -15,6 +15,7 @@ import ArticlesJournalistPage from './Pages/ArticlesJournalistPage/ArticlesJourn
 import AdminPage from './Pages/AdminPage/AdminPage.jsx';
 import GeneralEditorPage from './Pages/GeneralEditorPage/GeneralEditorPage.jsx';
 import ErrorPage from './Pages/ErrorPage/ErrorPage.jsx';
+import UserProfile from './Pages/UserPage/UserPage.jsx';
 
 // Styles imports
 import './App.css';
@@ -36,6 +37,8 @@ function App() {
                         <Route path="/articles-view" element={<ArticlesJournalistPage />} />
                         <Route path="/general-editor" element={<GeneralEditorPage />} />
                         <Route path="/admin-requests" element={<AdminPage />} />
+                        <Route path="/user-profile" element={<UserProfile />} />
+                        
                         <Route path="*" element={<ErrorPage/> }/>
                     </Routes>
                 </CSSTransition>
