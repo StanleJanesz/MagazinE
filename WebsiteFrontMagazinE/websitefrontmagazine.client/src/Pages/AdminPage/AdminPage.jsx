@@ -12,7 +12,7 @@ export default function AdminPage() {
                 return;
             }
 
-            const response = await fetch("https://localhost:7054/reports/pending", {
+            const response = await fetch("https://localhost:8083/reports/pending", {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -27,7 +27,7 @@ export default function AdminPage() {
             // Pobieramy pe³ne dane dla ka¿dego ID
             const reportsData = await Promise.all(
                 reportIds.map(async (id) => {
-                    const res = await fetch(`https://localhost:7054/reports/report/${id}`, {
+                    const res = await fetch(`https://localhost:8083/reports/report/${id}`, {
                         headers: {
                             Authorization: `Bearer ${token}`,
                         },
@@ -63,7 +63,7 @@ export default function AdminPage() {
                 return;
             }
 
-            const response = await fetch("https://localhost:7054/reports", {
+            const response = await fetch("https://localhost:8083/reports", {
                 method: "PUT",
                 headers: {
                     Authorization: `Bearer ${token}`,
