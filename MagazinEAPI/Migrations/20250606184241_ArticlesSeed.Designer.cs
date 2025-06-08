@@ -4,6 +4,7 @@ using MagazinEAPI.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MagazinEAPI.Migrations
 {
     [DbContext(typeof(RolesBasedContext))]
-    partial class RolesBasedContextModelSnapshot : ModelSnapshot
+    [Migration("20250606184241_ArticlesSeed")]
+    partial class ArticlesSeed
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -349,188 +352,6 @@ namespace MagazinEAPI.Migrations
                     b.HasIndex("ParentId");
 
                     b.ToTable("Comments");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            ArticleId = 1,
-                            AuthorId = 1,
-                            Content = "This is comment #1 on article #1. What a great article!!!",
-                            Date = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false
-                        },
-                        new
-                        {
-                            Id = 2,
-                            ArticleId = 2,
-                            AuthorId = 1,
-                            Content = "This is comment #2 on article #2. What a great article!!!",
-                            Date = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false
-                        },
-                        new
-                        {
-                            Id = 3,
-                            ArticleId = 3,
-                            AuthorId = 1,
-                            Content = "This is comment #3 on article #3. What a great article!!!",
-                            Date = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false
-                        },
-                        new
-                        {
-                            Id = 4,
-                            ArticleId = 4,
-                            AuthorId = 1,
-                            Content = "This is comment #4 on article #4. What a great article!!!",
-                            Date = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false
-                        },
-                        new
-                        {
-                            Id = 5,
-                            ArticleId = 5,
-                            AuthorId = 1,
-                            Content = "This is comment #5 on article #5. What a great article!!!",
-                            Date = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false
-                        },
-                        new
-                        {
-                            Id = 6,
-                            ArticleId = 6,
-                            AuthorId = 1,
-                            Content = "This is comment #6 on article #6. What a great article!!!",
-                            Date = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false
-                        },
-                        new
-                        {
-                            Id = 7,
-                            ArticleId = 7,
-                            AuthorId = 1,
-                            Content = "This is comment #7 on article #7. What a great article!!!",
-                            Date = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false
-                        },
-                        new
-                        {
-                            Id = 8,
-                            ArticleId = 8,
-                            AuthorId = 1,
-                            Content = "This is comment #8 on article #8. What a great article!!!",
-                            Date = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false
-                        },
-                        new
-                        {
-                            Id = 9,
-                            ArticleId = 9,
-                            AuthorId = 1,
-                            Content = "This is comment #9 on article #9. What a great article!!!",
-                            Date = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false
-                        },
-                        new
-                        {
-                            Id = 10,
-                            ArticleId = 10,
-                            AuthorId = 1,
-                            Content = "This is comment #10 on article #10. What a great article!!!",
-                            Date = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false
-                        },
-                        new
-                        {
-                            Id = 11,
-                            ArticleId = 11,
-                            AuthorId = 1,
-                            Content = "This is comment #11 on article #11. What a great article!!!",
-                            Date = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false
-                        },
-                        new
-                        {
-                            Id = 12,
-                            ArticleId = 12,
-                            AuthorId = 1,
-                            Content = "This is comment #12 on article #12. What a great article!!!",
-                            Date = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false
-                        },
-                        new
-                        {
-                            Id = 13,
-                            ArticleId = 13,
-                            AuthorId = 1,
-                            Content = "This is comment #13 on article #13. What a great article!!!",
-                            Date = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false
-                        },
-                        new
-                        {
-                            Id = 14,
-                            ArticleId = 14,
-                            AuthorId = 1,
-                            Content = "This is comment #14 on article #14. What a great article!!!",
-                            Date = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false
-                        },
-                        new
-                        {
-                            Id = 15,
-                            ArticleId = 15,
-                            AuthorId = 1,
-                            Content = "This is comment #15 on article #15. What a great article!!!",
-                            Date = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false
-                        },
-                        new
-                        {
-                            Id = 16,
-                            ArticleId = 16,
-                            AuthorId = 1,
-                            Content = "This is comment #16 on article #16. What a great article!!!",
-                            Date = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false
-                        },
-                        new
-                        {
-                            Id = 17,
-                            ArticleId = 17,
-                            AuthorId = 1,
-                            Content = "This is comment #17 on article #17. What a great article!!!",
-                            Date = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false
-                        },
-                        new
-                        {
-                            Id = 18,
-                            ArticleId = 18,
-                            AuthorId = 1,
-                            Content = "This is comment #18 on article #18. What a great article!!!",
-                            Date = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false
-                        },
-                        new
-                        {
-                            Id = 19,
-                            ArticleId = 19,
-                            AuthorId = 1,
-                            Content = "This is comment #19 on article #19. What a great article!!!",
-                            Date = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false
-                        },
-                        new
-                        {
-                            Id = 20,
-                            ArticleId = 20,
-                            AuthorId = 1,
-                            Content = "This is comment #20 on article #20. What a great article!!!",
-                            Date = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false
-                        });
                 });
 
             modelBuilder.Entity("MagazinEAPI.Models.Articles.Comment.CommentReport", b =>
@@ -648,108 +469,6 @@ namespace MagazinEAPI.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Tags");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Super tag 1"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Super tag 2"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Super tag 3"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Name = "Super tag 4"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Name = "Super tag 5"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Name = "Super tag 6"
-                        },
-                        new
-                        {
-                            Id = 7,
-                            Name = "Super tag 7"
-                        },
-                        new
-                        {
-                            Id = 8,
-                            Name = "Super tag 8"
-                        },
-                        new
-                        {
-                            Id = 9,
-                            Name = "Super tag 9"
-                        },
-                        new
-                        {
-                            Id = 10,
-                            Name = "Super tag 10"
-                        },
-                        new
-                        {
-                            Id = 11,
-                            Name = "Super tag 11"
-                        },
-                        new
-                        {
-                            Id = 12,
-                            Name = "Super tag 12"
-                        },
-                        new
-                        {
-                            Id = 13,
-                            Name = "Super tag 13"
-                        },
-                        new
-                        {
-                            Id = 14,
-                            Name = "Super tag 14"
-                        },
-                        new
-                        {
-                            Id = 15,
-                            Name = "Super tag 15"
-                        },
-                        new
-                        {
-                            Id = 16,
-                            Name = "Super tag 16"
-                        },
-                        new
-                        {
-                            Id = 17,
-                            Name = "Super tag 17"
-                        },
-                        new
-                        {
-                            Id = 18,
-                            Name = "Super tag 18"
-                        },
-                        new
-                        {
-                            Id = 19,
-                            Name = "Super tag 19"
-                        },
-                        new
-                        {
-                            Id = 20,
-                            Name = "Super tag 20"
-                        });
                 });
 
             modelBuilder.Entity("MagazinEAPI.Models.Articles.TagArticle", b =>

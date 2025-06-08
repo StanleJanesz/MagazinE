@@ -4,6 +4,7 @@ using MagazinEAPI.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MagazinEAPI.Migrations
 {
     [DbContext(typeof(RolesBasedContext))]
-    partial class RolesBasedContextModelSnapshot : ModelSnapshot
+    [Migration("20250606193029_TagsSeed")]
+    partial class TagsSeed
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -648,108 +651,6 @@ namespace MagazinEAPI.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Tags");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Super tag 1"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Super tag 2"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Super tag 3"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Name = "Super tag 4"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Name = "Super tag 5"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Name = "Super tag 6"
-                        },
-                        new
-                        {
-                            Id = 7,
-                            Name = "Super tag 7"
-                        },
-                        new
-                        {
-                            Id = 8,
-                            Name = "Super tag 8"
-                        },
-                        new
-                        {
-                            Id = 9,
-                            Name = "Super tag 9"
-                        },
-                        new
-                        {
-                            Id = 10,
-                            Name = "Super tag 10"
-                        },
-                        new
-                        {
-                            Id = 11,
-                            Name = "Super tag 11"
-                        },
-                        new
-                        {
-                            Id = 12,
-                            Name = "Super tag 12"
-                        },
-                        new
-                        {
-                            Id = 13,
-                            Name = "Super tag 13"
-                        },
-                        new
-                        {
-                            Id = 14,
-                            Name = "Super tag 14"
-                        },
-                        new
-                        {
-                            Id = 15,
-                            Name = "Super tag 15"
-                        },
-                        new
-                        {
-                            Id = 16,
-                            Name = "Super tag 16"
-                        },
-                        new
-                        {
-                            Id = 17,
-                            Name = "Super tag 17"
-                        },
-                        new
-                        {
-                            Id = 18,
-                            Name = "Super tag 18"
-                        },
-                        new
-                        {
-                            Id = 19,
-                            Name = "Super tag 19"
-                        },
-                        new
-                        {
-                            Id = 20,
-                            Name = "Super tag 20"
-                        });
                 });
 
             modelBuilder.Entity("MagazinEAPI.Models.Articles.TagArticle", b =>
