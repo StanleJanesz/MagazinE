@@ -224,6 +224,7 @@
                    .OrderBy(a => a.TimeOfPublication) // TODO: decide which order will be default
                    .Skip(skip)
                    .Include(a => a.Tags)
+                   .Include(article => article.Photos)
                    .Take(articlesRequestDTO.BatchSize)
                    .ToListAsync();
             }

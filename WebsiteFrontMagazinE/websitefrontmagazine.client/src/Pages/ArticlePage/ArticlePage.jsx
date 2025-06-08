@@ -9,27 +9,13 @@ import gallery from "/src/assets/gallery.png";
 import { getTokenFromCookie } from "../../utils";
 import CommentInputBox from "../../Components/Comment/CommentInputBox";
 
-/**
- * ArticlePage Component
- *
- * This page displays the full content of a selected article, including its metadata,
- * cover image, and associated user comments. It also provides access to related photos
- * via a gallery button and includes conditional logic for premium content access.
- *
- * TODO:
- * - Add content parsing for bold and italic styles.
- * - Improve error handling and authorization flow.
- * - dynamic displaying comments state change
- *
- * @returns {JSX.Element} Article view component.
- */
-
 function ArticlePage() {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [commentsLoading, setCommentsLoading] = useState(true);
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState("");
+    const [photos, setPhotos] = useState([]);
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const articleId = searchParams.get("id");
@@ -38,7 +24,6 @@ function ArticlePage() {
         const token = getTokenFromCookie();
         setComments([]);
         try {
-            console.log(data.commentsIds);
             const fetchedComments = [];
             for (const commentId of data.commentsIds) {
                 const response = await fetch(`https://localhost:8083/api/Comments/${commentId}`, {
@@ -49,16 +34,12 @@ function ArticlePage() {
                     },
                 });
 
-                // Check if the response is OK
                 if (response.ok) {
                     const commentData = await response.json();
-                    fetchedComments.push(commentData);     
+                    fetchedComments.push(commentData);
                 }
             }
-
-            const uniqueComments = [...new Map(fetchedComments.map((c) => [c.id, c])).values()];
-            setComments(uniqueComments);
-            console.log(comments);
+            setComments(fetchedComments);
         } catch (error) {
             console.error(error);
         }
@@ -67,83 +48,70 @@ function ArticlePage() {
     const fetchArticle = async () => {
         try {
             const token = getTokenFromCookie();
-            console.log(token);
-            const response = await fetch(`https://localhost:8083/articles/${articleId}`,
-                {
-                    method: 'GET',
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`, 
-                    },
-                });
+            const response = await fetch(`https://localhost:8083/articles/${articleId}`, {
+                method: 'GET',
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            });
 
-            // Not found or bad request
-            if (!response.ok && !response.status === 401) {
-                throw new Error(`Failed to fetch article`);
+            if (!response.ok) {
+                throw new Error(response.status === 401 ?
+                    "Unauthorized to retrieve article data!" :
+                    "Failed to fetch article");
             }
 
-            if (response.status === 401) {
-                throw new Error("Unathorized to retrieve article data!");
-                return;
+            const articleData = await response.json();
+            setData(articleData);
+
+            // Process photos if they exist
+            if (articleData.photos && articleData.photos.length > 0) {
+                const photoUrls = articleData.photos.map(photoName =>
+                    `https://localhost:8083/api/Photo/${photoName}`
+                );
+                setPhotos(photoUrls);
             }
-
-            const data = await response.json();
-            setData(data);
-        }
-        catch (error) {
-            console.log(error);
-        }
-
-    }
-
-
-    useEffect(() => {
-        const fetchArticleData = async () => {
-            setLoading(true);
-            try {
-                await fetchArticle(); // This updates `data` state
-            } catch (error) {
-                console.error("Error fetching article:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchArticleData();
-    }, [articleId]);
-
-    const fetchCommentsData = async () => {
-        setCommentsLoading(true);
-        try {
-            setComments([]);
-            await fetchComments();
         } catch (error) {
-            console.error("Error fetching comments:", error);
+            console.error(error);
+            throw error;
         }
-        setCommentsLoading(false);
     };
 
     useEffect(() => {
-        if (data && data.commentsIds) {
-            fetchCommentsData();
-        }
-    }, [data]);
+        const loadData = async () => {
+            setLoading(true);
+            try {
+                await fetchArticle();
+                if (data?.commentsIds) {
+                    await fetchComments();
+                }
+            } catch (error) {
+                console.error("Article load error:", error);
+            } finally {
+                setLoading(false);
+                setCommentsLoading(false);
+            }
+        };
+        loadData();
+    }, [articleId]);
 
     const handleCommentSubmit = async () => {
-        if (!newComment.trim()) {
-            alert("Comment cannot be empty");
-            return;
-        }
+        if (!newComment.trim()) return;
+
         const token = getTokenFromCookie();
         if (!token) {
-            alert("You must be logged in to comment.");
             navigate('/login');
             return;
         }
+
         try {
             const response = await fetch(`https://localhost:8083/api/Comments`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
                 body: JSON.stringify({
                     Content: newComment,
                     ArticleId: articleId,
@@ -154,100 +122,113 @@ function ArticlePage() {
                     DislikesCount: 0,
                 }),
             });
-            
-            console.log(response);
+
             if (response.ok) {
-                const newCommentData = await response.json(); 
+                const newCommentData = await response.json();
                 setComments(prev => [newCommentData, ...prev]);
-                setData(prevData => ({
-                    ...prevData,
-                    commentsIds: [newCommentData.id, ...prevData.commentsIds],
-                }));
-                setNewComment("");  // clear textarea on success
+                setNewComment("");
             }
-            await fetchCommentsData();
         } catch (error) {
-            console.error(error);
-            alert("Failed to submit comment. Please try again.");
+            console.error("Comment submission error:", error);
         }
     };
 
+    const openPhotoGallery = () => {
+        if (photos.length > 0) {
+            navigate(`/photos?articleId=${articleId}`);
+        }
+    };
+
+    if (loading) {
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', width: '100%' }}>
+                <CircularProgress size={60} />
+            </Box>
+        );
+    }
+
+    if (!data) {
+        return (
+            <div className="paywall">
+                <p>This article is available for premium users only. Subscribe to unlock full access!</p>
+                <div className="ap-buttonContainer">
+                    <button className="subscribeButton" onClick={() => navigate('/subscribe')}>
+                        Subscribe Now
+                    </button>
+                    <button className="subscribeButton" onClick={() => navigate(`/purchase?id=${articleId}`)}>
+                        Purchase only this article
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     return (
-        <>
-            {loading ? (
-                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', width: '100%' }} >
-                    <CircularProgress size={60} />
-                </Box >
-            ) :
-                <div className="contentWrapper">
-                    <img src={mini} className="articleCover" alt="Article cover" />
-                    <button className="galleryButton" onClick={() => navigate('/photos?articleId=')}>
-                        <img src={gallery} alt="Gallery Icon" className="icon" /> Show gallery
-                    </button>
-                    <h1>{data.title}</h1>
-                    <h2>Author: {data.author}</h2>
-                    {data !== null ? (
-                        <>
-                            <p>{data.content}</p>
-                            <div className="commentsSection">
-                                <h3>Comments:</h3>
-                                {!commentsLoading ? (
-                                    comments
-                                        .filter(comment => comment.parentId === null) 
-                                        .map((comment, index) => (
-                                            <Comment
-                                                key={comment.id}
-                                                commentId={comment.id} 
-                                                author={comment.authorEmail}
-                                                authorId={comment.authorId}
-                                                date={comment.date}
-                                                answerIds={comment.childrenIds}
-                                                content={comment.content}
-                                                likesCount={comment.likesCount}
-                                                dislikesCount={comment.dislikesCount}
-                                                articleId={articleId}
-                                                comments={comments}
-                                                setComments={setComments}
-                                            />
-                                        ))
-                                ) : (
-                                        <Box
-                                            sx={{
-                                                display: 'flex',
-                                                justifyContent: 'center',
-                                                alignItems: 'center',
-                                            }}
-                                        >
-                                            <CircularProgress />
-                                        </Box>
-                                )}
-                                {/* Always show input box for adding new comment */}
-                                <CommentInputBox
-                                    placeholder="Write your comment!"
-                                    value={newComment}
-                                    onChange={setNewComment}
-                                    onSubmit={handleCommentSubmit}
-                                    submitLabel="Submit"
-                                />
-                            </div>
-                        </>
-                    ) : (
-                        <div className="paywall">
-                            <p>This article is available for premium users only. Subscribe to unlock full access!</p>
-                            <div className="ap-buttonContainer">
-                                <button className="subscribeButton" onClick={() => navigate('/subscribe')}>
-                                    Subscribe Now
-                                </button>
-                                <button className="subscribeButton" onClick={() => navigate(`/purchase?id=${articleId}`)}>
-                                    Purchase only this article
-                                </button>
-                            </div>
-                        </div>
-                    )}
+        <div className="contentWrapper">
+            {/* Use first photo as cover if available */}
+            {photos.length > 0 ? (
+                <img
+                    src={photos[0]}
+                    className="articleCover"
+                    alt="Article cover"
+                    onClick={openPhotoGallery}
+                    style={{ cursor: 'pointer' }}
+                />
+            ) : (
+                <img src={mini} className="articleCover" alt="Default article cover" />
+            )}
+
+            {/* Gallery button - only shown if there are photos */}
+            {photos.length > 0 && (
+                <button className="galleryButton" onClick={openPhotoGallery}>
+                    <img src={gallery} alt="Gallery Icon" className="icon" />
+                    Show gallery ({photos.length})
+                </button>
+            )}
+
+            <h1>{data.title}</h1>
+            <h2>Author: {data.author}</h2>
+
+            {/* Simple photo preview - only added element */}
+            {photos.length > 1 && (
+                <div style={{ margin: '20px 0' }}>
+                    <p>This article contains {photos.length} photos</p>
                 </div>
-            }
-        </>
+            )}
+
+            <p>{data.content}</p>
+
+            <div className="commentsSection">
+                <h3>Comments:</h3>
+
+                <CommentInputBox
+                    value={newComment}
+                    onChange={setNewComment}
+                    onSubmit={handleCommentSubmit}
+                    placeholder="Write your comment!"
+                    submitLabel="Submit"
+                />
+
+                {commentsLoading ? (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                        <CircularProgress />
+                    </Box>
+                ) : (
+                    comments.filter(c => c.parentId === null).map(comment => (
+                        <Comment
+                            key={comment.id}
+                            commentId={comment.id}
+                            author={comment.authorEmail}
+                            date={comment.date}
+                            content={comment.content}
+                            likesCount={comment.likesCount}
+                            dislikesCount={comment.dislikesCount}
+                            articleId={articleId}
+                        />
+                    ))
+                )}
+            </div>
+        </div>
     );
 }
 
