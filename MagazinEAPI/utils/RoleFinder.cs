@@ -7,14 +7,15 @@ namespace MagazinEAPI.utils
         public RoleFinder() { }
 
         // Metoda zakłada, że każdemu użytkownikowi przypisuje się jedną rolę. Przy innym założeniu, należy zmodyfikować metodę, tak aby zwracała wszystkie role.
-        public const string User = "User";
+        public const string User = "Reader";
         public const string Journalist = "Journalist";
         public const string Editor = "Editor";
         public const string HeadEditor = "Head Editor";
         public const string Admin = "Admin";
 
         public string FindRole(ApplicationUser user)
-        {            
+        { 
+            
             if(user.User != null)
             {
                 return User;

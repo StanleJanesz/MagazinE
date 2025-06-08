@@ -1,22 +1,33 @@
+import { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
 import Button from "react-bootstrap/Button";
 import Form from 'react-bootstrap/Form';
 import './RegisterPage.css';
-import { useState } from "react";
+import { saveTokenToCookie } from "../../utils";
 
+/** 
+ * RegisterPage component
+ * Render an input form for the users
+ */
 function RegisterPage() {
-    const [name, setName] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
     const [login, setLogin] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [surname, setSurname] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [errors, setErrors] = useState({});
+    const [loginSuccess, setLoginSuccess] = useState(false);
+    const [welcomeMessage, setWelcomeMessage] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
 
+    const navigate = useNavigate();
     const validate = () => {
         const newErrors = {};
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).+$/;
 
-        if (!name.trim()) newErrors.name = "Name is required";
-        if (!surname.trim()) newErrors.surname = "Surname is required";
+        if (!firstName.trim()) newErrors.firstName = "Name is required";
+        if (!lastName.trim()) newErrors.lastName = "Surname is required";
         if (!login.trim()) newErrors.login = "Login is required";
 
         if (!email) {
@@ -30,113 +41,146 @@ function RegisterPage() {
         } else if (password.length < 6) {
             newErrors.password = 'Password must be at least 6 characters';
         } else if (!passwordRegex.test(password)) {
-            newErrors.password = 'Password must contain at least: one uppercase letter, one lowercase letter, one number, one special character';
+            newErrors.password = 'Password must contain uppercase, lowercase, number, and special character';
+        }
+
+        if (password !== confirmPassword) {
+            newErrors.confirmPassword = 'Passwords do not match';
         }
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
 
+    useEffect(() => {
+        if (!loginSuccess) return;
+
+        const fullMessage = " Welcome to MagazinE! Redirecting to home page";
+        let index = 0;
+
+        const interval = setInterval(() => {
+            setWelcomeMessage((prev) => prev + fullMessage[index]);
+            index++;
+            if (index >= fullMessage.length - 1) {
+                clearInterval(interval);
+
+                // Redirect 1 second after message finishes
+                setTimeout(() => {
+                    navigate("/");
+                }, 3000);
+            }
+        }, 50);
+
+        return () => clearInterval(interval);
+    }, [loginSuccess, navigate]);
+
     const handleSubmit = async () => {
-        if (validate()) {
-            const request = {
-                FirstName: name,
-                LastName: surname,
-                Email: email,
-                Password: password,
-                ConfirmPassword: password
-            }
-            try {
-                const response = await fetch('https://localhost:7054/register', {
+        if (!validate()) return;
+
+        const registerRequest = {
+            FirstName: firstName,
+            LastName: lastName,
+            Email: email,
+            Password: password,
+            ConfirmPassword: confirmPassword
+        };
+
+        try {
+            const registerResponse = await fetch('https://localhost:8083/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(registerRequest)
+            });
+
+            if (registerResponse.ok) {
+                console.log('User registered successfully');
+
+                const loginRequest = {
+                    Email: email,
+                    Password: password,
+                    TwoFactorCode: '',
+                    TwoFactorRecoveryCode: ''
+                };
+
+                const loginResponse = await fetch('https://localhost:8083/login/login', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(request)
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(loginRequest)
                 });
-                if (response.ok) {
-                    const result = await response.json();
-                    console.log('User registered successfully:', result);
+
+                if (loginResponse.ok) {
+                    const loginResult = await loginResponse.json();
+                    saveTokenToCookie(loginResult.token); // assumes `token` is returned
+                    setLoginSuccess(true);
+                    console.log('Logged in and token saved to cookie');
                 } else {
-                    const error = await response.text();
-                    console.error('Registration failed:', error);
+                    console.error('Login failed');
                 }
-            } catch (error) {
-                console.error('Error during fetch:', error);
+            } else {
+                const error = await registerResponse.text();
+                console.error('Registration failed:', error);
             }
+        } catch (error) {
+            console.error('Network error:', error);
         }
     };
 
     return (
         <div className="container">
-            <h1 className="titlePage">Register</h1>
+            {loginSuccess ? (
+                <div className="welcomeMessage" style={{ marginTop: "1rem", fontSize: "2rem" }}>
+                    {welcomeMessage}
+                </div>
+            ) : (
+                <>
+                    <h1 className="titlePage">Register</h1>
 
-            <div className="inputContainer">
-                <input
-                    className="inputElement"
-                    placeholder="Name"
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                />
-                {errors.name && <div className="errorText">{errors.name}</div>}
-            </div>
-            <div className="inputContainer">
-                <input
-                    name="surname"
-                    placeholder="Surname"
-                    className="inputElement"
-                    type="text"
-                    value={surname}
-                    onChange={(e) => setSurname(e.target.value)}
-                />
-                {errors.surname && <div className="errorText">{errors.surname}</div>}
-            </div>
-            <div className="inputContainer">
-                <input
-                    name="login"
-                    placeholder="Login"
-                    className="inputElement"
-                    value={login}
-                    onChange={(e) => setLogin(e.target.value)}
-                />
-                {errors.login && <div className="errorText">{errors.login}</div>}
-            </div>
-            <div className="inputContainer">
-                <input
-                    name="password"
-                    type="password"
-                    placeholder="Password"
-                    className="inputElement"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                />
-                {errors.password && <div className="errorText">{errors.password}</div>}
-            </div>
-            <div className="inputContainer">
-                <input
-                    name="email"
-                    placeholder="Email"
-                    className="inputElement"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                />
-                {errors.email && <div className="errorText">{errors.email}</div>}
-            </div>
-            <Form>
-                <Form.Check
-                    type="switch"
-                    id="custom-switch"
-                    label="I want to subscribe"
-                    className="checkBox"
-                />
-            </Form>
+                    {[
+                        { label: "Name", value: firstName, setter: setFirstName, name: "firstName", errorKey: "firstName" },
+                        { label: "Surname", value: lastName, setter: setLastName, name: "lastName", errorKey: "lastName" },
+                        { label: "Login", value: login, setter: setLogin, name: "login", errorKey: "login" },
+                        { label: "Email", value: email, setter: setEmail, name: "email", errorKey: "email", type: "email" },
+                        { label: "Password", value: password, setter: setPassword, name: "password", errorKey: "password", type: showPassword ? "text" : "password" },
+                        { label: "Confirm Password", value: confirmPassword, setter: setConfirmPassword, name: "confirmPassword", errorKey: "confirmPassword", type: showPassword ? "text" : "password" }
+                    ].map(({ label, value, setter, name, errorKey, type = "text" }) => (
+                        <div className="inputContainer" key={name}>
+                            <input
+                                name={name}
+                                placeholder={label}
+                                className="inputElement"
+                                type={type}
+                                value={value}
+                                onChange={(e) => setter(e.target.value)}
+                            />
+                            {errors[errorKey] && <div className="errorText">{errors[errorKey]}</div>}
+                        </div>
+                    ))}
 
-            <div className="buttonContainer">
-                <Button className="forgotButton">Forgot my password</Button>
-                <Button className="button" onClick={handleSubmit}>Register</Button>
-            </div>
+                    <Form.Check
+                        type="checkbox"
+                        label="Show password"
+                        checked={showPassword}
+                        onChange={() => setShowPassword(!showPassword)}
+                        className="checkBox"
+                    />
+
+                    <Form>
+                        <Form.Check
+                            type="switch"
+                            id="custom-switch"
+                            label="I want to subscribe"
+                            className="checkBox"
+                        />
+                    </Form>
+
+                    <div className="buttonContainer">
+                        <Button className="forgotButton">Forgot my password</Button>
+                        <Button className="button" onClick={handleSubmit}>
+                            Register
+                        </Button>
+                    </div>
+                </>
+            )}
         </div>
     );
 }

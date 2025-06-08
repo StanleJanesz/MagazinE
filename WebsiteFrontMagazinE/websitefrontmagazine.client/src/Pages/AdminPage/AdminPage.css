@@ -1,0 +1,36 @@
+.reports-title {
+    color: #000000; /* Black */
+}
+
+.requests-title {
+    color: #006400; /* Green */
+}
+
+
+.view-picker {
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+}
+
+    .view-picker label {
+        margin-right: 8px;
+        font-weight: 500;
+        color: #4a5568; /* gray-700 */
+    }
+
+    .view-picker select {
+        width: auto;
+        padding: 8px 12px;
+        border: 1px solid #cbd5e0; /* gray-300 */
+        border-radius: 0.5rem; /* 8px */
+        background-color: #fff;
+        color: #2d3748; /* gray-800 */
+        font-size: 1rem;
+        transition: box-shadow 0.15s ease;
+    }
+
+        .view-picker select:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.6); /* blue-400 at 60% */
+        }

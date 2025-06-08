@@ -7,12 +7,11 @@ using Microsoft.AspNetCore.Mvc;
 using SharedLibrary.DTO_Classes;
 using SharedLibrary.Base_Classes___Database;
 using Microsoft.EntityFrameworkCore;
-using MagazinEAPI.Migrations;
 
 namespace MagazinEAPI.Controllers
 {
 	[ApiController]
-	[Route("ban")]
+	[Route("bans")]
 	public class BanController : ControllerBase
 	{
 		private readonly RolesBasedContext _context;
@@ -175,7 +174,7 @@ namespace MagazinEAPI.Controllers
 		}
 
 
-		[HttpGet("{id}")]
+		[HttpGet("ban/{id}")]
 		[Authorize(AuthenticationSchemes = "Bearer")]
 		[Authorize(Roles = "Admin, Reader")]
 		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -214,7 +213,7 @@ namespace MagazinEAPI.Controllers
 			return Ok(ban.toDTO());
 		}
 
-		[HttpGet]
+		[HttpGet("bans")]
 		[Authorize(AuthenticationSchemes = "Bearer")]
 		[Authorize(Roles = "Admin, Reader")]
 		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -284,7 +283,7 @@ namespace MagazinEAPI.Controllers
 		}
 
 
-		[HttpGet("{id}")]
+		[HttpGet("user/{id}")]
 		[Authorize(AuthenticationSchemes = "Bearer")]
 		[Authorize(Roles = "Admin, Reader")]
 		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -307,7 +306,7 @@ namespace MagazinEAPI.Controllers
 			}
 
 			var reader = _context.Readers.Include(r => r.Bans).FirstOrDefault(r => r.Id == id);
-			if(reader == null)
+			if (reader == null)
 			{
 				return NotFound("Reader not found");
 			}
@@ -328,7 +327,7 @@ namespace MagazinEAPI.Controllers
 			return Ok(reader.Bans.Select(b => b.Id));
 		}
 
-		[HttpGet]
+		[HttpGet("admin")]
 		[Authorize(AuthenticationSchemes = "Bearer")]
 		[Authorize(Roles = "Admin")]
 		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -362,6 +361,5 @@ namespace MagazinEAPI.Controllers
 
 			return Ok(admin.Bans.Select(b => b.Id));
 		}
-
 	}
 }
