@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence } from "framer-motion";
 import ArticleTile from "../../Components/ListTile/ArticleTile/ArticleTile";
 import "./AdminPage.css";
 

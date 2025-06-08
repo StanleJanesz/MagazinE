@@ -79,6 +79,26 @@
             return this.Ok(article.ToDTO());
         }
 
+        [HttpGet("/journalist/{id}")]
+
+        public async Task<IActionResult> GetArticlesByJournalist([FromRoute] int id)
+        {
+            var articles =  this.context.Articles
+                .Include(article => article.Author.ApplicationUser)
+                .Include(article => article.Comments)
+                .Include(article => article.Tags)
+                .Include(article => article.Photos).Where(u => u.AuthorId == id).ToList();
+
+            if(articles is null)
+            {
+                return this.BadRequest("No articles");
+            }
+
+            return this.Ok(articles.Select(a => a.ToInfoDTO()));
+
+
+        }
+
         /// <summary>
         /// Changes the article.
         /// For Journalist and Editor roles.

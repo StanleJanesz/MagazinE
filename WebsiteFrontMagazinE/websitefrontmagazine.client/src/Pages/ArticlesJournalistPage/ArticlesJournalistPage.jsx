@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence } from "framer-motion";
 import Button from "react-bootstrap/Button";
 import './ArticlesJournalistPage.css';
 import ListTile from '../../Components/ListTile/ListTile';
@@ -44,7 +44,21 @@ function ArticlesJournalistPage(journalistId) {
     const fetchData = async () => {
         setIsLoading(true);
         const articlesList = data.map(article => ({ ...article }));
-        setArticles(articlesList);
+        fetch('http://localhost:8083/articles/journalist/${journalistId}')
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then((data) => {
+                setArticles(data);
+                setIsLoading(false);
+            });
+       
+        
+        
+       // setArticles(articlesList);
         setIsLoading(false);
     }
 
