@@ -183,11 +183,17 @@ namespace MagazinEAPI.Controllers
                 return this.BadRequest("Email not found");
             }
 
-            var applicationUser = await this.userManager.Users.FirstOrDefaultAsync(u => u.Email == email.Value);
+            var applicationUser = this.userManager.Users.Include(u => u.Admin).FirstOrDefault(u => u.Email == email.Value); 
+
             if (applicationUser == null)
             {
                 return this.BadRequest("User not found");
             }
+
+            if(applicationUser.Admin == null)
+            {
+				return this.Unauthorized("User is not an admin");
+			}
 
             comment.IsDeleted = true;
             comment.DeletedBy = applicationUser.Admin;
