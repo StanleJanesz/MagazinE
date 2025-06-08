@@ -1,6 +1,20 @@
 version: '3.4'
 
 services:
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver_express1   
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_PID=Express   # Specifies the edition to run as Express
+      - MSSQL_SA_PASSWORD=Pass123Pass123Pass123   # Set the SA (System Administrator) password
+    ports:
+      - "5434:1433"  # Expose SQL Server port 1433
+    volumes:
+      - mssql_data:/var/opt/mssql  # Persist database data outside of the container
+      - ./backend/scripts:/scripts  # Mount for SQL scripts
+    networks:
+      - mssql_network
 
   frontend:
     build:
@@ -15,34 +29,32 @@ services:
  
   magazineapi:
     build:
-      context: .
-      dockerfile: ./MagazinEAPI/Dockerfile
-      args:
-        - configuration=Release
+        context: .
+        dockerfile: ./MagazinEAPI/Dockerfile
+        args:
+         - configuration=Debug
     ports:
-      - 8082:8082
-      - 8083:8083
+        - 8082:8082
+        - 8083:8083
+    environment:
+        - ASPNETCORE_ENVIRONMENT=Development
+        - ASPNETCORE_HTTP_PORTS=8082
+        - ASPNETCORE_HTTPS_PORT=8083
+        - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+        - ASPNETCORE_Kestrel__Certificates__Default__Password=MySuperSecurePassword
+    volumes:
+        - ./https:/https:ro
+        - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
     depends_on:
-      - mssql
+        - mssql
     networks:
-      - mssql_network
+        - mssql_network
+
+
        
 
 
-  mssql:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: sqlserver_express
-    environment:
-      - ACCEPT_EULA=Y
-      - MSSQL_PID=Express   # Specifies the edition to run as Express
-      - MSSQL_SA_PASSWORD=Pass123Pass123Pass123   # Set the SA (System Administrator) password
-    ports:
-      - "5434:1433"  # Expose SQL Server port 1433
-    volumes:
-      - mssql_data:/var/opt/mssql  # Persist database data outside of the container
-      - ./backend/scripts:/scripts  # Mount for SQL scripts
-    networks:
-      - mssql_network
+
    
 volumes:
   mssql_data: # Named volume to persist data

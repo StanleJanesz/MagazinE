@@ -18,11 +18,6 @@ namespace MagazinEAPI.Models.Articles
 
         public List<TagArticle> TagArticles { get; set; } = []; //has 1...n articles (many-to-many)
 
-
-        /// <summary>
-        /// returns a DTO object of the current Tag object.
-        /// </summary>
-        /// <returns>DTO object.</returns>
         public TagDTO ToDTO()
         {
             return new TagDTO

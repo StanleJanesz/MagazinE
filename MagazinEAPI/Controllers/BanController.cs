@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using SharedLibrary.DTO_Classes;
 using SharedLibrary.Base_Classes___Database;
 using Microsoft.EntityFrameworkCore;
-using MagazinEAPI.Migrations;
 
 namespace MagazinEAPI.Controllers
 {
@@ -307,7 +306,7 @@ namespace MagazinEAPI.Controllers
 			}
 
 			var reader = _context.Readers.Include(r => r.Bans).FirstOrDefault(r => r.Id == id);
-			if(reader == null)
+			if (reader == null)
 			{
 				return NotFound("Reader not found");
 			}
@@ -362,6 +361,5 @@ namespace MagazinEAPI.Controllers
 
 			return Ok(admin.Bans.Select(b => b.Id));
 		}
-
 	}
 }

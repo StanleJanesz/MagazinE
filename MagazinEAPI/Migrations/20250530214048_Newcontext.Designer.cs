@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace MagazinEAPI.Migrations.RolesBased
+namespace MagazinEAPI.Migrations
 {
     [DbContext(typeof(RolesBasedContext))]
-    [Migration("20250401193802_ArticleChanges")]
-    partial class ArticleChanges
+    [Migration("20250530214048_Newcontext")]
+    partial class Newcontext
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -136,8 +136,8 @@ namespace MagazinEAPI.Migrations.RolesBased
                     b.Property<int>("ReportAuthorId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("Result")
-                        .HasColumnType("bit");
+                    b.Property<int>("State")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -319,7 +319,7 @@ namespace MagazinEAPI.Migrations.RolesBased
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("SolvedById")
+                    b.Property<int?>("SolvedById")
                         .HasColumnType("int");
 
                     b.Property<int>("State")
@@ -609,9 +609,6 @@ namespace MagazinEAPI.Migrations.RolesBased
 
                     b.Property<DateTime>("BanStartDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
 
                     b.Property<string>("Reason")
                         .IsRequired()

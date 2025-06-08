@@ -15,5 +15,6 @@ namespace SharedLibrary.DTO_Classes
 		public int LikesCount { get; set; }
 		public int DislikesCount { get; set; }
 		public int ArticleId { get; set; }
+		public string? AuthorEmail { get; set; }
     }
 }

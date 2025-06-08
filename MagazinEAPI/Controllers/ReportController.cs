@@ -94,7 +94,7 @@ namespace MagazinEAPI.Controllers
 		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status201Created)]
-		public async Task<IActionResult> Post([FromQuery] CommentReportDTO commentReportDTO)
+		public async Task<IActionResult> Post([FromBody] CommentReportDTO commentReportDTO)
 		{
 			var Email = User.FindFirst(ClaimTypes.Email);
 			if (Email == null)
@@ -138,15 +138,13 @@ namespace MagazinEAPI.Controllers
 
 				await _context.CommentReports.AddAsync(report);
 				await _context.SaveChangesAsync();
-			}
-			catch
+
+                return Created();
+            }
+			catch(Exception ex)
 			{
-				return BadRequest("Could not create report");
+				return BadRequest($"Could not create report {ex.InnerException}");
 			}
-
-
-			return Created();
-
 		}
 
 

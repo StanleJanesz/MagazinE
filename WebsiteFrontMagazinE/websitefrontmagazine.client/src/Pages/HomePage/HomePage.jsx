@@ -2,8 +2,13 @@ import Article from '../../Components/Article/Article';
 import { useState, useEffect} from 'react';
 import SearchBar from '../../Components/SearchBar/SearchBar';
 import CircularProgress from '@mui/material/CircularProgress';
-import './HomePage.css'; // Zaimportuj CSS
+import './HomePage.css'; 
+import { getTokenFromCookie } from '../../utils';
 
+/**
+ * HomePage Component
+ * Renders the main landing page of the application, displaying a list of articles.
+ */
 function HomePage() {
 
     const [articles, setArticles] = useState([]); 
@@ -13,8 +18,6 @@ function HomePage() {
     const [selectedTags, setSelectedTags] = useState([]); 
     const [searchText, setSearchText] = useState(""); 
     const [searchedArticles, setSearchedArticles] = useState([]); 
-
-
     async function sleep(msec) {
         return new Promise(resolve => setTimeout(resolve, msec));
     }
@@ -26,61 +29,59 @@ function HomePage() {
 
     const fetchArticle = async () => {
         setIsLoading(true);
-        await sleep(1100);
 
-        const data = [
-            { id: 0, title: "Analiza matematyczna 4 i Metody numeryczne 12 od nowego roku na MiNI", tags: [1, 2, 3, 4], isPremium: true },
-            { id: 1, title: "Another interesting topic", tags: [10, 12], isPremium: false },
-            { id: 2, title: "Another interesting topic2", tags: [5, 7], isPremium: false },
-            { id: 3, title: "Another interesting topic3", tags: [8, 13], isPremium: false },
-            { id: 4, title: "Another interesting topic4", tags: [6, 14], isPremium: false },
-            { id: 5, title: "Another interesting topic5", tags: [8, 9], isPremium: false },
-            { id: 6, title: "Another interesting topic6", tags: [10, 12], isPremium: false },
-            { id: 7, title: "Another interesting topic7", tags: [5, 6, 7], isPremium: true },
-            { id: 8, title: "Another interesting topic8", tags: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25], isPremium: true }
-        ];
+        const params = new URLSearchParams({
+            BatchSize: 10,
+            Page: 0
+        });
 
-        const articlesList = data.map(article => ({ ...article }));
+        try {
+            const response = await fetch(`https://localhost:8083/articles?${params.toString()}`);
 
-        setArticles(articlesList);
-        setSearchedArticles(articlesList);
-        // console.log(articlesList);
-        //setIsLoading(false); -> teraz w next funcji
+            if (!response.ok) {
+                throw new Error(`Failed to fetch articles ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log(data);
+            const articlesList = data.map(article => ({ ...article }));
+
+            setArticles(articlesList);
+            setSearchedArticles(articlesList);
+
+        }
+        catch (error) {
+            console.log(error);
+        }
     };
 
     const fetchTags = async () => {
         await sleep(500);
 
-        const data = [
-            { id: 1, name: "MINI" },
-            { id: 2, name: "PW" },
-            { id: 3, name: "Analiza Matematyczna" },
-            { id: 4, name: "Metody Numeryczne" },
-            { id: 5, name: "Polityka" },
-            { id: 6, name: "Polska" },
-            { id: 7, name: "Swiat" },
-            { id: 8, name: "Nauka" },
-            { id: 9, name: "Rosliny" },
-            { id: 10, name: "Celebryci" },
-            { id: 11, name: "Historia" },
-            { id: 12, name: "Moda" },
-            { id: 13, name: "Kosmos" },
-            { id: 14, name: "Sport" },
-            { id: 15, name: "Cyrk" },
-            { id: 16, name: "Debata" },
-            { id: 17, name: "Piwnica" },
-            { id: 18, name: "Felieton" },
-            { id: 19, name: "Fizyka" },
-            { id: 20, name: "Nowinki" },
-            { id: 21, name: "IT" },
-            { id: 22, name: "Technologia" },
-            { id: 23, name: "USA" },
-            { id: 24, name: "Maisto" },
-            { id: 25, name: "Jedzenie" }
-        ];
+        try {
+            const token = getTokenFromCookie();
+            const response = await fetch(`https://localhost:8083/api/Tags`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json', Authorization: `Bearer ${token}`
+                }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                console.log(data);
+                const tagsList = data.map(tag => ({ ...tag }));
+                setTags(tagsList);
+            }
+            else {
+                throw new Error(response.text);
+            }
+        }
+        catch (error) {
+            console.log(error);
+        }
+        
 
-        const tagsList = data.map(tag => ({ ...tag}));
-        setTags(tagsList);
+        
 
         setIsLoading(false);
     };
@@ -102,7 +103,7 @@ function HomePage() {
     
     const filteredArticles = selectedTags.length > 0
         ? searchedArticles.filter(article =>
-            selectedTags.every(tag => article.tags.includes(tag.id))
+            selectedTags.every(tag => article.tagsIds.includes(tag.id))
         )
         : searchedArticles; 
 
@@ -134,7 +135,7 @@ function HomePage() {
     ) : (
             <div>
                 {filteredArticles.map(article => (
-                <Article data={article} />
+                    <Article data={article} key={article.id} />
             ))}
         </div>
     );
