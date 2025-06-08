@@ -317,7 +317,7 @@ namespace MagazinEAPI.Controllers
 		}
 
 
-		[HttpGet("pendin")]
+		[HttpGet("pending")]
 		[Authorize(AuthenticationSchemes = "Bearer")]
 		[Authorize(Roles = "Admin")]
 		[ProducesResponseType(StatusCodes.Status401Unauthorized)]

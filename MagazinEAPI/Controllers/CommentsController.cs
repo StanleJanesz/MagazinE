@@ -92,7 +92,7 @@ namespace MagazinEAPI.Controllers
         /// <param name="commentDTO">dto object with comment info.</param>
         /// <returns>In case of success returns dto of added comment.</returns>
         [HttpPost]
-        [Authorize(Roles = "User")]
+        [Authorize(Roles = "Reader")]
         [Authorize(AuthenticationSchemes = "Bearer")]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -224,7 +224,7 @@ namespace MagazinEAPI.Controllers
         /// <param name="commentDTO">Dto containing comment changes.</param>
         /// <returns>In case of succes dto of changed comment.</returns>
         [HttpPut("{id}")]
-        [Authorize(Roles = "User")]
+        [Authorize(Roles = "Reader")]
         [Authorize(AuthenticationSchemes = "Bearer")]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -267,7 +267,7 @@ namespace MagazinEAPI.Controllers
         /// </summary>
         /// <param name="id">Id of liked comment.</param>
         /// <returns>count of likes in comment.</returns>
-        [Authorize(Roles = "User")]
+        [Authorize(Roles = "Reader")]
         [Authorize(AuthenticationSchemes = "Bearer")]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -311,7 +311,7 @@ namespace MagazinEAPI.Controllers
         /// <param name="id">Id of comment.</param>
         /// <returns>Count od likes in comment.</returns>
         [HttpDelete("{id}/likes")]
-        [Authorize(Roles = "User")]
+        [Authorize(Roles = "Reader")]
         [Authorize(AuthenticationSchemes = "Bearer")]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -353,7 +353,7 @@ namespace MagazinEAPI.Controllers
         /// </summary>
         /// <param name="id">Id of the comment.</param>
         /// <returns>Count of dislikes for comment.</returns>
-        [Authorize(Roles = "User")]
+        [Authorize(Roles = "Reader")]
         [Authorize(AuthenticationSchemes = "Bearer")]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -397,7 +397,7 @@ namespace MagazinEAPI.Controllers
         /// <param name="id">Id of the comment.</param>
         /// <returns>Count of dislikes for this comment.</returns>
         [HttpDelete("{id}/dislikes")]
-        [Authorize(Roles = "User")]
+        [Authorize(Roles = "Reader")]
         [Authorize(AuthenticationSchemes = "Bearer")]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
