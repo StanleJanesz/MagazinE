@@ -155,19 +155,32 @@ function RegisterPage() {
     }
     async function startCheckout(token) {
         try {
-            const userId = await GetUserId(token);
-            const res = await fetch(`https://localhost:8083/subscriptions/${userId}`, {
+            //const userId = await GetUserId(token);
+            const currentDate = new Date(Date.now());
+            const endDate = new Date(currentDate);
+            endDate.setMonth(endDate.getMonth() + 6);
+
+            const requestBody = {
+                subscriptionDTO: {
+                    startDate: currentDate.toISOString(),
+                    endDate: endDate.toISOString(),
+                    state: 'Active'  
+                }
+            };
+            
+            const res = await fetch(`https://localhost:8083/subscriptions/subscribe`, {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json'
-                }
+                },
+                body: JSON.stringify(requestBody)
             });
 
             if (!res.ok) {
                 const errorText = await res.text();
                 console.error('Server error:', errorText);
-                throw new Error(`HTTP error! status: ${res.status}`);
+                throw new Error(`HTTP error! status: ${res.status}, message: ${res.body}`);
             }
 
             const data = await res.json();
@@ -176,6 +189,7 @@ function RegisterPage() {
             await stripe?.redirectToCheckout({ sessionId });
         } catch (error) {
             console.error('Checkout error:', error);
+            navigate('/subscription-cancel');
         }
     }
 

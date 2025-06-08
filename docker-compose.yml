@@ -45,6 +45,7 @@ services:
     volumes:
         - ./https:/https:ro
         - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+        - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
     depends_on:
         - mssql
     networks:

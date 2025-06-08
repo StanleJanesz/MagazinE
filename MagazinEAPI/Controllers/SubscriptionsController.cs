@@ -1,23 +1,23 @@
-﻿using MagazinEAPI.Contexts;
-using MagazinEAPI.Models.Articles;
-using MagazinEAPI.Models.Users;
-using MagazinEAPI.Models.Users.Readers;
-using MagazinEAPI.utils;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using SharedLibrary.Base_Classes___Database;
-using SharedLibrary.DTO_Classes;
-using Stripe;
-using Stripe.Checkout;
-using System.Data;
-using System.Reflection.PortableExecutable;
-using System.Security.Claims;
-using System.Web;
-
-namespace MagazinEAPI.Controllers
+﻿namespace MagazinEAPI.Controllers
 {
+    using System.Data;
+    using System.Reflection.PortableExecutable;
+    using System.Security.Claims;
+    using System.Web;
+    using MagazinEAPI.Contexts;
+    using MagazinEAPI.Models.Articles;
+    using MagazinEAPI.Models.Users;
+    using MagazinEAPI.Models.Users.Readers;
+    using MagazinEAPI.utils;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Identity;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.EntityFrameworkCore;
+    using SharedLibrary.Base_Classes___Database;
+    using SharedLibrary.DTO_Classes;
+    using Stripe;
+    using Stripe.Checkout;
+
     [Authorize]
     [Authorize(AuthenticationSchemes = "Bearer")]
     [ApiController]
@@ -82,47 +82,57 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<IActionResult> Subscribe([FromBody]SubscriptionDTO subscriptionDTO)
+        public async Task<IActionResult> Subscribe([FromBody] SubscriptionDTO subscriptionDTO)
         {
-            using var transaction = await this._APIContext.Database.BeginTransactionAsync();
-            string? userID = this._userManager.GetUserId(User);
+            string? email = this._userManager.GetUserId(this.User);
 
-            if (userID == null)
+            if (string.IsNullOrEmpty(email))
+            {
+                return this.BadRequest("User email not found");
+            }
+
+            var user = await this._userManager.FindByEmailAsync(email);
+            if (user == null)
             {
                 return this.BadRequest("User does not exist!");
             }
 
-            try
+            string userID = user.Id;
+
+            var strategy = this._APIContext.Database.CreateExecutionStrategy();
+
+            return await strategy.ExecuteAsync(async () =>
             {
-                // First create the subscription in database
-                var subscriptionResult = await this.PostSubscription(userID, subscriptionDTO);
+                using var transaction = await this._APIContext.Database.BeginTransactionAsync();
 
-                if (subscriptionResult is not OkObjectResult subscriptionOk)
+                try
                 {
-                    return subscriptionResult;
-                }
+                    // First create the subscription in database
+                    var subscriptionResult = await this.PostSubscription(userID, subscriptionDTO);
 
-                // Then create payment session
-                var paymentResult = await this.CreatePaymentSession(userID);
-                if (paymentResult is not OkObjectResult paymentOk)
-                {
-                    await transaction.RollbackAsync();
+                    if (subscriptionResult is not OkObjectResult subscriptionOk)
+                    {
+                        return subscriptionResult;
+                    }
+
+                    // Then create payment session
+                    var paymentResult = await this.CreatePaymentSession(userID);
+                    if (paymentResult is not OkObjectResult paymentOk)
+                    {
+                        await transaction.RollbackAsync();
+                        return paymentResult;
+                    }
+
+                    await transaction.CommitAsync();
+
                     return paymentResult;
                 }
-
-                await transaction.CommitAsync();
-
-                return this.Ok(new
+                catch (Exception ex)
                 {
-                    subscription = subscriptionOk.Value,
-                    payment = paymentOk.Value,
-                });
-            }
-            catch (Exception ex)
-            {
-                await transaction.RollbackAsync();
-                return this.StatusCode(500, new { error = "Subscribe operation failed", details = ex.Message });
-            }
+                    await transaction.RollbackAsync();
+                    return this.StatusCode(500, new { error = "Subscribe operation failed", details = ex.Message });
+                }
+            });
         }
 
         [HttpPatch("{userID}")]
@@ -257,23 +267,22 @@ namespace MagazinEAPI.Controllers
             }
         }
 
-        [Authorize(Roles = "Reader")]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        private async Task<IActionResult> PostSubscription([FromRoute] string userID, [FromBody] SubscriptionDTO subscriptionDTO)
+        private async Task<IActionResult> PostSubscription(string userID, SubscriptionDTO subscriptionDTO)
         {
             try
             {
                 var reader = this._APIContext.Readers
                     .Where(r => r.ApplicationUserId == userID)
-                    .First();
+                    .FirstOrDefault();
 
                 if (reader == null)
                 {
-                    return this.NotFound("Could not find the reader");
+                    return this.NotFound($"Could not find the reader of id {userID}");
                 }
 
                 var subscription = new Models.Users.Readers.Subscription

@@ -171,7 +171,7 @@ const SubscriptionCancel = () => {
                 <div style={styles.header}>
                     <XCircle style={styles.icon} />
                     <h1 style={styles.title}>
-                        Payment Cancelled
+                        An error occured during payment
                     </h1>
                     <p style={styles.subtitle}>
                         Your subscription payment was cancelled. Don't worry, no charges were made to your account.

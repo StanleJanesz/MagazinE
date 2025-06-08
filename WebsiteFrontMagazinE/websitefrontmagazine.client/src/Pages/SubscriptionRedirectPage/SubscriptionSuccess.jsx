@@ -147,9 +147,9 @@ const SubscriptionSuccess = () => {
                     <div style={styles.infoRow}>
                         <span style={styles.infoLabel}>
                             <Calendar style={styles.infoIcon} />
-                            Billing Cycle
+                                Subscription duration 
                         </span>
-                        <span style={styles.infoValue}>Monthly</span>
+                        <span style={styles.infoValue}>6 months</span>
                     </div>
                     <div style={styles.infoRowLast}>
                         <span style={styles.infoLabel}>
