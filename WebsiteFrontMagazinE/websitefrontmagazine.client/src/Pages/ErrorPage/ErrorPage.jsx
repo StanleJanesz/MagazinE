@@ -1,7 +1,10 @@
+import React from 'react';
+import error from '/src/assets/not_found.jpg';  
+
 const ErrorPage = ({ statusCode = 404, message = "Page not found" }) => {
     return (
         <div style={styles.container}>
-            <h1 style={styles.statusCode}>{statusCode}</h1>
+            <img src={error} alt={`Error ${statusCode}`} style={styles.image} />
             <h2 style={styles.message}>{message}</h2>
             <p>The page you are looking for does not exist or an error occurred.</p>
             <a href="/" style={styles.homeLink}>Go back to Home</a>
@@ -16,10 +19,10 @@ const styles = {
         fontFamily: 'Arial, sans-serif',
         padding: '20px',
     },
-    statusCode: {
-        fontSize: '6rem',
-        margin: 0,
-        color: '#ff4d4d',
+    image: {
+        width: '500px',    
+        height: '500px',
+        marginBottom: '20px',
     },
     message: {
         fontSize: '2rem',

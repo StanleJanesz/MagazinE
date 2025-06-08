@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import Button from "react-bootstrap/Button";
 import Form from 'react-bootstrap/Form';
 import './RegisterPage.css';
-import { saveTokenToCookie } from "../../utils";
+import { getTokenFromCookie, saveTokenToCookie } from "../../utils";
+import { loadStripe } from '@stripe/stripe-js';
 
 /** 
  * RegisterPage component
@@ -20,8 +21,10 @@ function RegisterPage() {
     const [loginSuccess, setLoginSuccess] = useState(false);
     const [welcomeMessage, setWelcomeMessage] = useState('');
     const [showPassword, setShowPassword] = useState(false);
-
+    const [wantsToSubscribe, setWantsToSubscribe] = useState(false);
+    const stripePromise = loadStripe('pk_test_51R6V6oQTT0aReMtnxE5kA3KKoow1v9t4WmNt6CCDvSRudXXs9XjqZ4PHiPmtDeC6Gp8bD41g3D7bW9sebb2HqwRw00Vc5GAlSd'); // TODO: Publishable key here!!!!!!!
     const navigate = useNavigate();
+
     const validate = () => {
         const newErrors = {};
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).+$/;
@@ -110,8 +113,12 @@ function RegisterPage() {
 
                 if (loginResponse.ok) {
                     const loginResult = await loginResponse.json();
+                    console.log(loginResult.token);
                     saveTokenToCookie(loginResult.token); // assumes `token` is returned
-                    setLoginSuccess(true);
+                    //setLoginSuccess(true);
+                    if (wantsToSubscribe) {
+                        await startCheckout(loginResult.token);
+                    }
                     console.log('Logged in and token saved to cookie');
                 } else {
                     console.error('Login failed');
@@ -124,6 +131,67 @@ function RegisterPage() {
             console.error('Network error:', error);
         }
     };
+    async function GetUserId(token) {
+        try {
+            const response = await fetch('https://localhost:8083/PersonalInfo', {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to fetch: ${await response.text()}`);
+            }
+            const data = await response.json();
+
+            console.log(data);
+            return data.id;
+
+        }
+        catch (error) {
+            console.error(error);
+        }
+
+    }
+    async function startCheckout(token) {
+        try {
+            //const userId = await GetUserId(token);
+            const currentDate = new Date(Date.now());
+            const endDate = new Date(currentDate);
+            endDate.setMonth(endDate.getMonth() + 6);
+
+            const requestBody = {
+                subscriptionDTO: {
+                    startDate: currentDate.toISOString(),
+                    endDate: endDate.toISOString(),
+                    state: 'Active'  
+                }
+            };
+            
+            const res = await fetch(`https://localhost:8083/subscriptions/subscribe`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestBody)
+            });
+
+            if (!res.ok) {
+                const errorText = await res.text();
+                console.error('Server error:', errorText);
+                throw new Error(`HTTP error! status: ${res.status}, message: ${res.body}`);
+            }
+
+            const data = await res.json();
+            const { sessionId } = data;
+            const stripe = await stripePromise;
+            await stripe?.redirectToCheckout({ sessionId });
+        } catch (error) {
+            console.error('Checkout error:', error);
+            navigate('/subscription-cancel');
+        }
+    }
 
     return (
         <div className="container">
@@ -170,6 +238,8 @@ function RegisterPage() {
                             id="custom-switch"
                             label="I want to subscribe"
                             className="checkBox"
+                            value={wantsToSubscribe}
+                            onChange={() => setWantsToSubscribe(!wantsToSubscribe)}
                         />
                     </Form>
 
