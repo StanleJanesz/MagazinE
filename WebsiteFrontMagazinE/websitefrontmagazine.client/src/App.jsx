@@ -15,6 +15,8 @@ import ArticlesJournalistPage from './Pages/ArticlesJournalistPage/ArticlesJourn
 import AdminPage from './Pages/AdminPage/AdminPage.jsx';
 import GeneralEditorPage from './Pages/GeneralEditorPage/GeneralEditorPage.jsx';
 import ErrorPage from './Pages/ErrorPage/ErrorPage.jsx';
+import SubscriptionSuccess from './Pages/SubscriptionRedirectPage/SubscriptionSuccess.jsx';
+import SubscriptionCancel from './Pages/SubscriptionRedirectPage/SubscriptionCancel.jsx';
 import UserProfile from './Pages/UserPage/UserPage.jsx';
 
 // Styles imports
@@ -37,8 +39,9 @@ function App() {
                         <Route path="/articles-view" element={<ArticlesJournalistPage />} />
                         <Route path="/general-editor" element={<GeneralEditorPage />} />
                         <Route path="/admin-requests" element={<AdminPage />} />
+                        <Route path="/subscription-success" element={<SubscriptionSuccess />} />
+                        <Route path="/subscription-cancel" element={<SubscriptionCancel/> }/>
                         <Route path="/user-profile" element={<UserProfile />} />
-                        
                         <Route path="*" element={<ErrorPage/> }/>
                     </Routes>
                 </CSSTransition>

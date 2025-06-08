@@ -73,7 +73,11 @@
 
             if (!article.CanBeViewedBy(applicationUser, this.context, this.userManager))
             {
-                return this.Unauthorized("User cannot view this article");
+                return this.Unauthorized(new
+                {
+                    Title = article.Title,
+                    Author = article.Author.ApplicationUser.FirstName + " " + article.Author.ApplicationUser.LastName,
+                });
             }
 
             return this.Ok(article.ToDTO());
