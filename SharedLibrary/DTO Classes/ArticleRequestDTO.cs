@@ -15,5 +15,6 @@ namespace SharedLibrary.DTO_Classes
         public int? SortBy { get; set; }
         public int? SortOrder { get; set; }
 
+        public string? Title { get; set; }
     }
 }
