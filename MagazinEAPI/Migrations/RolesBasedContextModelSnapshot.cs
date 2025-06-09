@@ -531,6 +531,7 @@ namespace MagazinEAPI.Migrations
                             Date = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsDeleted = false
                         });
+
                 });
 
             modelBuilder.Entity("MagazinEAPI.Models.Articles.Comment.CommentReport", b =>

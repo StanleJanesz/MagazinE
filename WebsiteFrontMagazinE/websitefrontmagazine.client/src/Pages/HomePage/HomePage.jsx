@@ -5,6 +5,10 @@ import CircularProgress from '@mui/material/CircularProgress';
 import './HomePage.css';
 import { getTokenFromCookie } from '../../utils';
 
+/**
+ * HomePage Component
+ * Renders the main landing page of the application, displaying a list of articles.
+ */
 function HomePage() {
     const [articles, setArticles] = useState([]);
     const [tags, setTags] = useState([]);
