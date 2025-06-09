@@ -8,6 +8,7 @@ import mini from "/src/assets/mini.jpg";
 import gallery from "/src/assets/gallery.png";
 import { getTokenFromCookie } from "../../utils";
 import CommentInputBox from "../../Components/Comment/CommentInputBox";
+import { loadStripe } from '@stripe/stripe-js';
 
 /**
  * ArticlePage Component
@@ -35,6 +36,7 @@ function ArticlePage() {
     const articleId = searchParams.get("id");
     const [author, setAuthor] = useState('');
     const [title, setTitle] = useState('');
+    const stripePromise = loadStripe('pk_test_51R6V6oQTT0aReMtnxE5kA3KKoow1v9t4WmNt6CCDvSRudXXs9XjqZ4PHiPmtDeC6Gp8bD41g3D7bW9sebb2HqwRw00Vc5GAlSd'); 
 
     const fetchComments = async () => {
         const token = getTokenFromCookie();
@@ -85,7 +87,11 @@ function ArticlePage() {
 
             // Handle 401 Unauthorized specifically
             if (response.status === 401) {
-                throw new Error("Unauthorized to retrieve article data!");
+                const limitedData = await response.json();
+                setAuthor(limitedData.Author);
+                setTitle(limitedData.Title);
+                setData(null); 
+                return; 
             }
 
             // Handle other errors
@@ -134,6 +140,46 @@ function ArticlePage() {
         }
     }, [data]);
 
+    async function startCheckout() {
+        try {
+            const token = getTokenFromCookie();
+            const currentDate = new Date(Date.now());
+            const endDate = new Date(currentDate);
+            endDate.setMonth(endDate.getMonth() + 6);
+
+            const requestBody = {
+                subscriptionDTO: {
+                    startDate: currentDate.toISOString(),
+                    endDate: endDate.toISOString(),
+                    state: 'Active'
+                }
+            };
+            console.log(token);
+            console.log(requestBody);
+            const res = await fetch(`https://localhost:8083/subscriptions/subscribe`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestBody)
+            });
+
+            if (!res.ok) {
+                const errorText = await res.text();
+                console.error('Server error:', errorText);
+                throw new Error(`HTTP error! status: ${res.status}, message: ${res.body}`);
+            }
+
+            const data = await res.json();
+            const { sessionId } = data;
+            const stripe = await stripePromise;
+            await stripe?.redirectToCheckout({ sessionId });
+        } catch (error) {
+            console.error('Checkout error:', error);
+            navigate('/subscription-cancel');
+        }
+    }
     const handleCommentSubmit = async () => {
         if (!newComment.trim()) {
             alert("Comment cannot be empty");
@@ -240,11 +286,11 @@ function ArticlePage() {
                     ) : (
                         <div className="paywall">
                             <p>This article is available for premium users only. Subscribe to unlock full access!</p>
-                            <div className="ap-buttonContainer">
-                                <button className="subscribeButton" onClick={() => navigate('/subscribe')}>
+                                <div className="ap-buttonContainer">
+                                    <button className="subscribeButton" onClick={async () => await startCheckout()}>
                                     Subscribe Now
-                                </button>
-                                <button className="subscribeButton" onClick={() => navigate(`/purchase?id=${articleId}`)}>
+                                    </button>
+                                    <button className="subscribeButton" onClick={async () => await startCheckout()}>
                                     Purchase only this article
                                 </button>
                             </div>
