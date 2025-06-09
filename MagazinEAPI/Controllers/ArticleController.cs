@@ -312,5 +312,60 @@
                 return this.BadRequest("Adding article failed");
             }
         }
+
+        /// <summary>
+        /// Gets unpublished articles for editor management.
+        /// Available for Editor and HeadEditor roles.
+        /// Returns only unpublished articles that need review.
+        /// </summary>
+        /// <param name="articlesRequestDTO">Filters for requested articles batch.</param>
+        /// <returns>Collection of unpublished article dto objects for editor review.</returns>
+        [HttpGet("editor")]
+        [Authorize(Roles = "Editor, HeadEditor")]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType<ICollection<ArticleDTO>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetForEditor([FromQuery] ArticlesRequestDTO articlesRequestDTO)
+        {
+            if (articlesRequestDTO == null)
+            {
+                return this.BadRequest("Request is empty");
+            }
+
+            int skip = articlesRequestDTO.BatchSize * articlesRequestDTO.Page;
+
+            List<Article> articles;
+
+            try
+            {
+                var query = this.context.Articles
+                    .Where(a => !a.isPublished); // Only fetch unpublished articles
+
+                // Apply filters if provided
+                if (articlesRequestDTO.Tags != null && articlesRequestDTO.Tags.Any())
+                {
+                    query = query.Where(a => articlesRequestDTO.Tags.All(t => a.Tags.Any(tag => tag.Id == t)));
+                }
+
+                if (!string.IsNullOrEmpty(articlesRequestDTO.Title))
+                {
+                    query = query.Where(a => a.Title.ToLower().Contains(articlesRequestDTO.Title.ToLower()));
+                }
+
+                articles = await query
+                    .OrderByDescending(a => a.TimeOfPublication) // Most recent first for editor review
+                    .Skip(skip)
+                    .Take(articlesRequestDTO.BatchSize)
+                    .Include(a => a.Author.ApplicationUser)
+                    .Include(a => a.Tags)
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                return this.BadRequest("Getting articles failed");
+            }
+
+            return this.Ok(articles.Select(a => a.ToInfoDTO()));
+        }
     }
 }

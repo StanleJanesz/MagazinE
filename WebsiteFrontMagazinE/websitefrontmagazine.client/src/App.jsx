@@ -18,6 +18,7 @@ import ErrorPage from './Pages/ErrorPage/ErrorPage.jsx';
 import SubscriptionSuccess from './Pages/SubscriptionRedirectPage/SubscriptionSuccess.jsx';
 import SubscriptionCancel from './Pages/SubscriptionRedirectPage/SubscriptionCancel.jsx';
 import UserProfile from './Pages/UserPage/UserPage.jsx';
+import EditorPage from './Pages/EditorPage/EditorPage.jsx';
 
 // Styles imports
 import './App.css';
@@ -42,6 +43,7 @@ function App() {
                         <Route path="/subscription-success" element={<SubscriptionSuccess />} />
                         <Route path="/subscription-cancel" element={<SubscriptionCancel/> }/>
                         <Route path="/user-profile" element={<UserProfile />} />
+                        <Route path="/editor" element={<EditorPage/> }/>
                         <Route path="*" element={<ErrorPage/> }/>
                     </Routes>
                 </CSSTransition>
