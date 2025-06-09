@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react";
+import './AdminPage.css';
 
 export default function AdminPage() {
     const [reports, setReports] = useState([]);
     const [unbanRequests, setUnbanRequests] = useState([]);
     const [view, setView] = useState("reports");
+    const [selectedComment, setSelectedComment] = useState(null);
+    const [showModal, setShowModal] = useState(false);
 
     function getCookie(name) {
         const value = `; ${document.cookie}`;
@@ -11,6 +14,62 @@ export default function AdminPage() {
         if (parts.length === 2) return parts.pop().split(";").shift();
         return null;
     }
+
+    const fetchCommentById = async (commentId) => {
+        try {
+            const token = getCookie("jwt");
+            if (!token) {
+                console.error("No JWT token found");
+                return;
+            }
+
+            const response = await fetch(`https://localhost:8083/api/comments/${commentId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Failed to fetch comment: ${errorText}`);
+            }
+
+            const data = await response.json();
+
+
+            // Extract user ID from comment (deep nested)
+            const userId = data.authorId;
+            if (!userId) {
+                throw new Error("User ID not found in comment");
+            }
+
+            // Fetch user info from /PersonalInfo/{userId}
+            const userInfoRes = await fetch(`https://localhost:8083/PersonalInfo/${userId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: "text/plain"
+                }
+            });
+
+            if (!userInfoRes.ok) {
+                throw new Error("Failed to fetch user info");
+            }
+
+            const userInfo = await userInfoRes.json();
+
+            // Combine comment + user data
+            setSelectedComment({
+                ...data,
+                authorInfo: userInfo
+            });
+
+
+            setShowModal(true); // otwieramy modal
+        } catch (error) {
+            console.error("Error fetching comment:", error);
+        }
+    };
+
 
     const fetchReports = async () => {
         try {
@@ -163,6 +222,7 @@ export default function AdminPage() {
 
     return (
         <>
+            
             <div className="view-picker">
                 <label htmlFor="view-select">Select View:</label>
                 <select
@@ -185,6 +245,7 @@ export default function AdminPage() {
                                 <th>Reason</th>
                                 <th>State</th>
                                 <th>Actions</th>
+                                <th>Comment</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -206,12 +267,33 @@ export default function AdminPage() {
                                             Reject
                                         </button>
                                     </td>
+                                    <td>
+                                        <button onClick={() => fetchCommentById(report.commentId)}>
+                                            See Comment
+                                        </button>
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
                 </>
             )}
+
+            {showModal && selectedComment && (
+                <div className="modal-backdrop" onClick={() => setShowModal(false)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <h2>Comment Preview</h2>
+                        <p><strong>Content:</strong> {selectedComment.content}</p>
+                        <h4>Author:</h4>
+                        <p>{selectedComment.authorInfo.firstName} {selectedComment.authorInfo.lastName}</p>
+                        <p>Email: {selectedComment.authorInfo.email}</p>
+                        <button onClick={() => setShowModal(false)}>Close</button>
+                    </div>
+                </div>
+            )}
+
+           
+
 
             {view === "unban" && (
                 <>

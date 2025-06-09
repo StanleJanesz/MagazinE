@@ -490,7 +490,7 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType<ApplicationUserDTO>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetPersonalInfo([FromRoute] int id)
         {
-            var applicationUser = await this.userManager.Users.FirstOrDefaultAsync(u => u.User.Id == id);
+            var applicationUser = await this.userManager.Users.Include(a => a.User).FirstOrDefaultAsync(u => u.User.Id == id);
             if (applicationUser == null)
             {
                 return this.NotFound("User not found");
