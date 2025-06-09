@@ -25,7 +25,6 @@ function RegisterPage() {
     const stripePromise = loadStripe('pk_test_51R6V6oQTT0aReMtnxE5kA3KKoow1v9t4WmNt6CCDvSRudXXs9XjqZ4PHiPmtDeC6Gp8bD41g3D7bW9sebb2HqwRw00Vc5GAlSd'); // TODO: Publishable key here!!!!!!!
     const navigate = useNavigate();
 
-    const navigate = useNavigate();
     const validate = () => {
         const newErrors = {};
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).+$/;
