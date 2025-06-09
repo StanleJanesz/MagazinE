@@ -68,6 +68,44 @@
         }
 
         /// <summary>
+        /// Gets the list of journalists under the current head editor.
+        /// </summary>
+        /// <returns>in case of success returns collection of jouranlists id's.</returns>
+        [HttpGet("me")]
+        [Authorize(Roles = "Journalist")]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType<ICollection<JournalistDTO>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetMe()
+        {
+            var email = this.User.FindFirst(ClaimTypes.Email);
+            if (email == null)
+            {
+                return this.BadRequest("Email not found");
+            }
+
+            var applicationUser = await this.userManager.Users.FirstOrDefaultAsync(u => u.Email == email.Value);
+            if (applicationUser == null)
+            {
+                return this.BadRequest("User not found");
+            }
+
+            var journalist = await this.context.Journalists
+                .Include(j => j.HeadEditor)
+                .Include(j => j.Articles)
+                .ThenInclude(a => a.PublishRequests)
+                .FirstOrDefaultAsync(j => j.ApplicationUserId == applicationUser.Id);
+
+            journalist.Articles = journalist.Articles
+                .Where(a => a.PublishRequests.Count == 0).ToList();
+            return journalist.ToDTO() != null
+                ? this.Ok(journalist.ToDTO())
+                : this.NotFound("Journalist not found");
+        }
+
+        /// <summary>
         /// Gets the journalist by ID.
         /// Used by editors to get the journalist's info.
         /// </summary>
