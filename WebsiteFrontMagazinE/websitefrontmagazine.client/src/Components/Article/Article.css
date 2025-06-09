@@ -38,6 +38,7 @@
     border-radius: 8px;
     border: 0px;
     height: auto;
+    max-height: 150px;
 }
 
 .articleDescription {
