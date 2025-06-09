@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Button from "react-bootstrap/Button";
 import './ArticlesJournalistPage.css';
 import ListTile from '../../Components/ListTile/ListTile';
-import GetTokenFromCookie from '../../utils';
+import { getTokenFromCookie } from "../../utils";
 
 /**
  * ArticlesJournalistPage component
@@ -18,34 +18,12 @@ function ArticlesJournalistPage(journalistId) {
     const [chosenArticleId, setChosenArticleId] = useState(Number.MAX_SAFE_INTEGER);
     const [chosenArticle, setChosenArticle] = useState('');
     const navigate = useNavigate();
-    const data = [
-        { id: 0, title: "Analiza matematyczna 4 i Metody numeryczne 12 od nowego roku na MiNI", tags: "", isPremium: true },
-        { id: 1, title: "Another interesting topic", tags: "", isPremium: false },
-        { id: 2, title: "Another interesting topic2", tags: "", isPremium: false },
-        { id: 3, title: "Another interesting topic3", tags: "", isPremium: false },
-        { id: 4, title: "Another interesting topic4", tags: "", isPremium: false },
-        { id: 5, title: "Another interesting topic5", tags: "", isPremium: false },
-        { id: 6, title: "Another interesting topic6", tags: "", isPremium: false },
-        { id: 7, title: "Another interesting topic7", tags: "", isPremium: true }
-    ];
-    const articleContent = `
-            
-                Wydzial Matematyki i Nauk Informacyjnych Politechniki Warszawskiej oglosil, ze od nowego roku akademickiego wprowadza dwa nowe przedmioty obowiazkowe: *Analiza Matematyczna 4* oraz *Metody Numeryczne 3*. Decyzja ta jest odpowiedzia na wieloletnie postulaty studentow o "wieksze wyzwania akademickie" oraz "prawdziwe odczucie studiow inzynierskich".
-                \n
-                
-
-                Po latach spekulacji, kiedy tylko zartowano o mozliwosci istnienia czwartego semestru analizy matematycznej, stalo sie to rzeczywistoscia. Nowy przedmiot obejmie:
-                - Dowod, ze istnieje jeszcze jeden, trudniejszy dowod twierdzenia Stokesa,
-                - Zastosowanie analizy zespolonej do gotowania makaronu,
-                - Wplyw rachunku wariacyjnego na poziom stresu studentow,
-                - Niezaleznosc hipotezy continuum od organizmu smiertelnego.
-
-                Jak informuje jeden z wykladowcow: "Po trzecim semestrze analizy wielu studentow ma niedosyt. Czulismy, ze musimy im dac cos wiecej. Dlatego AM4 bedzie miala obowiazkowe projekty badawcze, a studenci na zaliczenie beda musieli napisac podrecznik do Analizy 5."`;
+    
 
     const fetchData = async () => {
         setIsLoading(true);
         //const articlesList = data.map(article => ({ ...article }));
-        const token = GetTokenFromCookie();
+        const token = getTokenFromCookie();
         fetch('https://localhost:8083/articles/journalist/', {
             method: 'GET',
             headers: {
@@ -77,7 +55,35 @@ function ArticlesJournalistPage(journalistId) {
     }
 
     const handleRemove = async (id) => {
-        setArticles(articles.filter(article => article.id !== id));
+        try {
+            const token = getTokenFromCookie(); // Assuming you have this function
+
+            const response = await fetch(`https://localhost:8083/articles/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                if (response.status === 401) {
+                    throw new Error('Unauthorized');
+                } else if (response.status === 404) {
+                    throw new Error('Article not found');
+                } else if (response.status === 400) {
+                    throw new Error('Bad request');
+                } else {
+                    throw new Error('Network response was not ok');
+                }
+            }
+            setArticles(articles.filter(article => article.id !== id)); 
+            // Success (200 OK)
+            return true;
+        } catch (error) {
+            console.error('Error deleting article:', error);
+            throw error;
+        }
     }
 
     const content = isLoading ? (
@@ -99,7 +105,7 @@ function ArticlesJournalistPage(journalistId) {
                             title={article.title}
                             onSelect={(id) => {
                                 setChosenArticleId(id);
-                                setChosenArticle(data.find(article => article.id === id));
+                                setChosenArticle(articles.find(article => article.id === id));
                             }}
                             reject={() => handleRemove(article.id)}
                             accept={() => handleRemove(article.id)}
@@ -124,8 +130,8 @@ function ArticlesJournalistPage(journalistId) {
                         bottom: '5%',
                         right: '5%'
                         
-                    }}
-                    onClick={() => navigate('/edit-article')}
+                }}
+                onClick={() => navigate(`/edit-article?article_id=${chosenArticleId}`)}
                 >
                     Edit
                 </Button>
