@@ -79,10 +79,30 @@
             return this.Ok(article.ToDTO());
         }
 
-        [HttpGet("/journalist/{id}")]
-
-        public async Task<IActionResult> GetArticlesByJournalist([FromRoute] int id)
+        [HttpGet("journalist")]
+        [Authorize]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        public async Task<IActionResult> GetArticlesByJournalist()
         {
+
+            var email = this.User.FindFirst(ClaimTypes.Email);
+            if (email == null)
+            {
+                return this.BadRequest("Email not found");
+            }
+            var applicationUser = await this.userManager.Users
+                .Include(user => user.Journalist)
+                .FirstOrDefaultAsync(u => u.Email == email.Value);
+
+            if(applicationUser == null || applicationUser.Journalist == null)
+            {
+                return this.BadRequest("User not found or not a journalist");
+            }
+
+            var id = applicationUser.Journalist.Id;
+
+
+
             var articles =  this.context.Articles
                 .Include(article => article.Author.ApplicationUser)
                 .Include(article => article.Comments)
