@@ -68,7 +68,7 @@
             {
                 Id = Id,
                 Title = Title,
-                Content = "",
+                Content = "sample content",
                 isPremium = isPremium,
                 isPublished = isPublished,
                 Introduction = Introduction,

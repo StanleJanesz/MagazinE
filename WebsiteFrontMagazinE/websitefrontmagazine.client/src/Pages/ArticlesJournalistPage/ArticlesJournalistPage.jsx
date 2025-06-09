@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Button from "react-bootstrap/Button";
 import './ArticlesJournalistPage.css';
 import ListTile from '../../Components/ListTile/ListTile';
+import GetTokenFromCookie from '../../utils';
 
 /**
  * ArticlesJournalistPage component
@@ -43,8 +44,14 @@ function ArticlesJournalistPage(journalistId) {
 
     const fetchData = async () => {
         setIsLoading(true);
-        const articlesList = data.map(article => ({ ...article }));
-        fetch('http://localhost:8083/articles/journalist/${journalistId}')
+        //const articlesList = data.map(article => ({ ...article }));
+        const token = GetTokenFromCookie();
+        fetch('https://localhost:8083/articles/journalist/', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            }
+        })
             .then((response) => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
@@ -52,7 +59,14 @@ function ArticlesJournalistPage(journalistId) {
                 return response.json();
             })
             .then((data) => {
-                setArticles(data);
+                const articlesList = data.map(articleDTO => ({
+                    id: articleDTO.id,
+                    title: articleDTO.title,
+                    tags: articleDTO.tags,
+                    isPremium: articleDTO.isPremium,
+                    content: articleDTO.Content
+                }));               
+                setArticles(articlesList);
                 setIsLoading(false);
             });
        
@@ -99,7 +113,7 @@ function ArticlesJournalistPage(journalistId) {
     const articlePreviewContent = chosenArticleId !== Number.MAX_SAFE_INTEGER ? (
         <>
                 <h1>{chosenArticle.title}</h1>
-                <p>{articleContent}</p>
+                <p>{chosenArticle.content}</p>
             
                 <Button
                     style={{
