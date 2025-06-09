@@ -76,7 +76,6 @@
         /// </summary>
         /// <returns>Context based response.</returns>
         [HttpPost("subscribe")]
-        [Authorize(Roles = "Reader")]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status200OK)]

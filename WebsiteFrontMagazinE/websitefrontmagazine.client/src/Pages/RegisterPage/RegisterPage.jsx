@@ -120,6 +120,7 @@ function RegisterPage() {
                         await startCheckout(loginResult.token);
                     }
                     console.log('Logged in and token saved to cookie');
+                    setLoginSuccess(true);
                 } else {
                     console.error('Login failed');
                 }

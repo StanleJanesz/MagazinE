@@ -23,27 +23,27 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-//builder.Services.AddCors(options =>
-//{
-//    options.AddPolicy("AllowFrontend", policy =>
-//    {
-//        policy.WithOrigins("http://localhost:3000")
-//            .AllowCredentials()
-//            .AllowAnyHeader()
-//            .AllowAnyMethod();
-//    });
-//});
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    options.AddPolicy("AllowFrontend", policy =>
     {
-        policy
-            .AllowAnyOrigin() // ! Cannot be used with AllowCredentials()
+        policy.WithOrigins("http://localhost:5173")
+            .AllowCredentials()
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
 });
 
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowAll", policy =>
+//    {
+//        policy
+//            .AllowAnyOrigin() // ! Cannot be used with AllowCredentials()
+//            .AllowAnyHeader()
+//            .AllowAnyMethod();
+//    });
+//});
 
 builder.Services.AddControllers();
 
@@ -60,6 +60,7 @@ builder.Services.AddControllers();
 //            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("sdfshdfjhdsfkjsdhfksdjssdjfhsdkjfhdsfjkhdsfjkhdsfkjsdfhkjsdhsdfjkhfskjfhdsjkh"))
 //        };
 //    });
+
 
 builder.Services.AddSingleton<IAmazonS3>(sp =>
 {
@@ -78,7 +79,12 @@ builder.Services.AddAuthentication(options =>
     options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
 })
-.AddCookie()
+.AddCookie(options =>
+{
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SameSite = SameSiteMode.None;
+    options.Cookie.HttpOnly = true;
+})
 .AddGoogle(googleOptions =>
 {
     googleOptions.ClientId = builder.Configuration.GetValue<string>("Authentication:Google:ClientID");
@@ -95,6 +101,12 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("sdfshdfjhdsfkjsdhfksdjssdjfhsdkjfhdsfjkhdsfjkhdsfkjsdfhkjsdhsdfjkhfskjfhdsjkh"))
     };
+});
+
+builder.Services.Configure<CookiePolicyOptions>(options =>
+{
+    options.MinimumSameSitePolicy = SameSiteMode.None;
+    options.Secure = CookieSecurePolicy.Always; // Require HTTPS for cookies
 });
 
 builder.Services.AddAuthorization(options =>
@@ -178,8 +190,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 // app.UseCors("AllowFrontend");
-app.UseCors("AllowAll");
-
+app.UseCors("AllowFrontend");
+app.UseCookiePolicy();
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -213,7 +225,6 @@ using (var scope = app.Services.CreateScope())
         }
     }
 }
+
 app.Run();
 
-
-public partial class Program { }

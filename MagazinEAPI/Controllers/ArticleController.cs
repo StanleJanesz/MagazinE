@@ -4,6 +4,7 @@
     using MagazinEAPI.Contexts;
     using MagazinEAPI.Models.Articles;
     using MagazinEAPI.Models.Users;
+    using MagazinEAPI.Models.Users.Readers;
     using MagazinEAPI.utils;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Identity;
@@ -73,7 +74,11 @@
                 return this.BadRequest("User not found");
             }
 
-            if (!article.CanBeViewedBy(applicationUser, this.context, this.userManager))
+            var userHasSubscriptions = this.context.Subscriptions
+                .Include(s => s.User)
+                .Any(s => s.User.ApplicationUserId == applicationUser.Id);
+
+            if (!article.isPublished || (article.isPremium && !userHasSubscriptions))
             {
                 return this.Unauthorized(new
                 {
