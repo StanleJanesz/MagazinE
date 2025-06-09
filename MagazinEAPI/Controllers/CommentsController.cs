@@ -351,7 +351,6 @@ namespace MagazinEAPI.Controllers
                 .Include(applicationUser => applicationUser.User)
                 .FirstOrDefaultAsync(u => u.Email == email.Value);
 
-
             if (applicationUser == null || applicationUser.User == null)
             {
                 return this.BadRequest("User not found");
@@ -465,6 +464,7 @@ namespace MagazinEAPI.Controllers
 
 
             return this.Ok(comment.DislikeUsers.Count);
+
         }
 
         /// <summary>
@@ -560,7 +560,6 @@ namespace MagazinEAPI.Controllers
 
             return this.Ok(isDisliked);
         }
-
 
     }
 }

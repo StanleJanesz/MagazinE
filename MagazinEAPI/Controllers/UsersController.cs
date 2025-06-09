@@ -192,7 +192,6 @@ namespace MagazinEAPI.Controllers
                 return this.NotFound("User not found");
             }
 
-
             var article = await this.context.Articles.FirstOrDefaultAsync(u => u.Id == id);
 
             if (article == null)
