@@ -3,10 +3,18 @@ import React, { useEffect, useState } from "react";
 export default function AdminPage() {
     const [reports, setReports] = useState([]);
     const [unbanRequests, setUnbanRequests] = useState([]);
+    const [view, setView] = useState("reports");
+
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(";").shift();
+        return null;
+    }
 
     const fetchReports = async () => {
         try {
-            const token = localStorage.getItem("jwt");
+            const token = getCookie("jwt");
             if (!token) {
                 console.error("No JWT token found");
                 return;
@@ -24,7 +32,6 @@ export default function AdminPage() {
 
             const reportIds = await response.json();
 
-            // Pobieramy pe³ne dane dla ka¿dego ID
             const reportsData = await Promise.all(
                 reportIds.map(async (id) => {
                     const res = await fetch(`https://localhost:8083/reports/report/${id}`, {
@@ -40,48 +47,114 @@ export default function AdminPage() {
                 })
             );
 
-            // Filtrujemy null (nieudane fetch)
             setReports(reportsData.filter((r) => r !== null));
         } catch (error) {
             console.error("Error fetching reports:", error);
         }
     };
 
-    const fetchUnbanRequests = () => {
-        // Tutaj masz mockowane dane, zostawiam tak jak jest
-        setUnbanRequests([
-            { id: 1, login: "user1", reason: "Cheating" },
-            { id: 2, login: "user2", reason: "Inappropriate language" },
-        ]);
-    };
-
-    const handleResolveReport = async (id, newState) => {
+    const fetchUnbanRequests = async () => {
         try {
-            const token = localStorage.getItem("jwt");
+            const token = getCookie("jwt");
             if (!token) {
                 console.error("No JWT token found");
                 return;
             }
 
-            const response = await fetch("https://localhost:8083/reports", {
-                method: "PUT",
+            const response = await fetch("https://localhost:8083/unbanRequests/pending", {
                 headers: {
                     Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ id: id, state: newState }),
             });
 
             if (!response.ok) {
-                throw new Error("Failed to resolve report");
+                throw new Error("Failed to fetch unban requests");
             }
 
-            // Odœwie¿amy listê po zmianie statusu
+            const data = await response.json();
+            setUnbanRequests(data);
+        } catch (error) {
+            console.error("Error fetching unban requests:", error);
+        }
+    };
+
+    const handleResolveReport = async (report, newState) => {
+        try {
+            const token = getCookie("jwt");
+            if (!token) {
+                console.error("No JWT token found");
+                return;
+            }
+
+            const params = {
+                ManagedById: report.managedById,
+                Id: report.id,
+                CommentId: report.commentId,
+                ReportAuthorId: report.reportAuthorId,
+                Reason: report.reason,
+                Date: report.date,
+                State: newState
+            };
+
+            const queryString = new URLSearchParams(params).toString();
+
+            const response = await fetch(`https://localhost:8083/reports?${queryString}`, {
+                method: "PUT",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: "*/*"
+                }
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Failed to resolve report: ${errorText}`);
+            }
+
             fetchReports();
         } catch (error) {
             console.error("Error resolving report:", error);
         }
     };
+
+
+    const handleResolveUnbanRequest = async (request, newState) => {
+        try {
+            const token = getCookie("jwt");
+            if (!token) {
+                console.error("No JWT token found");
+                return;
+            }
+
+            const solvedById = 1;
+            const query = new URLSearchParams({
+                SolvedById: solvedById,
+                Id: request.id,
+                Reason: request.reason,
+                BanId: request.banId,
+                State: newState
+            }).toString();
+
+            const response = await fetch(`https://localhost:8083/unbanRequests/${request.id}?${query}`, {
+                method: "PUT",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: "*/*"
+                }
+            });
+
+            if (!response.ok) {
+                
+                const errorText = await response.text();
+                throw new Error(`Failed to resolve unban request: ${errorText}`);
+            }
+
+            fetchUnbanRequests();
+        } catch (error) {
+            console.error("Error resolving unban request:", error);
+        }
+    };
+
 
     useEffect(() => {
         fetchReports();
@@ -90,64 +163,95 @@ export default function AdminPage() {
 
     return (
         <>
-            <h1>Reports:</h1>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Id</th>
-                        <th>Reason</th>
-                        <th>State</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {reports.length === 0 && (
-                        <tr>
-                            <td colSpan="4">No reports found</td>
-                        </tr>
-                    )}
-                    {reports.map((report) => (
-                        <tr key={report.id}>
-                            <td>{report.id}</td>
-                            <td>{report.reason}</td>
-                            <td>{report.state}</td>
-                            <td>
-                                <button onClick={() => handleResolveReport(report.id, "Accepted")}>
-                                    Accept
-                                </button>
-                                <button onClick={() => handleResolveReport(report.id, "Rejected")}>
-                                    Reject
-                                </button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+            <div className="view-picker">
+                <label htmlFor="view-select">Select View:</label>
+                <select
+                    id="view-select"
+                    value={view}
+                    onChange={(e) => setView(e.target.value)}
+                >
+                    <option value="reports">Reports</option>
+                    <option value="unban">Unban Requests</option>
+                </select>
+            </div>
 
-            <h1>Unban Requests:</h1>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Id</th>
-                        <th>Login</th>
-                        <th>Reason</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {unbanRequests.length === 0 && (
-                        <tr>
-                            <td colSpan="3">No unban requests found</td>
-                        </tr>
-                    )}
-                    {unbanRequests.map((request) => (
-                        <tr key={request.id}>
-                            <td>{request.id}</td>
-                            <td>{request.login}</td>
-                            <td>{request.reason}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+            {view === "reports" && (
+                <>
+                    <h1 className="reports-title">Reports:</h1>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Reason</th>
+                                <th>State</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {reports.length === 0 && (
+                                <tr>
+                                    <td colSpan="4">No reports found</td>
+                                </tr>
+                            )}
+                            {reports.map((report) => (
+                                <tr key={report.id}>
+                                    <td>{report.id}</td>
+                                    <td>{report.reason}</td>
+                                    <td>{report.state}</td>
+                                    <td>
+                                        <button onClick={() => handleResolveReport(report, 1)}>
+                                            Accept
+                                        </button>
+                                        <button onClick={() => handleResolveReport(report, 2)}>
+                                            Reject
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </>
+            )}
+
+            {view === "unban" && (
+                <>
+                    <h1 className="requests-title">Unban Requests:</h1>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>BanId</th>
+                                <th>Reason</th>
+                                <th>State</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {unbanRequests.length === 0 && (
+                                <tr>
+                                    <td colSpan="5">No unban requests found</td>
+                                </tr>
+                            )}
+                            {unbanRequests.map((request) => (
+                                <tr key={request.id}>
+                                    <td>{request.id}</td>
+                                    <td>{request.banId}</td>
+                                    <td>{request.reason}</td>
+                                    <td>{request.state}</td>
+                                    <td>
+                                        <button onClick={() => handleResolveUnbanRequest(request, 0)}>
+                                            Accept
+                                        </button>
+                                        <button onClick={() => handleResolveUnbanRequest(request, 1)}>
+                                            Reject
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </>
+            )}
         </>
     );
 }
