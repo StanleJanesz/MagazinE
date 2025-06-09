@@ -13,7 +13,9 @@ using Microsoft.OpenApi.Models;
 using Microsoft.Data.SqlClient;
 using System;
 using Microsoft.Extensions.Options;
+using Amazon.S3;
 using MagazinEAPI.Controllers;
+
 
 
 
@@ -58,6 +60,18 @@ builder.Services.AddControllers();
 //            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("sdfshdfjhdsfkjsdhfksdjssdjfhsdkjfhdsfjkhdsfjkhdsfkjsdfhkjsdhsdfjkhfskjfhdsjkh"))
 //        };
 //    });
+
+
+builder.Services.AddSingleton<IAmazonS3>(sp =>
+{
+    var config = new AmazonS3Config
+    {
+        ServiceURL = "http://minio:9000",
+        ForcePathStyle = true // required for MinIO
+    };
+
+    return new AmazonS3Client("minioadmin", "minioadmin", config);
+});
 
 builder.Services.AddAuthentication(options =>
 {

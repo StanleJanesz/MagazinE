@@ -9,6 +9,6 @@ namespace SharedLibrary.DTO_Classes
 {
 	public class UnbanRequestDTO : UnbanRequestAbstract
 	{
-
+		public int SolvedById { get; set; } //jakies invalid id jak nie jest rozwiazane
 	}
 }

@@ -10,27 +10,13 @@ import { getTokenFromCookie } from "../../utils";
 import CommentInputBox from "../../Components/Comment/CommentInputBox";
 import { loadStripe } from '@stripe/stripe-js';
 
-/**
- * ArticlePage Component
- *
- * This page displays the full content of a selected article, including its metadata,
- * cover image, and associated user comments. It also provides access to related photos
- * via a gallery button and includes conditional logic for premium content access.
- *
- * TODO:
- * - Add content parsing for bold and italic styles.
- * - Improve error handling and authorization flow.
- * - dynamic displaying comments state change
- *
- * @returns {JSX.Element} Article view component.
- */
-
 function ArticlePage() {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [commentsLoading, setCommentsLoading] = useState(true);
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState("");
+    const [photos, setPhotos] = useState([]);
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const articleId = searchParams.get("id");
@@ -42,7 +28,6 @@ function ArticlePage() {
         const token = getTokenFromCookie();
         setComments([]);
         try {
-            console.log(data.commentsIds);
             const fetchedComments = [];
             for (const commentId of data.commentsIds) {
                 const response = await fetch(`https://localhost:8083/api/Comments/${commentId}`, {
@@ -53,16 +38,12 @@ function ArticlePage() {
                     },
                 });
 
-                // Check if the response is OK
                 if (response.ok) {
                     const commentData = await response.json();
-                    fetchedComments.push(commentData);     
+                    fetchedComments.push(commentData);
                 }
             }
-
-            const uniqueComments = [...new Map(fetchedComments.map((c) => [c.id, c])).values()];
-            setComments(uniqueComments);
-            console.log(comments);
+            setComments(fetchedComments);
         } catch (error) {
             console.error(error);
         }
@@ -74,6 +55,7 @@ function ArticlePage() {
             console.log(token);
             const response = await fetch(`https://localhost:8083/articles/${articleId}`,
             {
+
                 method: 'GET',
                 headers: {
                     "Content-Type": "application/json",
@@ -98,29 +80,37 @@ function ArticlePage() {
             if (!response.ok) {
                 throw new Error(`Failed to fetch article: ${response.status}`);
             }
-
+            
+          // Process photos if they exist
+            if (data.photos && data.photos.length > 0) {
+                const photoUrls = data.photos.map(photoName =>
+                    `https://localhost:8083/api/Photo/${photoName}`
+                );
+              setPhotos(photoUrls);
+            }
             setData(data);
         }
         catch (error) {
             console.log(error);
         }
-
-    }
-
+    };
 
     useEffect(() => {
-        const fetchArticleData = async () => {
+        const loadData = async () => {
             setLoading(true);
             try {
-                await fetchArticle(); // This updates `data` state
+                await fetchArticle();
+                if (data?.commentsIds) {
+                    await fetchComments();
+                }
             } catch (error) {
-                console.error("Error fetching article:", error);
+                console.error("Article load error:", error);
             } finally {
                 setLoading(false);
+                setCommentsLoading(false);
             }
         };
-
-        fetchArticleData();
+        loadData();
     }, [articleId]);
 
     const fetchCommentsData = async () => {
@@ -180,21 +170,23 @@ function ArticlePage() {
             navigate('/subscription-cancel');
         }
     }
+
     const handleCommentSubmit = async () => {
-        if (!newComment.trim()) {
-            alert("Comment cannot be empty");
-            return;
-        }
+        if (!newComment.trim()) return;
+
         const token = getTokenFromCookie();
         if (!token) {
-            alert("You must be logged in to comment.");
             navigate('/login');
             return;
         }
+
         try {
             const response = await fetch(`https://localhost:8083/api/Comments`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
                 body: JSON.stringify({
                     Content: newComment,
                     ArticleId: articleId,
@@ -205,36 +197,41 @@ function ArticlePage() {
                     DislikesCount: 0,
                 }),
             });
-            
-            console.log(response);
+
             if (response.ok) {
-                const newCommentData = await response.json(); 
+                const newCommentData = await response.json();
                 setComments(prev => [newCommentData, ...prev]);
-                setData(prevData => ({
-                    ...prevData,
-                    commentsIds: [newCommentData.id, ...prevData.commentsIds],
-                }));
-                setNewComment("");  // clear textarea on success
+                setNewComment("");
             }
-            await fetchCommentsData();
         } catch (error) {
-            console.error(error);
-            alert("Failed to submit comment. Please try again.");
+            console.error("Comment submission error:", error);
         }
     };
 
+    const openPhotoGallery = () => {
+        if (photos.length > 0) {
+            navigate(`/photos?articleId=${articleId}`);
+        }
+    };
 
-    return (
-        <>
-            {loading ? (
-                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', width: '100%' }} >
-                    <CircularProgress size={60} />
-                </Box >
-            ) :
-                <div className="contentWrapper">
-                    <img src={mini} className="articleCover" alt="Article cover" />
-                    <button className="galleryButton" onClick={() => navigate('/photos?articleId=')}>
-                        <img src={gallery} alt="Gallery Icon" className="icon" /> Show gallery
+    if (loading) {
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', width: '100%' }}>
+                <CircularProgress size={60} />
+            </Box>
+        );
+    }
+
+    if (!data) {
+        return (
+            <div className="paywall">
+                <p>This article is available for premium users only. Subscribe to unlock full access!</p>
+                <div className="ap-buttonContainer">
+                    <button className="subscribeButton" onClick={() => navigate('/subscribe')}>
+                        Subscribe Now
+                    </button>
+                    <button className="subscribeButton" onClick={() => navigate(`/purchase?id=${articleId}`)}>
+                        Purchase only this article
                     </button>
                     <h1>{title}</h1>
                     <h2>Author: {author}</h2>
@@ -297,8 +294,76 @@ function ArticlePage() {
                         </div>
                     )}
                 </div>
-            }
-        </>
+            </div>
+        );
+    }
+
+    return (
+        <div className="contentWrapper">
+            {/* Use first photo as cover if available */}
+            {photos.length > 0 ? (
+                <img
+                    src={photos[0]}
+                    className="articleCover"
+                    alt="Article cover"
+                    onClick={openPhotoGallery}
+                    style={{ cursor: 'pointer' }}
+                />
+            ) : (
+                <img src={mini} className="articleCover" alt="Default article cover" />
+            )}
+
+            {/* Gallery button - only shown if there are photos */}
+            {photos.length > 0 && (
+                <button className="galleryButton" onClick={openPhotoGallery}>
+                    <img src={gallery} alt="Gallery Icon" className="icon" />
+                    Show gallery ({photos.length})
+                </button>
+            )}
+
+            <h1>{data.title}</h1>
+            <h2>Author: {data.author}</h2>
+
+            {/* Simple photo preview - only added element */}
+            {photos.length > 1 && (
+                <div style={{ margin: '20px 0' }}>
+                    <p>This article contains {photos.length} photos</p>
+                </div>
+            )}
+
+            <p>{data.content}</p>
+
+            <div className="commentsSection">
+                <h3>Comments:</h3>
+
+                <CommentInputBox
+                    value={newComment}
+                    onChange={setNewComment}
+                    onSubmit={handleCommentSubmit}
+                    placeholder="Write your comment!"
+                    submitLabel="Submit"
+                />
+
+                {commentsLoading ? (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                        <CircularProgress />
+                    </Box>
+                ) : (
+                    comments.filter(c => c.parentId === null).map(comment => (
+                        <Comment
+                            key={comment.id}
+                            commentId={comment.id}
+                            author={comment.authorEmail}
+                            date={comment.date}
+                            content={comment.content}
+                            likesCount={comment.likesCount}
+                            dislikesCount={comment.dislikesCount}
+                            articleId={articleId}
+                        />
+                    ))
+                )}
+            </div>
+        </div>
     );
 }
 

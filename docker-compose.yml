@@ -3,66 +3,75 @@ version: '3.4'
 services:
   mssql:
     image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: sqlserver_express1   
+    container_name: sqlserver_express1
     environment:
       - ACCEPT_EULA=Y
-      - MSSQL_PID=Express   # Specifies the edition to run as Express
-      - MSSQL_SA_PASSWORD=Pass123Pass123Pass123   # Set the SA (System Administrator) password
+      - MSSQL_PID=Express
+      - MSSQL_SA_PASSWORD=Pass123Pass123Pass123
     ports:
-      - "5434:1433"  # Expose SQL Server port 1433
+      - "5434:1433"
     volumes:
-      - mssql_data:/var/opt/mssql  # Persist database data outside of the container
-      - ./backend/scripts:/scripts  # Mount for SQL scripts
+      - mssql_data:/var/opt/mssql
+      - ./backend/scripts:/scripts
     networks:
-      - mssql_network
+      - app_network
 
   frontend:
     build:
       context: .
       dockerfile: ./WebsiteFrontMagazinE/WebsiteFrontMagazinE.Server/Dockerfile
     ports:
-      - 5173:5173
+      - "5173:5173"
     depends_on:
       - magazineapi
     networks:
-      - mssql_network
- 
+      - app_network
+
   magazineapi:
     build:
-        context: .
-        dockerfile: ./MagazinEAPI/Dockerfile
-        args:
-         - configuration=Debug
+      context: .
+      dockerfile: ./MagazinEAPI/Dockerfile
+      args:
+        - configuration=Debug
     ports:
-        - 8082:8082
-        - 8083:8083
+      - "8082:8082"
+      - "8083:8083"
     environment:
-        - ASPNETCORE_ENVIRONMENT=Development
-        - ASPNETCORE_HTTP_PORTS=8082
-        - ASPNETCORE_HTTPS_PORT=8083
-        - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
-        - ASPNETCORE_Kestrel__Certificates__Default__Password=MySuperSecurePassword
-        - DOTNET_USER_SECRETS=/root/.microsoft/usersecrets
-
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8082
+      - ASPNETCORE_HTTPS_PORT=8083
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=MySuperSecurePassword
+      - DOTNET_USER_SECRETS=/root/.microsoft/usersecrets
     volumes:
-        - ./https:/https:ro
-        - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
-        - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
-
+      - ./https:/https:ro
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
     depends_on:
-        - mssql
+      - mssql
+      - minio
     networks:
-        - mssql_network
+      - app_network
 
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    ports:
+      - "9000:9000"   # S3 API
+      - "9001:9001"   # MinIO Console
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - app_network
 
-       
-
-
-
-   
 volumes:
-  mssql_data: # Named volume to persist data
- 
+  mssql_data:
+  minio_data:
+
 networks:
-  mssql_network:
+  app_network:
     driver: bridge

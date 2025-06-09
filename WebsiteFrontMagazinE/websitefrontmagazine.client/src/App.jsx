@@ -18,6 +18,8 @@ import ErrorPage from './Pages/ErrorPage/ErrorPage.jsx';
 import SubscriptionSuccess from './Pages/SubscriptionRedirectPage/SubscriptionSuccess.jsx';
 import SubscriptionCancel from './Pages/SubscriptionRedirectPage/SubscriptionCancel.jsx';
 import UserProfile from './Pages/UserPage/UserPage.jsx';
+import JournalistPage from './Pages/JournalistPage/JournalistPage.jsx';
+import PhotoGalleryPage from './Pages/Gallery/Gallery.jsx'; 
 
 // Styles imports
 import './App.css';
@@ -42,6 +44,8 @@ function App() {
                         <Route path="/subscription-success" element={<SubscriptionSuccess />} />
                         <Route path="/subscription-cancel" element={<SubscriptionCancel/> }/>
                         <Route path="/user-profile" element={<UserProfile />} />
+                        <Route path="/journalist" element={<JournalistPage />} />
+                        <Route path="/photos" element={<PhotoGalleryPage />} />
                         <Route path="*" element={<ErrorPage/> }/>
                     </Routes>
                 </CSSTransition>
