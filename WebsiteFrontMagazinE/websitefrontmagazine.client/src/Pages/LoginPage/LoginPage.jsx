@@ -79,9 +79,6 @@ function LoginPage() {
                 } else {
                     console.error('Login failed');
                 }
-
-                console.log(content);
-
             }
             catch (error) {
                 console.log(error);

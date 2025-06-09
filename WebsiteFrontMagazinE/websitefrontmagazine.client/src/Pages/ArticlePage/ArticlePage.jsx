@@ -33,6 +33,8 @@ function ArticlePage() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const articleId = searchParams.get("id");
+    const [author, setAuthor] = useState('');
+    const [title, setTitle] = useState('');
 
     const fetchComments = async () => {
         const token = getTokenFromCookie();
@@ -69,25 +71,28 @@ function ArticlePage() {
             const token = getTokenFromCookie();
             console.log(token);
             const response = await fetch(`https://localhost:8083/articles/${articleId}`,
-                {
-                    method: 'GET',
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`, 
-                    },
-                });
-
-            // Not found or bad request
-            if (!response.ok && !response.status === 401) {
-                throw new Error(`Failed to fetch article`);
-            }
-
-            if (response.status === 401) {
-                throw new Error("Unathorized to retrieve article data!");
-                return;
-            }
+            {
+                method: 'GET',
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            });
 
             const data = await response.json();
+            setAuthor(data.Author);
+            setTitle(data.Title);  
+
+            // Handle 401 Unauthorized specifically
+            if (response.status === 401) {
+                throw new Error("Unauthorized to retrieve article data!");
+            }
+
+            // Handle other errors
+            if (!response.ok) {
+                throw new Error(`Failed to fetch article: ${response.status}`);
+            }
+
             setData(data);
         }
         catch (error) {
@@ -185,8 +190,8 @@ function ArticlePage() {
                     <button className="galleryButton" onClick={() => navigate('/photos?articleId=')}>
                         <img src={gallery} alt="Gallery Icon" className="icon" /> Show gallery
                     </button>
-                    <h1>{data.title}</h1>
-                    <h2>Author: {data.author}</h2>
+                    <h1>{title}</h1>
+                    <h2>Author: {author}</h2>
                     {data !== null ? (
                         <>
                             <p>{data.content}</p>
