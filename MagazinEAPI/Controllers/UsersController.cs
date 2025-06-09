@@ -43,7 +43,9 @@ namespace MagazinEAPI.Controllers
                 return this.BadRequest("Email not found");
             }
 
-            var applicationUser = await this.userManager.Users.FirstOrDefaultAsync(u => u.Email == email.Value);
+            var applicationUser = await this.userManager.Users
+                .Include(u => u.User)
+                .FirstOrDefaultAsync(u => u.Email == email.Value);
             if (applicationUser == null)
             {
                 return this.NotFound("User not found");
@@ -54,7 +56,23 @@ namespace MagazinEAPI.Controllers
                 return this.NotFound("User not found");
             }
 
-            return this.Ok(applicationUser.User.ToDTO());
+            var user = await this.context.Readers
+                .Include(u => u.ArticleToReadArticles)
+                .Include(u => u.FavouriteTags)
+                .Include(u => u.Comments)
+                .Include(u => u.ArticleFavoriteArticles)
+                .FirstOrDefaultAsync( u => u.ApplicationUserId == applicationUser.Id);
+
+            if (user == null)
+            {
+                return this.NotFound("User not found");
+            }
+            var dto = user.ToDTO();
+            var likes = await context.Likes.Where(l => l.UserId == user.Id).ToListAsync();
+            var dislikes = await context.Dislikes.Where(l => l.UserId == user.Id).ToListAsync();
+            dto.LikedCommentsIds = likes.Select(l => l.UserId).ToList();
+            dto.UnlikedCommentsIds = dislikes.Select(l => l.UserId).ToList();
+            return this.Ok(dto);
         }
 
         /// <summary>
@@ -71,7 +89,7 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType<UserDTO>(StatusCodes.Status200OK)]
         public async Task<IActionResult> Get([FromRoute] string id)
         {
-            var applicationUser = await this.userManager.Users.FirstOrDefaultAsync(u => u.Id == id);
+            var applicationUser = await this.userManager.Users.Include(u => u.User).FirstOrDefaultAsync(u => u.Id == id);
             if (applicationUser == null)
             {
                 return this.NotFound("User not found");
@@ -104,7 +122,7 @@ namespace MagazinEAPI.Controllers
                 return this.BadRequest("Email not found");
             }
 
-            var applicationUser = await this.userManager.Users.FirstOrDefaultAsync(u => u.Email == email.Value);
+            var applicationUser = await this.userManager.Users.Include(u => u.User).FirstOrDefaultAsync(u => u.Email == email.Value);
             if (applicationUser == null)
             {
                 return this.NotFound("User not found");
@@ -157,7 +175,7 @@ namespace MagazinEAPI.Controllers
                 return this.BadRequest("Email not found");
             }
 
-            var applicationUser = await this.userManager.Users.FirstOrDefaultAsync(u => u.Email == email.Value);
+            var applicationUser = await this.userManager.Users.Include(u => u.User).FirstOrDefaultAsync(u => u.Email == email.Value);
             if (applicationUser == null)
             {
                 return this.NotFound("User not found");
@@ -167,7 +185,7 @@ namespace MagazinEAPI.Controllers
             {
                 return this.NotFound("User not found");
             }
-
+            
             var article = await this.context.Articles.FirstOrDefaultAsync(u => u.Id == id);
 
             if (article == null)
@@ -214,13 +232,24 @@ namespace MagazinEAPI.Controllers
                 return this.BadRequest("Email not found");
             }
 
-            var applicationUser = await this.userManager.Users.FirstOrDefaultAsync(u => u.Email == email.Value);
+            var applicationUser = await this.userManager.Users.Include(u => u.User).FirstOrDefaultAsync(u => u.Email == email.Value);
             if (applicationUser == null)
             {
                 return this.NotFound("User not found");
             }
 
             if (applicationUser.User == null)
+            {
+                return this.NotFound("User not found");
+            }
+            var user = await this.context.Readers
+      .Include(u => u.ToReadArticles)
+      .Include(u => u.FavouriteTags)
+      .Include(u => u.Comments)
+      .Include(u => u.FavoriteArticles)
+      .FirstOrDefaultAsync(u => u.ApplicationUserId == applicationUser.Id);
+
+            if (user == null)
             {
                 return this.NotFound("User not found");
             }
@@ -234,7 +263,7 @@ namespace MagazinEAPI.Controllers
 
             try
             {
-                if (!applicationUser.User.ArticleFavoriteArticles.Remove(article))
+                if (!user.ArticleFavoriteArticles.Remove(article))
                 {
                     return this.BadRequest("Article is not in the to favorite list");
                 }
@@ -271,17 +300,27 @@ namespace MagazinEAPI.Controllers
                 return this.BadRequest("Email not found");
             }
 
-            var applicationUser = await this.userManager.Users.FirstOrDefaultAsync(u => u.Email == email.Value);
+            var applicationUser = await this.userManager.Users.Include(u => u.User).FirstOrDefaultAsync(u => u.Email == email.Value);
             if (applicationUser == null)
             {
-                return this.NotFound("User not found");
+                return this.NotFound("User app not found");
             }
 
             if (applicationUser.User == null)
             {
                 return this.NotFound("User not found");
             }
+            var user = await this.context.Readers
+      .Include(u => u.ToReadArticles)
+      .Include(u => u.FavouriteTags)
+      .Include(u => u.Comments)
+      .Include(u => u.FavoriteArticles)
+      .FirstOrDefaultAsync(u => u.ApplicationUserId == applicationUser.Id);
 
+            if (user == null)
+            {
+                return this.NotFound("User not found");
+            }
             var article = await this.context.Articles.FirstOrDefaultAsync(u => u.Id == id);
 
             if (article == null)
@@ -291,7 +330,7 @@ namespace MagazinEAPI.Controllers
 
             try
             {
-                applicationUser.User.ArticleFavoriteArticles.Add(article);
+                user.ArticleFavoriteArticles.Add(article);
 
                 await this.context.SaveChangesAsync();
 
@@ -301,7 +340,7 @@ namespace MagazinEAPI.Controllers
                 return this.BadRequest(ex.Message);
             }
 
-            var userDTO = applicationUser.User.ToDTO();
+            var userDTO = user.ToDTO();
 
             return this.Ok(userDTO);
         }
@@ -325,7 +364,7 @@ namespace MagazinEAPI.Controllers
                 return this.BadRequest("Email not found");
             }
 
-            var applicationUser = await this.userManager.Users.FirstOrDefaultAsync(u => u.Email == email.Value);
+            var applicationUser = await this.userManager.Users.Include(u => u.User).FirstOrDefaultAsync(u => u.Email == email.Value);
             if (applicationUser == null)
             {
                 return this.NotFound("User not found");
@@ -378,7 +417,7 @@ namespace MagazinEAPI.Controllers
                 return this.BadRequest("Email not found");
             }
 
-            var applicationUser = await this.userManager.Users.FirstOrDefaultAsync(u => u.Email == email.Value);
+            var applicationUser = await this.userManager.Users.Include(u => u.User).FirstOrDefaultAsync(u => u.Email == email.Value);
             if (applicationUser == null)
             {
                 return this.NotFound("User not found");
@@ -434,7 +473,7 @@ namespace MagazinEAPI.Controllers
                 return this.BadRequest("Email not found");
             }
 
-            var applicationUser = await this.userManager.Users.FirstOrDefaultAsync(u => u.Email == email.Value);
+            var applicationUser = await this.userManager.Users.Include(u => u.User).FirstOrDefaultAsync(u => u.Email == email.Value);
             if (applicationUser == null)
             {
                 return this.NotFound("User not found");
@@ -468,7 +507,7 @@ namespace MagazinEAPI.Controllers
                 return this.BadRequest("Email not found");
             }
 
-            var applicationUser = await this.userManager.Users.FirstOrDefaultAsync(u => u.Email == email.Value);
+            var applicationUser = await this.userManager.Users.Include(u => u.User).FirstOrDefaultAsync(u => u.Email == email.Value);
             if (applicationUser == null)
             {
                 return this.NotFound("User not found");
@@ -490,7 +529,7 @@ namespace MagazinEAPI.Controllers
         [ProducesResponseType<ApplicationUserDTO>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetPersonalInfo([FromRoute] int id)
         {
-            var applicationUser = await this.userManager.Users.FirstOrDefaultAsync(u => u.User.Id == id);
+            var applicationUser = await this.userManager.Users.Include(u => u.User).FirstOrDefaultAsync(u => u.User.Id == id);
             if (applicationUser == null)
             {
                 return this.NotFound("User not found");
@@ -518,7 +557,7 @@ namespace MagazinEAPI.Controllers
                 return this.BadRequest("Email not found");
             }
 
-            var applicationUser = await this.userManager.Users.FirstOrDefaultAsync(u => u.Email == email.Value);
+            var applicationUser = await this.userManager.Users.Include(u => u.User).FirstOrDefaultAsync(u => u.Email == email.Value);
             if (applicationUser == null)
             {
                 return this.NotFound("User not found");

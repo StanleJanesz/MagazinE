@@ -344,7 +344,7 @@ namespace MagazinEAPI.Controllers
             var applicationUser = await this.userManager.Users
                 .Include(applicationUser => applicationUser.User)
                 .FirstOrDefaultAsync(u => u.Email == email.Value);
-                
+
             if (applicationUser == null || applicationUser.User == null)
             {
                 return this.BadRequest("User not found");

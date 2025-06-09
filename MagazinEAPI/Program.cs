@@ -13,6 +13,7 @@ using Microsoft.OpenApi.Models;
 using Microsoft.Data.SqlClient;
 using System;
 using Microsoft.Extensions.Options;
+using MagazinEAPI.Controllers;
 
 
 
@@ -90,27 +91,27 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("EditorOnly", policy => policy.RequireRole("Editor"));
 });
 
-
-//dodajemy kontext
+// dodajemy kontext
 var connectionString = builder.Services.AddDbContext<RolesBasedContext>(options =>
-	{
-		options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
-		options => options.EnableRetryOnFailure());
-	});
+    {
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
+        options => options.EnableRetryOnFailure());
+    });
 
 Console.WriteLine(connectionString);
 
-//czyli UserManager<CustomUser> oraz SignInManager<CustomUser> bêd¹ u¿ywa³y ApplicationDbContext
+// czyli UserManager<CustomUser> oraz SignInManager<CustomUser> będą używały ApplicationDbContext
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options => options.SignIn.RequireConfirmedAccount = false)
                             .AddDefaultTokenProviders()
                             .AddEntityFrameworkStores<RolesBasedContext>();
 
-
-//builder.Services.AddControllers();
+// builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Configuration.AddUserSecrets<Program>();
+
+Stripe.StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
 builder.WebHost.ConfigureKestrel(serverOptions =>
 {

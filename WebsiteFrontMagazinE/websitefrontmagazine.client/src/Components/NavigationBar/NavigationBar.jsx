@@ -23,7 +23,10 @@ function NavigationBar() {
                 <Navbar.Brand href="/">MagazinE</Navbar.Brand>
                 <Nav className="ms-auto">
                     {isAuthenticated ? (
-                        <Nav.Link onClick={handleLogout}>Logout</Nav.Link>
+                         
+                        <><Nav.Link href="user-profile">Profile</Nav.Link>
+                            <Nav.Link onClick={handleLogout}>Logout</Nav.Link>
+                        </>
                     ) : (
                         <>
                             <Nav.Link href="login">Login</Nav.Link>
