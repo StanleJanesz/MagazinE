@@ -14,10 +14,12 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="src\Components\Comment\" />
+    <Folder Include="src\Nowy folder\" />
     <Folder Include="src\Pages\EditArticlePage\" />
     <Folder Include="src\Pages\ArticlesJournalistPage\" />
     <Folder Include="src\Pages\AdminPage\" />
     <Folder Include="src\Pages\GeneralEditorPage\" />
     <Folder Include="src\Pages\ErrorPage\" />
+    <Folder Include="src\Pages\SubscriptionRedirectPage\" />
   </ItemGroup>
 </Project>
