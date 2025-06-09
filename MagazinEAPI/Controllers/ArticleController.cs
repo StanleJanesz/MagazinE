@@ -10,6 +10,8 @@
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
     using SharedLibrary.DTO_Classes;
+    using MagazinEAPI.Models.Requests;
+    using static System.Runtime.InteropServices.JavaScript.JSType;
 
     /// <summary>
     /// Controller for managing articles.
@@ -79,6 +81,53 @@
             return this.Ok(article.ToDTO());
         }
 
+        [HttpPost("Publish/{id}")]
+        [Authorize(Roles = "Journalist, Editor")]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType<ArticleDTO>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> Publish([FromRoute] int id)
+        {
+            var article = await this.context.Articles.FirstOrDefaultAsync(a => a.Id == id);
+            if (article == null)
+            {
+                return this.NotFound("Article not found");
+            }
+
+            var email = this.User.FindFirst(ClaimTypes.Email);
+            if (email == null)
+            {
+                return this.BadRequest("Email not found");
+            }
+
+            var applicationUser = await this.userManager.Users.FirstOrDefaultAsync(u => u.Email == email.Value);
+            if (applicationUser == null)
+            {
+                return this.BadRequest("User not found");
+            }
+
+
+            try
+            {
+                article.PublishRequests.Add(new PublishRequest {
+                    Article = article,
+                    Date = DateTime.Now,
+                    ArticleId = article.Id,
+                    PublishState = SharedLibrary.Base_Classes___Database.PublishState.WaitingForEditor,
+                });
+                this.context.Articles.Update(article);
+                await this.context.SaveChangesAsync();
+
+            }
+            catch
+            {
+                return this.BadRequest("Publishing article failed");
+            }
+
+            return this.Ok();
+        }
         /// <summary>
         /// Changes the article.
         /// For Journalist and Editor roles.
@@ -248,7 +297,7 @@
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status201Created)]
-        public async Task<IActionResult> Post([FromQuery]ArticleDTO articleDTO)
+        public async Task<IActionResult> Post([FromBody] ArticleDTO articleDTO)
 
         // content can be empty will be added later,Title is oblligatory,  email of author is taken from token
         // also could consider adding from only string title as other can be included later using put

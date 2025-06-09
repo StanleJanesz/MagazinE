@@ -16,11 +16,11 @@ import AdminPage from './Pages/AdminPage/AdminPage.jsx';
 import GeneralEditorPage from './Pages/GeneralEditorPage/GeneralEditorPage.jsx';
 import ErrorPage from './Pages/ErrorPage/ErrorPage.jsx';
 import UserProfile from './Pages/UserPage/UserPage.jsx';
-
+import JournalistPage from './Pages/JournalistPage/JournalistPage.jsx';
 // Styles imports
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-
+ 
 
 function App() {
     return (
@@ -38,7 +38,7 @@ function App() {
                         <Route path="/general-editor" element={<GeneralEditorPage />} />
                         <Route path="/admin-requests" element={<AdminPage />} />
                         <Route path="/user-profile" element={<UserProfile />} />
-                        
+                        <Route path="/journalist" element={<JournalistPage />} />
                         <Route path="*" element={<ErrorPage/> }/>
                     </Routes>
                 </CSSTransition>
