@@ -191,6 +191,8 @@ namespace MagazinEAPI.utils.SeedCreators
             {
                 Id = ReaderId,
                 UserName = "reader",
+                FirstName = "Grzegorz",
+                LastName = "Brzęczyszczykiewicz",
                 Email = "reader@example.com",
                 NormalizedEmail = "reader@example.com".ToUpper(),
                 NormalizedUserName = "reader".ToUpper(),

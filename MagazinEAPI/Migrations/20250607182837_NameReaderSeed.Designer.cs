@@ -4,6 +4,7 @@ using MagazinEAPI.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MagazinEAPI.Migrations
 {
     [DbContext(typeof(RolesBasedContext))]
-    partial class RolesBasedContextModelSnapshot : ModelSnapshot
+    [Migration("20250607182837_NameReaderSeed")]
+    partial class NameReaderSeed
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -531,7 +534,6 @@ namespace MagazinEAPI.Migrations
                             Date = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsDeleted = false
                         });
-
                 });
 
             modelBuilder.Entity("MagazinEAPI.Models.Articles.Comment.CommentReport", b =>

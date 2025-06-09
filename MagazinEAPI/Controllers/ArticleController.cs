@@ -73,7 +73,11 @@
 
             if (!article.CanBeViewedBy(applicationUser, this.context, this.userManager))
             {
-                return this.Unauthorized("User cannot view this article");
+                return this.Unauthorized(new
+                {
+                    Title = article.Title,
+                    Author = article.Author.ApplicationUser.FirstName + " " + article.Author.ApplicationUser.LastName,
+                });
             }
 
             return this.Ok(article.ToDTO());
@@ -219,8 +223,8 @@
 
                 articles = await this.context.Articles
                     .Where(a => a.isPublished)
-                   // .Where( a => articlesRequestDTO.Tags.All(t => a.Tags.Any(tag => tag.Id == t))) // dont know what kinds of filters will be used
-                   // .Where(a => articlesRequestDTO.Authors.Any(author => a.Author.Id == author))  // dont know what kinds of filters will be used
+                    .Where( a => articlesRequestDTO.Tags == null || articlesRequestDTO.Tags.Count() == 0 || articlesRequestDTO.Tags.All(t =>  a.Tags.Any(tag => tag.Id == t))) // dont know what kinds of filters will be used
+                    .Where(a => articlesRequestDTO.Title == null || articlesRequestDTO.Title.Count() == 0 || a.Title.ToLower().IndexOf(articlesRequestDTO.Title) >= 0)
                    .OrderBy(a => a.TimeOfPublication) // TODO: decide which order will be default
                    .Skip(skip)
                    .Include(a => a.Tags)

@@ -6,7 +6,6 @@ import GoogleButton from 'react-google-button';
 import Form from 'react-bootstrap/Form';
 import { getTokenFromCookie, saveTokenToCookie } from "../../utils";
 
-
 /**
  * LoginPage Component
  * Renders a login form with email/password and Google OAuth options.
@@ -43,6 +42,7 @@ function LoginPage() {
         return () => clearInterval(interval);
     }, [loginSuccess, navigate]);
 
+
     useEffect(() => {
         // Parse the token from the URL after redirection
 
@@ -53,7 +53,6 @@ function LoginPage() {
             console.log('Google login successful and token saved');
         }
     }, []);
-
 
 
     const Login = async () => {
@@ -141,8 +140,6 @@ function LoginPage() {
         //    console.error("Error during Google login:", error);
         //}
     };
-
-
 
 
     return (

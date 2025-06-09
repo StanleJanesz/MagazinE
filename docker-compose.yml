@@ -42,9 +42,13 @@ services:
         - ASPNETCORE_HTTPS_PORT=8083
         - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
         - ASPNETCORE_Kestrel__Certificates__Default__Password=MySuperSecurePassword
+        - DOTNET_USER_SECRETS=/root/.microsoft/usersecrets
+
     volumes:
         - ./https:/https:ro
         - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+        - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+
     depends_on:
         - mssql
     networks:

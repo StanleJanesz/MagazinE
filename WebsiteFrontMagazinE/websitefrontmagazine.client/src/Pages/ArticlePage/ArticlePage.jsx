@@ -159,6 +159,10 @@ function ArticlePage() {
             if (response.ok) {
                 const newCommentData = await response.json(); 
                 setComments(prev => [newCommentData, ...prev]);
+                setData(prevData => ({
+                    ...prevData,
+                    commentsIds: [newCommentData.id, ...prevData.commentsIds],
+                }));
                 setNewComment("");  // clear textarea on success
             }
             await fetchCommentsData();
